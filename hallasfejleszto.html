@@ -1,0 +1,1063 @@
+<!DOCTYPE html>
+<html lang="en" translate="no" class="notranslate">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="google" content="notranslate">
+    <title>Akíra Piano Academy | Workstation - Ear Train</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --rack-bg: #1a1a1d;
+            --rack-border: #2a2a2d;
+            --btn-dark: #101012;
+            --btn-border: #050505;
+            --text-dim: #555;
+            --lcd-bg-dark: #111211;
+            --lcd-label-color: #557799;
+            --oled-text: #b3e6ff;
+        }
+
+        body {
+            font-family: 'Inter', sans-serif; background: #000;
+            margin: 0; padding: 0; height: 100vh; overflow: hidden;
+            display: flex; flex-direction: column; justify-content: space-between; color: #fff;
+            -webkit-user-select: none; user-select: none;
+        }
+
+        /* ── KOTTA ── */
+        .sheet-container {
+            flex-grow: 1; display: flex; align-items: center; justify-content: center;
+            padding: 10px 20px; width: 100%; box-sizing: border-box; overflow: visible;
+        }
+        .sheet-viewport {
+            width: 100%; max-width: 2450px; aspect-ratio: 2450 / 480; position: relative; overflow: hidden;
+            background: transparent; border: none;
+        }
+        .sheet-image { width: 100%; height: 100%; object-fit: contain; z-index: 1; position: absolute; opacity: 0.35; pointer-events: none; }
+        #staffCanvas { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 10; pointer-events: none; }
+
+        /* ── WORKSTATION CHASSIS ── */
+        .lower-section { width: 100%; display: flex; flex-direction: column; align-items: center; flex-shrink: 0; }
+        .workstation-chassis {
+            display: flex; width: 100%; max-width: 2560px; position: relative;
+            box-shadow: 0 -10px 40px rgba(0,0,0,0.9); border-radius: 6px 6px 0 0; background: var(--rack-bg);
+        }
+        .wood-cheek { width: 24px; background: linear-gradient(to right, #3a1c0d, #1a0c05); box-shadow: inset 1px 0 2px rgba(255,255,255,0.1), inset -2px 0 5px rgba(0,0,0,0.8); border-radius: 6px 0 0 0; z-index: 10; }
+        .wood-cheek.right { border-radius: 0 6px 0 0; background: linear-gradient(to left, #3a1c0d, #1a0c05); }
+        .synth-core { flex-grow: 1; display: flex; flex-direction: column; position: relative; }
+
+        /* ── INFO SÁV ── */
+        .info-bar-integrated {
+            width: 100%; height: 45px; background-color: var(--lcd-bg-dark); border-bottom: 2px solid #080808;
+            display: flex; align-items: center; justify-content: center; z-index: 10;
+            box-shadow: inset 0 3px 10px rgba(0,0,0,0.9);
+        }
+        .info-bar-text {
+            font-family: 'Share Tech Mono', monospace; font-size: 20px; font-weight: bold;
+            color: var(--oled-text); text-transform: uppercase; letter-spacing: 3px; transition: color 0.2s;
+        }
+        .info-bar-text.hint-higher { color: #ffcc44; }
+        .info-bar-text.hint-lower  { color: #ff8844; }
+        .info-bar-text.hint-correct { color: #66ff99; }
+        .info-bar-text.hint-wrong  { color: #ff5544; }
+
+        /* ── MIXER OVERLAY ── */
+        .settings-bar {
+            position: absolute; bottom: 100%; left: 0; width: 100%; height: 85px; background: var(--lcd-bg-dark);
+            display: none; align-items: center; justify-content: space-around; z-index: 50;
+            border-top: 2px solid #333; box-shadow: 0 -10px 30px #000; padding: 0 20px; box-sizing: border-box;
+        }
+        .settings-control { display: flex; flex-direction: column; align-items: center; gap: 8px; width: 150px; }
+        .settings-control label { font-size: 11px; color: var(--lcd-label-color); font-family: 'Share Tech Mono'; cursor: pointer; text-transform: uppercase; font-weight: bold; }
+        .settings-control input[type="range"] { -webkit-appearance: none; width: 100%; height: 6px; background: #111; border-radius: 3px; outline: none; cursor: pointer; }
+        .settings-control input[type="range"]::-webkit-slider-thumb { -webkit-appearance: none; width: 14px; height: 20px; background: #888; border: 1px solid #111; border-radius: 2px; cursor: grab; }
+
+        /* ── MASTER DASHBOARD ── */
+        .master-dashboard {
+            display: flex; justify-content: space-between; align-items: center;
+            background-image: linear-gradient(rgba(255,255,255,0.02) 1px, transparent 1px);
+            background-size: 100% 3px;
+            padding: 25px 30px; border-top: 1px solid #333; position: relative; width: 100%; box-sizing: border-box;
+        }
+        .dashboard-logo { position: absolute; top: -35px; left: 30px; z-index: 5; pointer-events: none; }
+        .control-group { display: flex; align-items: center; gap: 8px; z-index: 10; }
+
+        .hardware-btn {
+            width: 95px; height: 38px; background-color: var(--btn-dark); color: var(--text-dim);
+            border: 1px solid var(--btn-border); border-radius: 3px; cursor: pointer;
+            font-weight: 700; font-size: 12px; text-transform: uppercase; display: flex; align-items: center; justify-content: center; text-decoration: none;
+            box-shadow: 0 3px 0 #000; transition: transform 0.1s;
+        }
+        .hardware-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #000; }
+        .hardware-btn.active { color: #ffffff; background-color: #121214; }
+        /* start-split handles btnStart styling */
+
+        /* ── CENTER CONSOLE ── */
+        .center-console { flex: 1; display: flex; justify-content: center; }
+        .lcd-arrow-wrapper { display: flex; flex-direction: column; align-items: center; width: 620px; }
+        .arrow-row { display: flex; width: 100%; justify-content: space-around; margin: 4px 0; }
+        .nav-disk-btn { width: 22px; height: 22px; background: #222; border: 1px solid #111; border-radius: 50%; color: #888; font-size: 9px; cursor: pointer; display: flex; align-items: center; justify-content: center; box-shadow: 0 2px 2px rgba(0,0,0,0.6); transition: 0.1s; }
+        .nav-disk-btn:active { transform: translateY(2px); }
+
+        /* KIS NÉGYZETES GOMBOK (Info + Lang) */
+        .sq-btn {
+            width: 38px; height: 38px; background-color: var(--btn-dark); color: #444;
+            border: 1px solid var(--btn-border); border-radius: 3px; cursor: pointer;
+            font-size: 16px; display: flex; align-items: center; justify-content: center;
+            box-shadow: 0 3px 0 #000; transition: transform 0.1s, color 0.15s; flex-shrink: 0;
+        }
+        .sq-btn:active { transform: translateY(2px); box-shadow: 0 0 0 #000; }
+        .sq-btn.active { color: #ffffff; background-color: #121214; }
+
+        .lang-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; }
+        .lang-split button { flex:1; background:transparent; border:none; cursor:pointer; font-weight:700; font-size:11px; font-family:'Inter',sans-serif; color:var(--text-dim); }
+        .lang-split button.active { color:#fff; }
+        .lang-split button:active { background:rgba(255,255,255,0.05); }
+        .lang-divider { height:1px; width:100%; background:#222; }
+        .clef-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; cursor:pointer; padding:0; align-items:center; transition:transform 0.1s; }
+        .clef-split:active { transform: translateY(2px); box-shadow: 0 0 0 #000; }
+        .clef-split span { flex:1; display:flex; align-items:center; justify-content:center; color:#444; transition:color 0.15s; }
+        .clef-split span.active { color:#fff; }
+        .clef-divider { height:1px; width:100%; background:#222; flex-shrink:0; }
+        body.help-mode-active, body.help-mode-active * { cursor: help !important; }
+
+        /* INFO MODAL — nagyobb betűk */
+        .info-modal-content { max-width: 680px; text-align: left; }
+        .info-modal-content .modal-title { text-align: center; font-size: 18px; }
+        .info-section { margin-bottom: 22px; }
+        .info-section-title { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: var(--lcd-label-color); text-transform: uppercase; letter-spacing: 2px; font-weight: bold; margin-bottom: 10px; border-bottom: 1px solid #222; padding-bottom: 6px; }
+        .info-section p { font-size: 15px; color: #aaa; line-height: 1.7; margin: 0 0 6px; font-family: 'Inter', sans-serif; }
+        .info-section p strong { color: var(--oled-text); font-weight: 700; }
+        .info-row { display: flex; gap: 12px; margin-bottom: 8px; align-items: baseline; }
+        .info-tag { font-family: 'Share Tech Mono', monospace; font-size: 12px; color: #555; background: #111; border: 1px solid #222; border-radius: 3px; padding: 2px 9px; white-space: nowrap; flex-shrink: 0; min-width: 90px; text-align: center; }
+        .info-desc { font-size: 14px; color: #999; font-family: 'Inter', sans-serif; line-height: 1.6; }
+
+        .oled-wrapper { background: #111; padding: 2px; border-radius: 4px; width: 100%; box-sizing: border-box; }
+        .oled-screen { background: var(--lcd-bg-dark); border: 2px solid #222; border-radius: 2px; display: flex; box-shadow: inset 0 3px 8px rgba(0,0,0,0.9); overflow: hidden; }
+        .oled-section { flex: 1; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 10px 0; cursor: pointer; }
+        .oled-divider { width: 1px; background: rgba(255,255,255,0.05); margin: 5px 0; }
+        .oled-header { font-size: 11px; color: var(--lcd-label-color); font-family: 'Share Tech Mono'; text-transform: uppercase; font-weight: bold; margin-bottom: 2px; }
+        .oled-main { font-size: 20px; color: var(--oled-text); font-family: 'Share Tech Mono'; font-weight: bold; text-transform: uppercase; }
+
+        /* ── ZONGORA ── */
+        .piano-crop-wrapper { width: 100%; position: relative; aspect-ratio: 2500/248; background: #000; overflow: visible; border-top: 2px solid #000; }
+        .piano-inner { width: 100%; aspect-ratio: 2500/284; position: absolute; top: 0; left: 0; }
+        .piano-img { width: 100%; height: 100%; display: block; filter: grayscale(100%); pointer-events: none; }
+        .hitbox-layer { position: absolute; top: 0; left: 0; width: 100%; height: 100%; z-index: 100; }
+        .key-glow { position: absolute; top: 0; cursor: pointer; }
+        .key-glow.pressed::after { content: ''; position: absolute; pointer-events: none; z-index: 150; top: 0; left: 0; width: 100%; height: 100%; border-radius: 0 0 4px 4px; background: rgba(0,0,0,0.11); box-shadow: inset 6px 0 10px -2px rgba(0,0,0,0.6); }
+        .black-glow.pressed::after { top: 6px; left: 25%; width: 50%; height: 77%; border-radius: 2px; background: rgba(255,255,255,0.36); z-index: 40; }
+        .key-led { position: absolute; top: -22px; left: 50%; transform: translateX(-50%); width: 8px; height: 8px; border-radius: 50%; background-color: var(--oled-text); opacity: 0; transition: opacity 0.2s; pointer-events: none; z-index: 9999; }
+        .key-glow.ear-hint .key-led { opacity: 1; }
+
+        /* ── MODÁLIS ABLAKOK ── */
+        .modal-overlay { display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.88); z-index: 10000; justify-content: center; align-items: center; }
+        .modal-content { background: var(--rack-bg); padding: 30px; border: 2px solid var(--rack-border); border-radius: 6px; text-align: center; max-width: 520px; width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,1); }
+        .modal-title { color: #aaa; text-transform: uppercase; letter-spacing: 2px; font-weight: 800; font-size: 16px; margin-top: 0; margin-bottom: 15px; border-bottom: 2px solid #111; padding-bottom: 15px; }
+        .modal-result-pct { font-family: 'Share Tech Mono'; font-size: 56px; color: var(--oled-text); font-weight: bold; margin: 5px 0; }
+        .modal-stats-row { display: flex; justify-content: center; gap: 30px; margin: 15px 0; }
+        .modal-stat { display: flex; flex-direction: column; align-items: center; gap: 3px; }
+        .modal-stat-label { font-size: 10px; color: var(--lcd-label-color); font-family: 'Share Tech Mono'; text-transform: uppercase; letter-spacing: 1px; }
+        .modal-stat-value { font-family: 'Share Tech Mono'; font-size: 22px; color: var(--oled-text); }
+        .modal-msg { font-size: 13px; color: #777; line-height: 1.6; margin: 15px 0 25px; font-family: 'Inter', sans-serif; background: #111; border-left: 4px solid #333; padding: 12px 15px; text-align: left; border-radius: 0 4px 4px 0; }
+        .modal-btn { background-color: var(--btn-dark); color: #aaa; border: 1px solid var(--btn-border); border-radius: 4px; font-weight: 800; cursor: pointer; text-transform: uppercase; font-size: 14px; padding: 12px 40px; box-shadow: 0 3px 0 #000; transition: 0.1s; letter-spacing: 1px; }
+        .modal-btn:active { transform: translateY(3px); box-shadow: 0 0 0 #000; }
+
+        body.help-mode-active { cursor: help; } body.help-mode-active * { cursor: help !important; }
+    </style>
+</head>
+<body>
+
+    <!-- RESULT MODAL -->
+    <div id="resultModal" class="modal-overlay">
+        <div class="modal-content">
+            <h2 class="modal-title" id="txt-roundComplete">Round Complete</h2>
+            <div id="resPercent" class="modal-result-pct">0%</div>
+            <div class="modal-stats-row">
+                <div class="modal-stat">
+                    <div class="modal-stat-label" id="txt-correct">Correct</div>
+                    <div id="resOk" class="modal-stat-value" style="color:#66ff99;">0</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label" id="txt-wrong">Wrong</div>
+                    <div id="resBad" class="modal-stat-value" style="color:#ff5544;">0</div>
+                </div>
+                <div class="modal-stat">
+                    <div class="modal-stat-label" id="txt-timerLabel">Timer</div>
+                    <div id="resTimer" class="modal-stat-value">10s</div>
+                </div>
+            </div>
+            <div id="resMessage" class="modal-msg"></div>
+            <button class="modal-btn" id="txt-nextRound" onclick="closeResult()">Next Round</button>
+        </div>
+    </div>
+
+    <!-- INFO MODAL -->
+    <div id="infoModal" class="modal-overlay">
+        <div class="modal-content info-modal-content">
+            <h2 class="modal-title" id="txt-infoTitle">Ear Train — Module Guide</h2>
+            <div class="info-section">
+                <div class="info-section-title" id="txt-howTitle">How It Works</div>
+                <p id="txt-howBody">Eight notes appear on the staff as <strong>?</strong> symbols. The synthesizer plays each note — your task is to identify it and press the correct key on the piano. The faster and more accurately you respond, the higher your score.</p>
+            </div>
+            <div class="info-section">
+                <div class="info-section-title" id="txt-feedTitle">Feedback System</div>
+                <div class="info-row"><span class="info-tag" style="color:#66ff99;">CORRECT</span><span class="info-desc" id="txt-feed1">The note lights up green on the staff and the exercise advances automatically.</span></div>
+                <div class="info-row"><span class="info-tag" style="color:#ffcc44;">HIGHER ↑</span><span class="info-desc" id="txt-feed2">Your note was too low — the target is higher on the keyboard.</span></div>
+                <div class="info-row"><span class="info-tag" style="color:#ff8844;">LOWER ↓</span><span class="info-desc" id="txt-feed3">Your note was too high — the target is lower on the keyboard.</span></div>
+                <div class="info-row"><span class="info-tag" style="color:#ff5544;">TIME UP</span><span class="info-desc" id="txt-feed4">Timer expired. The note is revealed in red and counts as a miss.</span></div>
+            </div>
+            <div class="info-section">
+                <div class="info-section-title" id="txt-ctrlTitle">Controls</div>
+                <div class="info-row" style="align-items:center;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:90px;display:flex;justify-content:center;color:#555;font-size:14px;">𝄞 / 𝄢</div><span class="info-desc" id="txt-ctrl1">Toggle Treble clef (C4–G5) and Bass clef (F2–C4) note pools.</span></div>
+                <div class="info-row" style="align-items:center;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:90px;display:flex;justify-content:center;color:#555;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><span class="info-desc" id="txt-ctrl2x">Cycles through: 1× note names on staff, 2× + key LED highlights, 3× all off.</span></div>
+                <div class="info-row" style="align-items:center;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:90px;display:flex;justify-content:center;color:#555;font-family:'Share Tech Mono';font-size:18px;font-weight:bold;">♯</div><span class="info-desc" id="txt-ctrl2">Adds black key notes (sharps/flats) to the pool — significantly harder.</span></div>
+                <div class="info-row" style="align-items:center;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:90px;display:flex;justify-content:center;color:#555;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="11 5 6 9 2 5"/><path d="M6 9v6a6 6 0 0 0 12 0v-2"/></svg></div><span class="info-desc" id="txt-ctrl4">Replays the current note's sound without penalty.</span></div>
+                <div class="info-row"><span class="info-tag">Timer ▲▼</span><span class="info-desc" id="txt-ctrl5">Adjust seconds per note (3–15s). Cannot be changed during a session.</span></div>
+            </div>
+            <div class="info-section">
+                <div class="info-section-title" id="txt-progTitle">Progression</div>
+                <p id="txt-progBody">Score <strong>100%</strong> on a round to automatically drop the timer by one step — making the next round harder. Reach 3 seconds per note for maximum difficulty.</p>
+            </div>
+            <button class="modal-btn" onclick="document.getElementById('infoModal').style.display='none'" id="txt-gotIt">Got It</button>
+        </div>
+    </div>
+
+    <!-- KOTTA -->
+    <div class="sheet-container">
+        <div class="sheet-viewport">
+            <img src="kottavonal_feher.png" class="sheet-image" id="sheetBg">
+            <canvas id="staffCanvas" width="2450" height="480"></canvas>
+        </div>
+    </div>
+
+    <!-- WORKSTATION CHASSIS -->
+    <div class="lower-section">
+        <div class="workstation-chassis">
+            <div class="wood-cheek"></div>
+            <div class="synth-core">
+
+                <!-- INFO SÁV -->
+                <div class="info-bar-integrated">
+                    <div id="infoBarText" class="info-bar-text">SYSTEM READY — PRESS START TO BEGIN</div>
+                </div>
+
+                <!-- MASTER DASHBOARD -->
+                <div class="master-dashboard">
+                    <div class="dashboard-logo">
+                        <svg viewBox="0 0 300 40" style="height:25px; filter:drop-shadow(0 2px 2px rgba(0,0,0,0.8));">
+                            <text x="60" y="30" fill="#666" font-family="'Inter',sans-serif" font-weight="800" font-size="32" text-anchor="end">AK</text>
+                            <path d="M 64 30 L 72 30 L 72 12 L 68 12 L 68 0 L 64 0 Z" fill="#555"/>
+                            <text x="76" y="30" fill="#666" font-family="'Inter',sans-serif" font-weight="800" font-size="32" text-anchor="start">RA</text>
+                            <text x="135" y="28" fill="#444" font-family="'Inter',sans-serif" font-weight="600" font-size="14" letter-spacing="3">WORKSTATION</text>
+                        </svg>
+                    </div>
+
+                    <!-- BAL — Home + Clef + Eye(3-state) + Chromatic + Replay -->
+                    <div class="control-group">
+                        <a id="btnHome" href="index.html" class="sq-btn" style="text-decoration:none;" data-help="HOME: RETURN TO MAIN MODULE MENU">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
+                        </a>
+                        <button id="btnClef" class="clef-split" onclick="if(!helpActive) cycleClef()" data-help="CLEF: CYCLES THROUGH — TREBLE + BASS / TREBLE ONLY / BASS ONLY">
+                            <span id="clefRH" class="active" style="font-size:28px;">𝄞</span>
+                            <div class="clef-divider"></div>
+                            <span id="clefLH" class="active" style="font-size:22px;">𝄢</span>
+                        </button>
+                        <button id="btnHints" class="sq-btn" onclick="if(!helpActive) cycleHints()" data-help="HINTS: 1× NOTE NAMES | 2× + KEY LEDS | 3× OFF">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                        </button>
+                        <button id="btnAcc" class="sq-btn" onclick="if(!helpActive) toggleAccidentals()" data-help="CHROMATIC: ADD BLACK KEY NOTES (SHARPS/FLATS) TO THE POOL">
+                            <span style="font-family:'Share Tech Mono';font-size:18px;font-weight:bold;">♯</span>
+                        </button>
+                        <button id="btnRepeat" class="sq-btn" onclick="if(!helpActive) repeatNote()" data-help="REPLAY: PLAY THE CURRENT NOTE AGAIN">
+                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="11 5 6 9 2 5"/><path d="M6 9v6a6 6 0 0 0 12 0v-2"/></svg>
+                        </button>
+                    </div>
+
+                    <!-- KÖZÉP: START + OLED -->
+                    <div class="center-console">
+                        <div style="display:flex; align-items:center; gap:32px;">
+                            <button id="btnStart" class="hardware-btn" onclick="if(!helpActive) handleMainButton()" data-help="START/STOP: BEGIN OR END THE EAR TRAINING SESSION" style="width:80px;font-size:14px;font-weight:800;letter-spacing:2px;">START</button>
+                            <div class="lcd-arrow-wrapper">
+                                <div class="arrow-row">
+                                    <button class="nav-disk-btn" onclick="if(!helpActive) cycleModule(-1)">▲</button>
+                                    <button class="nav-disk-btn" onclick="if(!helpActive) cycleTimer(1)" data-help="TIMER: INCREASE TIME LIMIT">▲</button>
+                                    <button class="nav-disk-btn" style="opacity:0;pointer-events:none;">▲</button>
+                                    <button class="nav-disk-btn" style="opacity:0;pointer-events:none;">▲</button>
+                                </div>
+                                <div class="oled-wrapper">
+                                    <div class="oled-screen">
+                                        <div id="oledModule" class="oled-section" onclick="if(!helpActive) loadModule()" data-help="MODULE: CLICK TO NAVIGATE TO ANOTHER MODULE">
+                                            <div class="oled-header">Module</div>
+                                            <div class="oled-main" id="lcdModuleText">EAR TRAIN</div>
+                                        </div>
+                                        <div class="oled-divider"></div>
+                                        <div id="oledTimer" class="oled-section" onclick="if(!helpActive) cycleTimer(1)" data-help="TIMER: SECONDS PER NOTE — REACH 100% TO SPEED UP AUTOMATICALLY">
+                                            <div class="oled-header">Timer</div>
+                                            <div class="oled-main" id="lcdTimer">10 SEC</div>
+                                        </div>
+                                        <div class="oled-divider"></div>
+                                        <div id="oledProgress" class="oled-section" data-help="PROGRESS: CURRENT NOTE IN THE 10-NOTE ROUND">
+                                            <div class="oled-header">Progress</div>
+                                            <div class="oled-main" id="lcdProgress">0 / 10</div>
+                                        </div>
+                                        <div class="oled-divider"></div>
+                                        <div id="oledScore" class="oled-section" data-help="SCORE: CORRECT HITS / MISTAKES THIS ROUND">
+                                            <div class="oled-header">Hit / Miss</div>
+                                            <div class="oled-main" id="lcdScore">0 / 0</div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="arrow-row">
+                                    <button class="nav-disk-btn" onclick="if(!helpActive) cycleModule(1)">▼</button>
+                                    <button class="nav-disk-btn" onclick="if(!helpActive) cycleTimer(-1)" data-help="TIMER: DECREASE TIME LIMIT">▼</button>
+                                    <button class="nav-disk-btn" style="opacity:0;pointer-events:none;">▼</button>
+                                    <button class="nav-disk-btn" style="opacity:0;pointer-events:none;">▼</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- JOBB — Audio + Fullscreen + ?/ⓘ + EN/HU -->
+                    <div class="control-group">
+                        <button id="audioToggle" class="sq-btn active" onclick="if(!helpActive) toggleAudio()" data-help="PIANO AUDIO: TOGGLE INTERNAL SYNTH">
+                            <svg width="22" height="22" viewBox="0 0 24 24"><rect x="2" y="3" width="20" height="18" rx="1" fill="currentColor" opacity="0.7"/><rect x="5.5" y="3" width="4" height="11" rx="0.5" fill="#1a1a1d"/><rect x="14.5" y="3" width="4" height="11" rx="0.5" fill="#1a1a1d"/><line x1="9" y1="14" x2="9" y2="21" stroke="#1a1a1d" stroke-width="1.2"/><line x1="15" y1="14" x2="15" y2="21" stroke="#1a1a1d" stroke-width="1.2"/></svg>
+                        </button>
+                        <button id="btnFullscreen" class="sq-btn" onclick="if(!helpActive) toggleFullScreen()" data-help="FULLSCREEN MODE — PRESS AGAIN TO EXIT">
+                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/><line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/></svg>
+                        </button>
+                        <div style="display:flex;flex-direction:column;width:38px;height:76px;background:var(--btn-dark);border:1px solid var(--btn-border);border-radius:3px;box-shadow:0 3px 0 #000;overflow:hidden;">
+                            <button id="btnHelp" onclick="toggleHelp()" data-help="HELP: CLICK ANY ELEMENT TO READ ITS DESCRIPTION" style="flex:1;background:transparent;border:none;cursor:pointer;color:#444;font-size:22px;font-family:'Inter',sans-serif;display:flex;align-items:center;justify-content:center;transition:color 0.15s;">?</button>
+                            <div style="height:1px;background:#222;"></div>
+                            <button id="btnInfo" onclick="if(!helpActive) document.getElementById('infoModal').style.display='flex'" data-help="INFO: OPEN MODULE GUIDE" style="flex:1;background:transparent;border:none;cursor:pointer;color:#444;display:flex;align-items:center;justify-content:center;transition:color 0.15s;">
+                                <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"><circle cx="12" cy="12" r="10"/><line x1="12" y1="7" x2="12" y2="7" stroke-width="3"/><line x1="12" y1="11" x2="12" y2="17" stroke-width="3"/></svg>
+                            </button>
+                        </div>
+                        <div class="lang-split">
+                            <button id="btnLangEN" onclick="if(!helpActive) setLang('EN')" class="active">EN</button>
+                            <div class="lang-divider"></div>
+                            <button id="btnLangHU" onclick="if(!helpActive) setLang('HU')">HU</button>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ZONGORA -->
+                <div class="piano-crop-wrapper">
+                    <div class="piano-inner">
+                        <img src="grandpiano-keys.png" class="piano-img">
+                        <div id="hb-wrap" class="hitbox-layer"></div>
+                    </div>
+                </div>
+
+            </div>
+            <div class="wood-cheek right"></div>
+        </div>
+    </div>
+
+<script>
+    // ── NOTE POOL ──
+    // Treble: C4–G5 diatonikus (+ kromatikus opció)
+    // Bass:   F2–C4 diatonikus (+ kromatikus opció)
+    const TREBLE_NOTES = [
+        {midi:60, n:'C4', off:-6, s:'', clef:'treble'},
+        {midi:62, n:'D4', off:-5, s:'', clef:'treble'},
+        {midi:64, n:'E4', off:-4, s:'', clef:'treble'},
+        {midi:65, n:'F4', off:-3, s:'', clef:'treble'},
+        {midi:67, n:'G4', off:-2, s:'', clef:'treble'},
+        {midi:69, n:'A4', off:-1, s:'', clef:'treble'},
+        {midi:71, n:'H4', off:0,  s:'', clef:'treble'},
+        {midi:72, n:'C5', off:1,  s:'', clef:'treble'},
+        {midi:74, n:'D5', off:2,  s:'', clef:'treble'},
+        {midi:76, n:'E5', off:3,  s:'', clef:'treble'},
+        {midi:77, n:'F5', off:4,  s:'', clef:'treble'},
+        {midi:79, n:'G5', off:5,  s:'', clef:'treble'},
+    ];
+    const TREBLE_CHROMATIC = [
+        {midi:61, n:'C#4', off:-6, s:'♯', clef:'treble'},
+        {midi:63, n:'D#4', off:-5, s:'♯', clef:'treble'},
+        {midi:66, n:'F#4', off:-3, s:'♯', clef:'treble'},
+        {midi:68, n:'G#4', off:-2, s:'♯', clef:'treble'},
+        {midi:70, n:'A#4', off:-1, s:'♯', clef:'treble'},
+        {midi:73, n:'C#5', off:1,  s:'♯', clef:'treble'},
+        {midi:75, n:'D#5', off:2,  s:'♯', clef:'treble'},
+        {midi:78, n:'F#5', off:4,  s:'♯', clef:'treble'},
+    ];
+    const BASS_NOTES = [
+        {midi:41, n:'F2',  off:-5, s:'', clef:'bass'},
+        {midi:43, n:'G2',  off:-4, s:'', clef:'bass'},
+        {midi:45, n:'A2',  off:-3, s:'', clef:'bass'},
+        {midi:47, n:'H2',  off:-2, s:'', clef:'bass'},
+        {midi:48, n:'C3',  off:-1, s:'', clef:'bass'},
+        {midi:50, n:'D3',  off:0,  s:'', clef:'bass'},
+        {midi:52, n:'E3',  off:1,  s:'', clef:'bass'},
+        {midi:53, n:'F3',  off:2,  s:'', clef:'bass'},
+        {midi:55, n:'G3',  off:3,  s:'', clef:'bass'},
+        {midi:57, n:'A3',  off:4,  s:'', clef:'bass'},
+        {midi:59, n:'H3',  off:5,  s:'', clef:'bass'},
+        {midi:60, n:'C4',  off:6,  s:'', clef:'bass'},
+    ];
+    const BASS_CHROMATIC = [
+        {midi:42, n:'F#2', off:-5, s:'♯', clef:'bass'},
+        {midi:44, n:'G#2', off:-4, s:'♯', clef:'bass'},
+        {midi:46, n:'A#2', off:-3, s:'♯', clef:'bass'},
+        {midi:49, n:'C#3', off:-1, s:'♯', clef:'bass'},
+        {midi:51, n:'D#3', off:0,  s:'♯', clef:'bass'},
+        {midi:54, n:'F#3', off:2,  s:'♯', clef:'bass'},
+        {midi:56, n:'G#3', off:3,  s:'♯', clef:'bass'},
+        {midi:58, n:'A#3', off:4,  s:'♯', clef:'bass'},
+    ];
+
+    const TREBLE_BASE_Y = 141.5, TREBLE_SP_Y = 11.14;
+    const BASS_BASE_Y   = 376.16, BASS_SP_Y  = 10.71;
+
+    // ── ÁLLAPOTOK ──
+    let isRunning = false, helpActive = false, audioInited = false;
+    let activeTreble = true, activeBass = false;
+    let useAccidentals = false, useReveal = false, showLeds = false;
+    let sessionTimer = 10;
+    let scoreOk = 0, scoreBad = 0, tasksDone = 0;
+    let timerTicker = null, timeLeft = 0;
+    let seq = [], currentStep = 0;
+    let waitingNext = false;
+
+    let audioCtx, sampleBuffers = {}, activeNodes = {};
+
+    // ── MODULE VÁLTÓ ──
+    const MODULE_NAMES = {
+        EN:['EAR TRAIN','SIGHT READ','CHORDS','SCALES','HANON'],
+        HU:['HALLÁS','KOTTAOLVASÁS','AKKORDOK','SKÁLÁK','HANON']
+    };
+    const modules = [
+        {url:'hallasfejleszto.html'},
+        {url:'kottaolvasas.html'},
+        {url:'akkordok.html'},
+        {url:'skalak.html'},
+        {url:'hanon.html'}
+    ];
+    let currentModuleIdx = 0;
+    function cycleModule(dir) {
+        if (helpActive) return;
+        currentModuleIdx = (currentModuleIdx + dir + modules.length) % modules.length;
+        document.getElementById('lcdModuleText').innerText = MODULE_NAMES[currentLang][currentModuleIdx];
+    }
+    function loadModule() {
+        if (helpActive) return;
+        if (currentModuleIdx !== 0) window.location.href = modules[currentModuleIdx].url;
+    }
+
+    // ── TIMER CIKLUSOK ──
+    const TIMER_STEPS = [3, 4, 5, 6, 7, 8, 10, 12, 15];
+    function cycleTimer(dir) {
+        if (helpActive || isRunning) return;
+        let idx = TIMER_STEPS.indexOf(sessionTimer);
+        idx = Math.max(0, Math.min(TIMER_STEPS.length - 1, idx + dir));
+        sessionTimer = TIMER_STEPS[idx];
+        document.getElementById('lcdTimer').innerText = sessionTimer + ' SEC';
+    }
+
+    // ── NYELVVÁLTÓ ──
+    let currentLang = 'EN';
+    const TRANSLATIONS = {
+        EN: {
+            'txt-roundComplete': 'Round Complete',
+            'txt-correct': 'Correct', 'txt-wrong': 'Wrong', 'txt-timerLabel': 'Timer',
+            'txt-nextRound': 'Next Round',
+            'txt-infoTitle': 'Ear Train — Module Guide',
+            'txt-howTitle': 'How It Works',
+            'txt-howBody': 'Eight notes appear on the staff as <strong>?</strong> symbols. The synthesizer plays each note — your task is to identify it and press the correct key on the piano. The faster and more accurately you respond, the higher your score.',
+            'txt-feedTitle': 'Feedback System',
+            'txt-feed1': 'The note lights up green on the staff and the exercise advances automatically.',
+            'txt-feed2': 'Your note was too low — the target is higher on the keyboard.',
+            'txt-feed3': 'Your note was too high — the target is lower on the keyboard.',
+            'txt-feed4': 'Timer expired. The note is revealed in red and counts as a miss.',
+            'txt-ctrlTitle': 'Controls',
+            'txt-ctrl1': 'Toggle Treble clef (C4–G5) and Bass clef (F2–C4) note pools.',
+            'txt-ctrl2': 'Adds black key notes (sharps/flats) to the pool — significantly harder.',
+            'txt-ctrl2x': 'Cycles through: 1× note names on staff, 2× + key LED highlights, 3× all off.',
+            'txt-ctrl3': 'Shows the note name on the staff before you play it. Great for learning.',
+            'txt-ctrl4': 'Replays the current note\'s sound without penalty.',
+            'txt-ctrl5': 'Adjust seconds per note (3–15s). Cannot be changed during a session.',
+            'txt-progTitle': 'Progression',
+            'txt-progBody': 'Score <strong>100%</strong> on a round to automatically drop the timer by one step — making the next round harder. Reach 3 seconds per note for maximum difficulty.',
+            'txt-gotIt': 'Got It',
+            'btnViolin': 'Top', 'btnBass': 'Bottom', 'btnAcc': 'Chromatic',
+            
+            'btnFullscreen': 'Fullscr', 'btnHelp': 'Help',
+            // info sáv
+            'ready': 'SYSTEM READY — PRESS START TO BEGIN',
+            'helpMode': 'HELP MODE — CLICK ANY ELEMENT TO READ ITS DESCRIPTION',
+            // result
+            'resultMsg100fast': 'Perfect score at maximum speed! Your ear training is at professional level.',
+            'resultMsg100': 'Perfect round! You\'ve advanced — now you have <strong>{t} seconds</strong> per note.',
+            'msgListening':'LISTENING — IDENTIFY NOTE {n} OF {t}','msgTimeUp':'TIME UP! — THE NOTE WAS {note}','msgCorrect':'CORRECT! — {note}','msgHigher':'HIGHER ↑ — TRY AGAIN','msgLower':'LOWER ↓ — TRY AGAIN','resultMsgFail': 'Good effort! You need 100% to advance. Keep practicing at {t} seconds per note.',
+        },
+        HU: {
+            'txt-roundComplete': 'Kör lezárva',
+            'txt-correct': 'Helyes', 'txt-wrong': 'Téves', 'txt-timerLabel': 'Időkorlát',
+            'txt-nextRound': 'Következő kör',
+            'txt-infoTitle': 'Hallásfejlesztő — Modul útmutató',
+            'txt-howTitle': 'Hogyan működik',
+            'txt-howBody': 'Nyolc hang jelenik meg a kottán <strong>?</strong> jelként. A szintetizátor lejátssza az egyes hangokat — a feladat azonosítani és megütni a helyes billentyűt a zongorán. Minél gyorsabb és pontosabb vagy, annál jobb az eredményed.',
+            'txt-feedTitle': 'Visszajelzések',
+            'txt-feed1': 'A hang zölden felvillan a kottán, és a gyakorlat automatikusan továbblép.',
+            'txt-feed2': 'A leütött hang túl mélyen volt — a keresett hang magasabban van.',
+            'txt-feed3': 'A leütött hang túl magasan volt — a keresett hang lejjebb van.',
+            'txt-feed4': 'Lejárt az idő. A hang pirosan feltárul és hibának számít.',
+            'txt-ctrlTitle': 'Vezérlők',
+            'txt-ctrl1': 'Violin kulcsos (C4–G5) és Basszus kulcsos (F2–C4) hangkészlet be/ki.',
+            'txt-ctrl2': 'Fekete billentyűs hangokat (keresztek/bék) ad a készlethez — lényegesen nehezebb.',
+            'txt-ctrl2x': 'Körkörösen kapcsol: 1× hangnevek a kottán, 2× + billentyű LED jelzés, 3× mind ki.',
+            'txt-ctrl3': 'Megmutatja a hang nevét a kottán még leütés előtt. Tanuláshoz kiváló.',
+            'txt-ctrl4': 'Megismétli az aktuális hangot büntetés nélkül.',
+            'txt-ctrl5': 'Másodpercek száma hangjegyenként (3–15s). Futó session közben nem változtatható.',
+            'txt-progTitle': 'Fejlődés',
+            'txt-progBody': '<strong>100%-os</strong> teljesítmény esetén az időkorlát automatikusan egy lépéssel csökken — egyre nehezebb lesz a következő kör. A maximális nehézség 3 másodperc/hang.',
+            'txt-gotIt': 'Értettem',
+            'btnViolin': 'Felső', 'btnBass': 'Alsó', 'btnAcc': 'Kromatikus',
+            
+            'btnFullscreen': 'Teljes', 'btnHelp': 'Help',
+            // info sáv
+            'ready': 'RENDSZER KÉSZ — NYOMJ STARTOT A KEZDÉSHEZ',
+            'helpMode': 'SÚGÓ MÓD — KATTINTS BÁRMELY ELEMRE A LEÍRÁSÉRT',
+            // result
+            'resultMsg100fast': 'Tökéletes pontszám maximális sebességen! Hallásfejlesztésed profi szintű.',
+            'resultMsg100': 'Tökéletes kör! Szintet léptél — most <strong>{t} másodperced</strong> van hangjegyenként.',
+            'msgListening':'FIGYELJ — AZONOSÍTSD A {n}. HANGOT A {t}-BÓL','msgTimeUp':'LEJÁRT AZ IDŐ! — A HANG: {note}','msgCorrect':'HELYES! — {note}','msgHigher':'MAGASABB ↑ — PRÓBÁLD ÚJRA','msgLower':'MÉLYEBB ↓ — PRÓBÁLD ÚJRA','resultMsgFail': 'Szép munka! A szintlépéshez 100% kell. Gyakorolj még {t} másodperces tempónál!',
+        }
+    };
+
+    function setLang(lang) {
+        localStorage.setItem('akira_lang', lang);
+        currentLang = lang;
+        document.getElementById('btnLangEN').classList.toggle('active', lang==='EN'); document.getElementById('btnLangEN').style.color = lang==='EN' ? '#fff' : 'var(--text-dim)';
+        document.getElementById('btnLangHU').classList.toggle('active', lang==='HU'); document.getElementById('btnLangHU').style.color = lang==='HU' ? '#fff' : 'var(--text-dim)';
+        applyTranslations();
+    }
+
+    function applyTranslations() {
+        const T = TRANSLATIONS[currentLang];
+        // Szöveges elemek
+        ['txt-roundComplete','txt-correct','txt-wrong','txt-timerLabel','txt-nextRound',
+         'txt-infoTitle','txt-howTitle','txt-howBody','txt-feedTitle',
+         'txt-feed1','txt-feed2','txt-feed3','txt-feed4',
+         'txt-ctrlTitle','txt-ctrl1','txt-ctrl2','txt-ctrl2x','txt-ctrl4','txt-ctrl5',
+         'txt-progTitle','txt-progBody','txt-gotIt'
+        ].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.innerHTML = T[id];
+        });
+        // Csak szöveges gombok fordítása — ikonos sq-btn-eket kihagyjuk
+        // (btnAcc, btnHints, btnRepeat már ikonok, nem kell szöveget frissíteni)
+        // Help szövegek minden gombra
+        const helpMap = currentLang === 'EN' ? {
+            'btnHome':'HOME: RETURN TO MAIN MODULE MENU',
+            'btnClef':'CLEF: CYCLES THROUGH — TREBLE + BASS / TREBLE ONLY / BASS ONLY',
+            'btnHints':'HINTS: 1× NOTE NAMES | 2× + KEY LEDS | 3× OFF',
+            'btnAcc':'CHROMATIC: ADD BLACK KEY NOTES (SHARPS/FLATS) TO THE POOL',
+            'btnRepeat':'REPLAY: PLAY THE CURRENT NOTE AGAIN',
+            'btnStart':'START/STOP: BEGIN OR END THE EAR TRAINING SESSION',
+            'audioToggle':'PIANO AUDIO: TOGGLE INTERNAL SYNTH',
+            'btnFullscreen':'FULLSCREEN MODE — PRESS AGAIN TO EXIT',
+            'btnHelp':'HELP: CLICK ANY ELEMENT TO READ ITS DESCRIPTION',
+            'btnInfo':'INFO: OPEN MODULE GUIDE',
+            'oledModule':'MODULE: CLICK TO NAVIGATE TO ANOTHER MODULE',
+            'oledTimer':'TIMER: SECONDS PER NOTE — REACH 100% TO SPEED UP AUTOMATICALLY',
+            'oledProgress':'PROGRESS: CURRENT NOTE IN THE 10-NOTE ROUND',
+            'oledScore':'SCORE: CORRECT HITS / MISTAKES THIS ROUND',
+        } : {
+            'btnHome':'FŐOLDAL: VISSZA A MODULVÁLASZTÓ FŐMENÜBE',
+            'btnClef':'KULCS: KÖRKÖRÖSEN VÁLT — VIOLIN + BASSZUS / CSAK VIOLIN / CSAK BASSZUS',
+            'btnHints':'SEGÉDEK: 1× HANGNEVEK | 2× + BILLENTYŰ LED | 3× KI',
+            'btnAcc':'KROMATIKUS: FEKETE BILLENTYŰS HANGOK (KERESZTEK/BÉK) HOZZÁADÁSA',
+            'btnRepeat':'ÚJRAJÁTSZÁS: AKTUÁLIS HANG ISMÉTLÉSE BÜNTETÉS NÉLKÜL',
+            'btnStart':'START/STOP: GYAKORLAT INDÍTÁSA/LEÁLLÍTÁSA',
+            'audioToggle':'ZONGORA HANG: SZINTETIZÁTOR BE/KI',
+            'btnFullscreen':'TELJES KÉPERNYŐ — ISMÉTELT MEGNYOMÁSSAL VISSZATÉRHETSZ',
+            'btnHelp':'SÚGÓ: KATTINTS BÁRMELY ELEMRE A LEÍRÁSÉRT',
+            'btnInfo':'INFO: MODUL ÚTMUTATÓ',
+            'oledModule':'MODUL: KATTINTS A MODULVÁLTÁSHOZ — A NYILAKKAL IS BÖNGÉSZHETSZ',
+            'oledTimer':'IDŐKORLÁT: MÁSODPERC HANGJEGYENKÉNT — 100%-NÁL AUTOMATIKUSAN GYORSÍT',
+            'oledProgress':'ELŐREHALADÁS: AKTUÁLIS HANG A 10 HANGOS KÖRBEN',
+            'oledScore':'EREDMÉNY: HELYES / HIBÁS LEÜTÉSEK A KÖRBEN',
+        };
+        Object.entries(helpMap).forEach(([id,txt])=>{
+            const el=document.getElementById(id);
+            if(el) el.dataset.help=txt;
+        });
+        // Info sáv — csak ha nem fut
+        if (!isRunning && !helpActive) {
+            setInfoBar(T['ready'], null);
+        }
+        // Module név frissítése
+        document.getElementById('lcdModuleText').innerText = MODULE_NAMES[currentLang][currentModuleIdx];
+    }
+
+    // ── HELP ──
+    function toggleHelp() {
+        helpActive = !helpActive;
+        document.getElementById('btnHelp').classList.toggle('active', helpActive);
+        if (helpActive) {
+            document.body.classList.add('help-mode-active');
+            setInfoBar(TRANSLATIONS[currentLang]['helpMode'], null);
+        } else {
+            document.body.classList.remove('help-mode-active');
+            setInfoBar(TRANSLATIONS[currentLang]['ready'], null);
+        }
+    }
+    document.addEventListener('click', (e) => {
+        if (e.target.closest('#btnHelp')) return;
+        if (helpActive) {
+            e.preventDefault(); e.stopPropagation();
+            const t = e.target.closest('[data-help]');
+            if (t) setInfoBar(t.dataset.help, t);
+        }
+    }, true);
+
+    function toggleFullScreen() {
+        if (!document.fullscreenElement) document.documentElement.requestFullscreen().catch(() => {});
+        else if (document.exitFullscreen) document.exitFullscreen();
+    }
+    document.addEventListener('fullscreenchange', () => {
+        document.getElementById('btnFullscreen').classList.toggle('active', !!document.fullscreenElement);
+    });
+
+    // ── INFO SÁV ──
+    function setInfoBar(text, targetEl) {
+        const bar = document.getElementById('infoBarText');
+        if (!targetEl) {
+            bar.style.left='50%'; bar.style.right='auto'; bar.style.transform='translateX(-50%)';
+            bar.className = 'info-bar-text'; bar.innerHTML = text; return;
+        }
+        const barRect = bar.parentElement.getBoundingClientRect();
+        const cx = targetEl.getBoundingClientRect().left + targetEl.getBoundingClientRect().width/2 - barRect.left;
+        bar.className = 'info-bar-text';
+        if (cx / barRect.width < 0.5) {
+            bar.innerHTML = '<span style="opacity:0.5;margin-right:8px;font-size:11px;">▼</span>' + text;
+            bar.style.left = Math.max(cx - 10, 20) + 'px'; bar.style.right='auto'; bar.style.transform='none';
+        } else {
+            bar.innerHTML = text + '<span style="opacity:0.5;margin-left:8px;font-size:11px;">▼</span>';
+            bar.style.right = Math.max(barRect.width - cx - 10, 20) + 'px'; bar.style.left='auto'; bar.style.transform='none';
+        }
+    }
+    function setInfo(msg, cls) {
+        const el = document.getElementById('infoBarText');
+        el.style.left='50%'; el.style.right='auto'; el.style.transform='translateX(-50%)';
+        el.className = 'info-bar-text' + (cls ? ' ' + cls : '');
+        el.innerHTML = msg;
+    }
+
+    // ── GOMBOK ──
+    function cycleClef() {
+        if (helpActive) return;
+        // 0: treble+bass, 1: treble only, 2: bass only
+        if (activeTreble && activeBass)      { activeTreble=true;  activeBass=false; }
+        else if (activeTreble && !activeBass){ activeTreble=false; activeBass=true;  }
+        else                                 { activeTreble=true;  activeBass=true;  }
+        document.getElementById('clefRH').style.color = activeTreble ? '#fff' : '#444';
+        document.getElementById('clefLH').style.color = activeBass   ? '#fff' : '#444';
+    }
+    // toggleClef kept for backwards compatibility
+    function toggleClef(clef) { cycleClef(); }
+    function toggleAccidentals() {
+        if (helpActive) return;
+        useAccidentals = !useAccidentals;
+        document.getElementById('btnAcc').classList.toggle('active', useAccidentals);
+        if (isRunning) stopPractice();
+    }
+    function updateKeyLed() {
+        document.querySelectorAll('.key-glow').forEach(k => k.classList.remove('ear-hint'));
+        if (showLeds && isRunning && currentStep < seq.length) {
+            const midi = seq[currentStep].midi;
+            document.getElementById(`k-${midi}`)?.classList.add('ear-hint');
+        }
+    }
+
+    let hintState = 0; // 0=off, 1=hints, 2=hints+LED
+    function cycleHints() {
+        if (helpActive) return;
+        hintState = (hintState + 1) % 3;
+        useReveal = hintState >= 1;
+        showLeds = hintState >= 2;
+        document.getElementById('btnHints').classList.toggle('active', hintState > 0);
+        updateKeyLed();
+        draw();
+    }
+    function toggleVst() {
+        if (helpActive) return;
+        let mb = document.getElementById('mixerBar');
+        mb.style.display = mb.style.display === 'flex' ? 'none' : 'flex';
+        document.getElementById('btnVst').classList.toggle('active');
+    }
+    function repeatNote() {
+        if (!isRunning || currentStep >= seq.length) return;
+        playMidi(seq[currentStep].midi, 100);
+    }
+
+    // ── SZEKVENCIA ÉPÍTÉS ──
+    function buildSequence() {
+        let pool = [];
+        if (activeTreble) pool = pool.concat(TREBLE_NOTES);
+        if (activeBass)   pool = pool.concat(BASS_NOTES);
+        if (useAccidentals) {
+            if (activeTreble) pool = pool.concat(TREBLE_CHROMATIC);
+            if (activeBass)   pool = pool.concat(BASS_CHROMATIC);
+        }
+        if (pool.length === 0) pool = TREBLE_NOTES;
+
+        seq = [];
+        for (let i = 0; i < 8; i++) {
+            let note = pool[Math.floor(Math.random() * pool.length)];
+            seq.push({ ...note, revealed: false, correct: false, wrong: false });
+        }
+        currentStep = 0; scoreOk = 0; scoreBad = 0; tasksDone = 0; waitingNext = false;
+        updateOLED();
+    }
+
+    // ── PRACTICE KONTROL ──
+    function updateStartStop(running) {
+        const btn = document.getElementById('btnStart');
+        if (btn) btn.textContent = running ? 'STOP' : 'START';
+    }
+
+        function handleMainButton() {
+        if (!isRunning) {
+            initAudio();
+            buildSequence();
+            isRunning = true;
+            updateStartStop(true);
+            draw();
+            // Rövid késleltetés után lejátssza az első hangot
+            setTimeout(() => playCurrentAndStartTimer(), 600);
+        } else {
+            stopPractice();
+        }
+    }
+
+    function stopPractice() {
+        isRunning = false; waitingNext = false;
+        clearInterval(timerTicker); timerTicker = null;
+        updateStartStop(false);
+        document.querySelectorAll('.key-glow').forEach(k => k.classList.remove('ear-hint'));
+        setInfo(TRANSLATIONS[currentLang]['ready'], '');
+        updateOLED();
+        draw();
+    }
+
+    function playCurrentAndStartTimer() {
+        if (!isRunning || currentStep >= seq.length) return;
+        playMidi(seq[currentStep].midi, 100);
+        setInfo(TRANSLATIONS[currentLang]['msgListening'].replace('{n}',currentStep+1).replace('{t}',seq.length), '');
+        updateKeyLed();
+        if (timerTicker) clearInterval(timerTicker);
+        timeLeft = sessionTimer;
+        timerTicker = setInterval(() => {
+            timeLeft--;
+            updateOLED();
+            if (timeLeft <= 0) {
+                clearInterval(timerTicker); timerTicker = null;
+                onTimeExpired();
+            }
+        }, 1000);
+        updateOLED();
+    }
+
+    function onTimeExpired() {
+        if (!isRunning) return;
+        scoreBad++;
+        seq[currentStep].revealed = true;
+        seq[currentStep].wrong = true;
+        setInfo(TRANSLATIONS[currentLang]['msgTimeUp'].replace('{note}',seq[currentStep].n), 'hint-wrong');
+        draw();
+        updateOLED();
+        waitingNext = true;
+        setTimeout(() => advanceNote(), 2000);
+    }
+
+    function advanceNote() {
+        if (!isRunning) return;
+        waitingNext = false;
+        currentStep++;
+        tasksDone++;
+        updateOLED();
+        if (currentStep >= seq.length) {
+            finalize();
+            return;
+        }
+        draw();
+        setTimeout(() => playCurrentAndStartTimer(), 400);
+    }
+
+    function finalize() {
+        isRunning = false;
+        clearInterval(timerTicker); timerTicker = null;
+        updateStartStop(false);
+
+        let pct = Math.round((scoreOk / seq.length) * 100);
+        document.getElementById('resPercent').innerText = pct + '%';
+        document.getElementById('resOk').innerText = scoreOk;
+        document.getElementById('resBad').innerText = scoreBad;
+        document.getElementById('resTimer').innerText = sessionTimer + 's';
+
+        let T = TRANSLATIONS[currentLang];
+        let msg = '';
+        if (pct === 100) {
+            if (sessionTimer > 3) {
+                let newTimer = TIMER_STEPS[Math.max(0, TIMER_STEPS.indexOf(sessionTimer) - 1)];
+                sessionTimer = newTimer;
+                document.getElementById('lcdTimer').innerText = sessionTimer + ' SEC';
+                msg = T['resultMsg100'].replace('{t}', sessionTimer);
+            } else {
+                msg = T['resultMsg100fast'];
+            }
+        } else {
+            msg = T['resultMsgFail'].replace('{t}', sessionTimer);
+        }
+        document.getElementById('resMessage').innerHTML = msg;
+        document.getElementById('resultModal').style.display = 'flex';
+        draw();
+    }
+
+    function closeResult() {
+        document.getElementById('resultModal').style.display = 'none';
+        setInfo(TRANSLATIONS[currentLang]['ready'], '');
+        updateOLED();
+    }
+
+    function updateOLED() {
+        document.getElementById('lcdProgress').innerText = `${Math.min(currentStep + 1, seq.length)} / ${seq.length || 8}`;
+        document.getElementById('lcdScore').innerText = `${scoreOk} / ${scoreBad}`;
+        document.getElementById('lcdTimer').innerText = isRunning && timerTicker ? `${timeLeft} SEC` : `${sessionTimer} SEC`;
+    }
+
+    // ── NOTE DETECTION ──
+    function handleNoteOn(midi, vel = 100) {
+        playKey(midi, vel);
+        const k = document.getElementById(`k-${midi}`);
+        if (k) k.classList.add('pressed');
+        if (!isRunning || waitingNext || currentStep >= seq.length) return;
+
+        let target = seq[currentStep];
+        if (midi === target.midi) {
+            // HELYES!
+            clearInterval(timerTicker); timerTicker = null;
+            scoreOk++;
+            target.revealed = true;
+            target.correct = true;
+            setInfo(TRANSLATIONS[currentLang]['msgCorrect'].replace('{note}',target.n), 'hint-correct');
+            draw();
+            updateOLED();
+            waitingNext = true;
+            setTimeout(() => advanceNote(), 1200);
+        } else {
+            // ROSSZ — súgó iránnyal
+            scoreBad++;
+            updateOLED();
+            if (midi < target.midi) {
+                setInfo(TRANSLATIONS[currentLang]['msgHigher'], 'hint-higher');
+            } else {
+                setInfo(TRANSLATIONS[currentLang]['msgLower'], 'hint-lower');
+            }
+            draw();
+        }
+    }
+
+    function handleNoteOff(midi) {
+        const k = document.getElementById(`k-${midi}`);
+        if (k) k.classList.remove('pressed');
+        if (!activeNodes[midi] || !audioCtx) return;
+        const release = 0.8;
+        const gainNode = activeNodes[midi].gain;
+        gainNode.gain.cancelScheduledValues(audioCtx.currentTime);
+        gainNode.gain.setValueAtTime(gainNode.gain.value, audioCtx.currentTime);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + release);
+        activeNodes[midi].source.stop(audioCtx.currentTime + release + 0.1);
+        delete activeNodes[midi];
+    }
+
+    // ── AUDIO ──
+    async function initAudio() {
+        if (audioInited) return; audioInited = true;
+        audioCtx = new (window.AudioContext || window.webkitAudioContext)();
+        if (audioCtx.state === 'suspended') await audioCtx.resume();
+        const samples = { 36:'C2', 48:'C3', 60:'C4', 72:'C5' };
+        for (let k in samples) {
+            try {
+                const r = await fetch(`https://tonejs.github.io/audio/salamander/${samples[k]}.mp3`);
+                sampleBuffers[k] = await audioCtx.decodeAudioData(await r.arrayBuffer());
+            } catch(e) {}
+        }
+        if (navigator.requestMIDIAccess) {
+            navigator.requestMIDIAccess().then(m => {
+                m.inputs.forEach(input => input.onmidimessage = (msg) => {
+                    const cmd = msg.data[0] >> 4, n = msg.data[1], v = msg.data[2];
+                    if (cmd === 9 && v > 0) handleNoteOn(n, v);
+                    else if (cmd === 8 || (cmd === 9 && v === 0)) handleNoteOff(n);
+                });
+            }).catch(() => {});
+        }
+    }
+
+    // Feladványhang — természetes lecsengés, nincs loop
+    function playMidi(note, vel) {
+        if (!audioCtx || Object.keys(sampleBuffers).length === 0) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        // Előző feladványhang leállítása
+        if (activeNodes['quiz']) { 
+            try { activeNodes['quiz'].gain.gain.cancelScheduledValues(audioCtx.currentTime); activeNodes['quiz'].gain.gain.setValueAtTime(0, audioCtx.currentTime); activeNodes['quiz'].source.stop(audioCtx.currentTime + 0.05); } catch(e) {} 
+            delete activeNodes['quiz']; 
+        }
+        const source = audioCtx.createBufferSource();
+        let closest = 36, minDiff = 999;
+        for (let b in sampleBuffers) { let diff = Math.abs(note - b); if (diff < minDiff) { minDiff = diff; closest = b; } }
+        source.buffer = sampleBuffers[closest];
+        source.playbackRate.value = Math.pow(2, (note - closest) / 12);
+        // Nincs loop — természetes lecsengés
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime((vel / 127), audioCtx.currentTime);
+        // 1.5mp teljes hangerő, majd 4mp alatt lassú fade
+        gain.gain.setValueAtTime((vel / 127), audioCtx.currentTime + 1.5);
+        gain.gain.exponentialRampToValueAtTime(0.0001, audioCtx.currentTime + 5.5);
+        source.connect(gain).connect(audioCtx.destination);
+        source.start();
+        source.stop(audioCtx.currentTime + 5.6);
+        activeNodes['quiz'] = { source, gain };
+    }
+
+    // Billentyűhang — loop hogy lenyomva tartható legyen
+    function playKey(note, vel) {
+        if (!audioCtx || Object.keys(sampleBuffers).length === 0) return;
+        if (audioCtx.state === 'suspended') audioCtx.resume();
+        if (activeNodes[note]) { try { activeNodes[note].source.stop(); } catch(e) {} delete activeNodes[note]; }
+        const source = audioCtx.createBufferSource();
+        let closest = 36, minDiff = 999;
+        for (let b in sampleBuffers) { let diff = Math.abs(note - b); if (diff < minDiff) { minDiff = diff; closest = b; } }
+        source.buffer = sampleBuffers[closest];
+        source.playbackRate.value = Math.pow(2, (note - closest) / 12);
+        source.loop = true;
+        source.loopStart = sampleBuffers[closest].duration * 0.5;
+        source.loopEnd   = sampleBuffers[closest].duration * 0.9;
+        const gain = audioCtx.createGain();
+        gain.gain.setValueAtTime((vel / 127), audioCtx.currentTime);
+        source.connect(gain).connect(audioCtx.destination);
+        source.start();
+        activeNodes[note] = { source, gain };
+    }
+
+    // ── KOTTA RAJZOLÁS ──
+    const canvas = document.getElementById('staffCanvas'), ctx = canvas.getContext('2d');
+
+    function drawLedgers(x, offset, baseLineY, spacing, color) {
+        ctx.strokeStyle = color; ctx.lineWidth = 2.5; ctx.shadowBlur = 0;
+        if (offset <= -6) for (let p = -6; p >= offset; p -= 2) { let py = baseLineY-(p*spacing); ctx.beginPath(); ctx.moveTo(x-22, py); ctx.lineTo(x+22, py); ctx.stroke(); }
+        if (offset >= 6)  for (let p = 6;  p <= offset; p += 2) { let py = baseLineY-(p*spacing); ctx.beginPath(); ctx.moveTo(x-22, py); ctx.lineTo(x+22, py); ctx.stroke(); }
+    }
+
+    function draw() {
+        ctx.clearRect(0, 0, 2450, 480);
+        if (!seq.length) return;
+
+        const N = seq.length;
+        const startX = 180, endX = 2270;
+        const spacing = (endX - startX) / (N - 1);
+
+        seq.forEach((note, i) => {
+            let x = startX + i * spacing;
+            let baseY   = note.clef === 'treble' ? TREBLE_BASE_Y : BASS_BASE_Y;
+            let spaceY  = note.clef === 'treble' ? TREBLE_SP_Y   : BASS_SP_Y;
+            let noteY   = baseY - (note.off * spaceY);
+
+            let isCurrent = (i === currentStep);
+            let isRevealed = note.revealed || useReveal || i < currentStep;
+
+            // Szín logika
+            let color;
+            if (note.correct) color = 'rgba(102,255,153,0.9)';       // zöld – helyes
+            else if (note.wrong) color = 'rgba(255,85,68,0.9)';       // piros – lejárt idő
+            else if (isCurrent) color = 'rgba(179,230,255,1.0)';      // aktív – kék
+            else if (i < currentStep) color = 'rgba(179,230,255,0.2)'; // múlt – halványan
+            else color = 'rgba(179,230,255,0.35)';                    // jövő
+
+            const ledgerColor = 'rgba(120,160,180,0.7)';
+
+            if (isRevealed) {
+                // Léniavonalak
+                drawLedgers(x, note.off, baseY, spaceY, ledgerColor);
+
+                // Előjegyzés
+                if (note.s !== '') {
+                    ctx.font = '34px Arial'; ctx.fillStyle = color; ctx.shadowBlur = 0;
+                    ctx.textAlign = 'right'; ctx.textBaseline = 'alphabetic';
+                    ctx.fillText(note.s, x - 22, noteY + 12);
+                }
+
+                // Kottafej
+                ctx.beginPath(); ctx.ellipse(x, noteY, 14, 10, -Math.PI/10, 0, 2*Math.PI);
+                ctx.fillStyle = color; ctx.fill();
+
+                // Hangnév alatta
+                ctx.font = 'bold 18px Inter'; ctx.fillStyle = color;
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                let labelY = baseY - (note.off * spaceY);
+                labelY += (note.off >= 0) ? 32 : -32;
+                ctx.fillText(note.n, x, labelY);
+
+            } else {
+                // Rejtett hang — ? jel a kottarendszeren belül
+                let hiddenY = baseY; // középvonal
+                ctx.font = 'bold 42px Share Tech Mono';
+                ctx.fillStyle = isCurrent ? 'rgba(179,230,255,0.7)' : 'rgba(179,230,255,0.2)';
+                ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+                ctx.fillText('?', x, hiddenY);
+            }
+        });
+        ctx.globalAlpha = 1.0;
+    }
+
+    // ── BILLENTYŰZET ──
+    function create88() {
+    const wrap = document.getElementById('hb-wrap');
+    const whites = [0,2,4,5,7,9,11]; let wIdx = 0;
+    for (let m = 21; m <= 108; m++) {
+        const k = document.createElement('div'); const isW = whites.includes(m%12);
+        k.id = `k-${m}`; k.className = `key-glow ${isW ? 'white-glow' : 'black-glow'}`;
+        
+        if (isW) { 
+            // Fehér billentyűk: Szélesség a 8.32.27-es fájlból (JÓ ÁRNYÉK)
+            k.style.left = (wIdx * 1.92307) + '%'; 
+            k.style.width = '1.92307%'; 
+            k.style.height = '100%'; 
+            wIdx++; 
+        } else {
+            // Fekete billentyűk: Pozíció ÉS a kisebb szélesség a hallasfejleszto.html-ből
+            const blackOffsets = {1:-0.621, 3:-0.477, 6:-0.723, 8:-0.559, 10:-0.415};
+            const noteInOctave = m % 12;
+            const offset = blackOffsets[noteInOctave] !== undefined ? blackOffsets[noteInOctave] : -0.6;
+            
+            k.style.left = ((wIdx * 1.92307) + offset) + '%';
+            k.style.width = '1.241%'; // Itt a "kisebb, rövidebb" szélesség
+            k.style.height = '65%';
+            k.style.zIndex = '200';
+        }
+        
+        k.onmousedown = (e) => { e.preventDefault(); handleNoteOn(m, 100); };
+        k.onmouseup   = () => handleNoteOff(m);
+        k.onmouseleave = () => handleNoteOff(m);
+        
+        const led = document.createElement('div');
+        led.className = 'key-led';
+        k.appendChild(led);
+        wrap.appendChild(k);
+    }
+}
+
+    window.onload = () => {
+        const sl = localStorage.getItem('akira_lang') || 'EN'; setLang(sl);
+        create88();
+        updateOLED();
+        document.fonts.ready.then(draw);
+        window.addEventListener('pointerdown', () => initAudio(), { once: true });
+    };
+</script>
+</body>
+</html>
