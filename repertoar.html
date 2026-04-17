@@ -3758,18 +3758,21 @@
                             midiOutPort.send([0xB0|DEMO_MIDI_CHANNEL,64,vv]);
                         }catch(e){}
                     }
+                    /* Belső zongora: ugyanaz mint DEMO applyDemoScoreSustainState — pedalDown/Up kell, különben a hangok „levágnak”. */
                     if(audioOn&&salamanderPiano){
                         try{
-                            if(!pedOn){
+                            if(pedOn){
+                                salamanderPiano.pedalDown();
+                                midiRecPlaybackSustainActive=true;
+                            }else{
+                                try{salamanderPiano.pedalUp();}catch(e2){}
                                 if(midiRecPlaybackSustainActive){
                                     midiRecPlaybackSustainReleaseQueue.forEach(m=>{
-                                        try{salamanderPiano.keyUp({midi:m&127});}catch(e2){}
+                                        try{salamanderPiano.keyUp({midi:m&127});}catch(e3){}
                                     });
                                     midiRecPlaybackSustainReleaseQueue.clear();
                                 }
                                 midiRecPlaybackSustainActive=false;
-                            }else{
-                                midiRecPlaybackSustainActive=true;
                             }
                         }catch(e){}
                     }
@@ -3799,7 +3802,7 @@
                             midiOutPort.send([0x80|DEMO_MIDI_CHANNEL,n,0]);
                         }catch(e){}
                     }
-                    if(salamanderPiano){
+                    if(audioOn&&salamanderPiano){
                         try{
                             if(midiRecPlaybackSustainActive)midiRecPlaybackSustainReleaseQueue.add(n);
                             else salamanderPiano.keyUp({midi:n});
