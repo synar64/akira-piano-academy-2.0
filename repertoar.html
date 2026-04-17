@@ -685,6 +685,7 @@
                             </div>
                             <div id="bpmPresetsPopup" style="display:none;position:absolute;bottom:55px;left:42px;background:#1a1a1d;border:1px solid #333;padding:8px;border-radius:4px;z-index:1001;box-shadow:0 10px 30px #000;">
                                 <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;">
+                                    <button class="metro-preset" onclick="setTempoPreset(20)">20</button>
                                     <button class="metro-preset" onclick="setTempoPreset(40)">40</button>
                                     <button class="metro-preset" onclick="setTempoPreset(60)">60</button>
                                     <button class="metro-preset" onclick="setTempoPreset(72)">72</button>
@@ -3375,7 +3376,7 @@
 
     // ── Metronome ─────────────────────────────────────────────────────────────
     let bpm=80;
-    function cycleTempo(delta){bpm=Math.max(40,Math.min(208,bpm+delta));const d=document.getElementById('metroBpmDisplay');if(d)d.innerText=bpm;setInfoBar((currentLang==='HU'?'TEMPÓ: ':'TEMPO: ')+bpm+' BPM',null);}
+    function cycleTempo(delta){bpm=Math.max(20,Math.min(208,bpm+delta));const d=document.getElementById('metroBpmDisplay');if(d)d.innerText=bpm;setInfoBar((currentLang==='HU'?'TEMPÓ: ':'TEMPO: ')+bpm+' BPM',null);}
     function setTempoPreset(val){if(helpActive)return;bpm=val;const d=document.getElementById('metroBpmDisplay');if(d)d.innerText=bpm;document.getElementById('bpmPresetsPopup').style.display='none';}
     function toggleBpmPresets(){const p=document.getElementById('bpmPresetsPopup');p.style.display=(p.style.display==='none'||p.style.display==='')?'grid':'none';}
     function toggleScoreLayoutPopup(){
@@ -3840,7 +3841,7 @@
     }
     function encodeStandardMidiFile0(events,bpmExport){
         const PPQ=480;
-        const bpmX=Math.max(40,Math.min(208,bpmExport||120));
+        const bpmX=Math.max(20,Math.min(208,bpmExport||120));
         const micro=Math.round(60000000/bpmX);
         const evs=events.slice().sort((a,b)=>{
             if(a.t!==b.t)return a.t-b.t;
@@ -5389,7 +5390,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
             if(typeof d0==='number'&&d0>0)raw=d0;
         }
         if(typeof raw!=='number'||raw<=0||raw>400)return;
-        bpm=Math.max(40,Math.min(208,Math.round(raw)));
+        bpm=Math.max(20,Math.min(208,Math.round(raw)));
         lastLoadedScoreBpmFromXml=bpm;
         const d=document.getElementById('metroBpmDisplay');
         if(d)d.innerText=bpm;
@@ -5499,7 +5500,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
                 if(!(typeof absWhole==='number'&&absWhole>1e-9))absWhole=raw.length*1e-5;
                 const pm=osmdNoteToSourceMeasure(notes[0]);
                 const mt=readTempoFromSourceMeasure(pm);
-                if(mt>0)carryBpm=Math.max(40,Math.min(208,mt));
+                if(mt>0)carryBpm=Math.max(20,Math.min(208,mt));
                 const playInfos=notes.map(n=>{
                     const midi=osmdHalfToneToMidi(n.Pitch.halfTone);
                     const staffIndex=osmdStaffIndexOfNote(n);
