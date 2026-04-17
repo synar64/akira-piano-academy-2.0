@@ -159,7 +159,7 @@
         .oled-divider { width:1px; background:rgba(255,255,255,0.05); margin:5px 0; }
         .oled-header { font-size:11px; color:var(--lcd-label-color); font-family:'Share Tech Mono'; text-transform:uppercase; font-weight:bold; margin-bottom:2px; }
         .oled-main { font-size:20px; color:var(--oled-text); font-family:'Share Tech Mono'; font-weight:bold; text-transform:uppercase; }
-        #scoreLibraryLibsBody { text-align:left; margin-top:4px; }
+        #scoreLibraryLibsBody { max-height:14vh; overflow-y:auto; text-align:left; margin-top:4px; margin-bottom:8px; }
         .patch-browser-content { max-width:580px; }
         .patch-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:25px; }
         .patch-btn { background:#111; border:1px solid #333; color:#aaa; padding:12px 5px; font-family:'Share Tech Mono',monospace; font-size:14px; cursor:pointer; border-radius:4px; transition:0.1s; text-align:center; }
@@ -197,20 +197,6 @@
         .metro-preset { background:#222;border:1px solid #333;color:#aaa;padding:6px 2px;font-family:'Share Tech Mono';font-size:12px;cursor:pointer;border-radius:3px;text-align:center;transition:0.1s; }
         .metro-preset:hover { background:#333;color:#fff; }
         .metro-preset:active { transform:translateY(1px); }
-        #btnMidiRec { color:#666; border-color:#333; transition:color 0.15s,border-color 0.15s,box-shadow 0.15s; }
-        #btnMidiRec.recording { color:#ff2a2a !important; border-color:#cc2222 !important; box-shadow:0 0 10px rgba(255,40,40,0.35); }
-        #midiPlayerPanel { box-shadow:0 12px 32px rgba(0,0,0,0.75); }
-        #midiPlayerPanel input[type="range"] { -webkit-appearance:none; width:100%; height:6px; background:#111; border-radius:3px; outline:none; cursor:pointer; }
-        #midiPlayerPanel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#b3e6ff; border:1px solid #557799; cursor:grab; }
-        .midi-rec-clock-box {
-            font-family:'Share Tech Mono',monospace;font-size:22px;line-height:1.15;color:#b3e6ff;font-weight:bold;
-            padding:6px 10px;border-radius:3px;background:#111;border:1px solid #050505;
-            box-shadow:inset 0 2px 5px rgba(0,0,0,0.5);min-width:0;flex:1;text-align:center;
-        }
-        #midiRecTimeDisplay { user-select:none;cursor:default; }
-        #midiRecSpeedBox { user-select:none;cursor:pointer;flex:0 0 auto;min-width:4.2em; }
-        #midiRecSpeedBox:hover { border-color:#557799;color:#d8f4ff; }
-        #btnMidiRecRepeat.active { color:#b3e6ff;border-color:#557799; }
         .modal-overlay { display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.85); z-index:10000; justify-content:center; align-items:center; }
         .modal-content { background:var(--rack-bg); padding:30px; border:2px solid var(--rack-border); border-radius:6px; text-align:center; max-width:550px; width:90%; box-shadow:0 20px 50px rgba(0,0,0,1); }
         .modal-title { color:#aaa; text-transform:uppercase; letter-spacing:2px; font-weight:800; font-size:16px; margin-top:0; margin-bottom:25px; border-bottom:2px solid #111; padding-bottom:15px; }
@@ -329,8 +315,7 @@
         }
         .modal-overlay .workshop-tools-grid .modal-btn { font-size: 13px; padding: 10px 20px; margin-top: 4px; letter-spacing: 0.5px; }
         #scoreLibraryModal .modal-content.workshop-tools-grid {
-            max-width: min(96vw, 920px); padding: 16px 18px;
-            max-height: min(92vh, 900px); overflow-y: auto; box-sizing: border-box;
+            max-width: min(94vw, 500px); padding: 16px 18px;
         }
         #scoreLibraryModal .lib-hint { font: 11px/1.4 'Inter',sans-serif; color: #888; margin: 0 0 8px 0; }
         #scoreLibraryModal .lib-field-label {
@@ -354,65 +339,16 @@
         }
         #scoreLibraryModal .lib-row-save { margin-top:0; padding:7px 12px; font-size:12px; }
         #scoreLibraryModal .lib-file-lbl { margin-top:0; padding:7px 12px; font-size:12px; display:inline-flex; align-items:center; justify-content:center; cursor:pointer; }
-        /* Könyvtár modál: két oszlop együttes max-magassága; belül min-height:0 + overflow = minden darab görgethető */
-        #scoreLibraryModal .score-library-split-pane {
-            display: flex; gap: 12px; align-items: stretch;
-            min-height: 0;
-            max-height: min(52vh, 500px);
-            height: min(52vh, 500px);
-            margin-bottom: 12px;
-            overflow: hidden;
-        }
-        #scoreLibraryModal .score-library-libs-col {
-            flex: 0 0 34%;
-            min-width: min(280px, 100%);
-            max-width: 380px;
-            display: flex; flex-direction: column; min-height: 0;
-        }
-        #scoreLibraryModal .score-library-pieces-col {
-            flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column;
-        }
-        #scoreLibraryModal #scoreLibraryLibsBody {
-            flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            margin-top: 4px; text-align: left;
-        }
-        #scoreLibraryModal #scoreLibraryListBody {
-            flex: 1; min-height: 0; overflow-y: auto; overflow-x: hidden;
-            -webkit-overflow-scrolling: touch;
-            text-align: left; margin-top: 4px;
-            border: 1px solid #2a2a2a; border-radius: 4px; padding: 4px 6px; box-sizing: border-box;
-            background: rgba(0,0,0,0.25);
-        }
+        #scoreLibraryListBody { max-height:24vh; overflow-y:auto; text-align:left; margin-top:4px; }
         #scoreLibraryModal .score-lib-row {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: nowrap;
+            display: flex; align-items: center; gap: 10px; margin-bottom: 7px; flex-wrap: nowrap;
         }
-        #scoreLibraryModal .score-lib-row:last-child { margin-bottom: 0; }
         #scoreLibraryModal .score-lib-row-title {
             flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            font: 13px 'Share Tech Mono',monospace; color: #bbb; line-height: 1.3;
+            font: 12px 'Share Tech Mono',monospace; color: #bbb;
         }
-        #scoreLibraryModal .score-lib-piece-title {
-            font-size: 16px; color: #e4e4e4; line-height: 1.35;
-            cursor: pointer; padding: 6px 2px; border-radius: 3px;
-        }
-        #scoreLibraryModal .score-lib-piece-title:hover { color: #fff; background: rgba(255,255,255,0.07); }
         #scoreLibraryModal .score-lib-row-actions {
-            display: flex; flex-direction: row; gap: 4px; flex-shrink: 0; align-items: center;
-        }
-        #scoreLibraryModal .lib-row-icon-btn {
-            width: 28px; height: 28px; min-width: 28px; padding: 0; margin: 0;
-            font-size: 17px; font-weight: 800; line-height: 1; font-family: 'Share Tech Mono',monospace;
-            display: inline-flex; align-items: center; justify-content: center;
-            border-radius: 4px; cursor: pointer; box-sizing: border-box;
-            box-shadow: 0 2px 0 #000; border: 1px solid var(--btn-border);
-            background: var(--btn-dark); color: #ccc;
-        }
-        #scoreLibraryModal .lib-row-icon-btn.lib-add { color: #8ecf9a; border-color: #355a40; }
-        #scoreLibraryModal .lib-row-icon-btn.lib-del { color: #d08080; border-color: #5a3535; }
-        #scoreLibraryModal .lib-row-icon-btn:active { transform: translateY(1px); box-shadow: 0 0 0 #000; }
-        #scoreLibraryModal .score-lib-row-actions .lib-action-btn {
-            min-width: 0; padding: 4px 7px; font-size: 10px; flex: 0 0 auto; white-space: nowrap;
+            display: flex; flex-direction: row; gap: 8px; flex-shrink: 0; align-items: center;
         }
         #scoreLibraryModal .lib-action-btn {
             min-width: 4.5em; padding: 5px 10px; font-size: 11px; font-weight: 700; font-family: 'Share Tech Mono',monospace;
@@ -479,21 +415,15 @@
             font-size: 12px; color: #666; line-height: 1.5; margin: 10px 0 0 0; font-family: 'Inter', sans-serif;
             white-space: pre-line;
         }
-        .info-guide-modal .info-guide-phase-ribbon {
-            font-family: 'Share Tech Mono', monospace; font-size: 10px; color: #7ecfff;
-            text-transform: uppercase; letter-spacing: 0.14em; font-weight: 700;
-            margin: 0 0 6px 0; padding: 6px 10px; background: rgba(126, 207, 255, 0.08);
-            border-left: 3px solid #557799; border-radius: 2px;
-        }
-        .info-guide-modal .info-guide-body-html { white-space: normal; font-size: 14px; color: #aaa; line-height: 1.65; margin: 0; font-family: 'Inter', sans-serif; }
-        .info-guide-modal .info-guide-body-html p { margin: 0 0 14px 0; }
-        .info-guide-modal .info-guide-body-html ul { margin: 0 0 14px 0; padding-left: 1.25em; }
-        .info-guide-modal .info-guide-body-html li { margin-bottom: 8px; }
-        .info-guide-modal .info-guide-body-html strong { color: #d0d0d0; font-weight: 600; }
-        .info-guide-modal .info-guide-body-html em { font-style: italic; color: #bbb; }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.9.7/build/opensheetmusicdisplay.min.js?v=osmd197"></script>
     <script src="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    <script>
+    window.AKIRA_SUPABASE_URL = window.AKIRA_SUPABASE_URL || 'https://ktnnrwabzbdkcgsvflls.supabase.co';
+    window.AKIRA_SUPABASE_ANON_KEY = window.AKIRA_SUPABASE_ANON_KEY || 'sb_publishable_T3265Yuf-k-RNrGzriwu8g_trfy4f-r';
+    </script>
+    <script src="db.js"></script>
 </head>
 <body onclick="void userUnlockAudioAndMidi().catch(()=>{})">
     <input type="file" id="score-file-input" accept=".xml,.musicxml,.mxl" style="display:none">
@@ -510,7 +440,37 @@
             <h2 class="modal-title info-guide-modal-header" id="txt-infoTitle">Score</h2>
             <div class="info-guide-scroll">
                 <div class="info-guide-sec">
-                    <div class="info-guide-body info-guide-body-html" id="txt-infoFullGuide"></div>
+                    <div class="info-guide-h" id="txt-infoScoresTitle">Score files</div>
+                    <p class="info-guide-body" id="txt-infoScoresBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-howTitle">How it works</div>
+                    <p class="info-guide-body" id="txt-howBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-infoMeasureGuideTitle"></div>
+                    <p class="info-guide-body" id="txt-infoMeasureGuideBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-infoBookmarksGuideTitle"></div>
+                    <p class="info-guide-body" id="txt-infoBookmarksGuideBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-infoPanelTitle">Score toolbar</div>
+                    <p class="info-guide-body" id="txt-infoPanelBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-infoShortcutsTitle">Keyboard</div>
+                    <p class="info-guide-body" id="txt-infoShortcutsBody"></p>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-ctrlTitle">Rack</div>
+                    <div style="display:flex;gap:10px;margin-bottom:10px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:80px;display:flex;justify-content:center;color:#555;font-size:14px;flex-shrink:0;">𝄞 / 𝄢</div><span class="info-guide-body" style="display:block;padding-top:2px;" id="txt-ctrl0"></span></div>
+                    <div style="display:flex;gap:10px;margin-bottom:0;align-items:flex-start;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:80px;display:flex;justify-content:center;color:#555;flex-shrink:0;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><span class="info-guide-body" style="display:block;padding-top:2px;" id="txt-ctrl4"></span></div>
+                </div>
+                <div class="info-guide-sec">
+                    <div class="info-guide-h" id="txt-infoHelpTitle">Help mode</div>
+                    <p class="info-guide-body" id="txt-infoHelpBody"></p>
                 </div>
             </div>
             <div class="info-guide-footer">
@@ -557,20 +517,22 @@
         </div>
     </div>
     <div id="scoreLibraryModal" class="modal-overlay" onclick="if(event.target===this)closeScoreLibraryModal()">
-        <div class="modal-content workshop-tools-grid" style="text-align:left;max-width:min(96vw,920px);width:96%;" onclick="event.stopPropagation()">
+        <div class="modal-content workshop-tools-grid" style="text-align:left;max-width:min(96vw,680px);width:94%;" onclick="event.stopPropagation()">
             <h2 class="modal-title wts-title" id="txt-scoreLibTitle" style="text-align:center;">Score library</h2>
-            <!-- Kétpaneles elrendezés: görgethető lista — minden kotta -->
-            <div class="score-library-split-pane">
-                <div class="score-library-libs-col">
-                    <div class="oled-header wts-sec" id="txt-scoreLibLibsHdr" style="margin-bottom:4px;flex-shrink:0;">Libraries</div>
-                    <div id="scoreLibraryLibsBody"></div>
-                    <button type="button" class="lib-action-btn" id="btnScoreLibAddLibrary" onclick="addNewLibraryFromModal()" style="width:100%;margin-top:6px;font-size:10px;text-align:center;flex-shrink:0;">+ New collection</button>
-                    <button type="button" class="lib-action-btn" id="btnScoreLibLinkFolder" onclick="linkLocalFolder()" style="width:100%;margin-top:4px;font-size:10px;text-align:center;color:var(--oled-text);flex-shrink:0;">📁 Link folder</button>
+            <!-- Kétpaneles elrendezés -->
+            <div style="display:flex;gap:12px;min-height:180px;margin-bottom:12px;">
+                <!-- BAL: Könyvtárak -->
+                <div style="flex:0 0 140px;display:flex;flex-direction:column;">
+                    <div class="oled-header wts-sec" id="txt-scoreLibLibsHdr" style="margin-bottom:4px;">Libraries</div>
+                    <div id="scoreLibraryLibsBody" style="flex:1;overflow-y:auto;max-height:28vh;"></div>
+                    <button type="button" class="lib-action-btn" id="btnScoreLibAddLibrary" onclick="addNewLibraryFromModal()" style="width:100%;margin-top:6px;font-size:10px;text-align:center;">+ New collection</button>
+                    <button type="button" class="lib-action-btn" id="btnScoreLibLinkFolder" onclick="linkLocalFolder()" style="width:100%;margin-top:4px;font-size:10px;text-align:center;color:var(--oled-text);">📁 Link folder</button>
                 </div>
-                <div class="score-library-pieces-col">
-                    <div class="oled-header wts-sec" id="txt-scoreLibPiecesHdr" style="margin-bottom:4px;flex-shrink:0;">Pieces</div>
-                    <input type="text" id="scoreLibFilter" autocomplete="off" placeholder="filter..." oninput="refreshScoreLibraryListUI()" style="margin-bottom:6px;flex-shrink:0;">
-                    <div id="scoreLibraryListBody"></div>
+                <!-- JOBB: Darabszűrő + lista -->
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;">
+                    <div class="oled-header wts-sec" id="txt-scoreLibPiecesHdr" style="margin-bottom:4px;">Pieces</div>
+                    <input type="text" id="scoreLibFilter" autocomplete="off" placeholder="filter..." oninput="refreshScoreLibraryListUI()" style="margin-bottom:6px;">
+                    <div id="scoreLibraryListBody" style="flex:1;overflow-y:auto;max-height:28vh;"></div>
                 </div>
             </div>
             <!-- Alsó sáv: Fájl hozzáadás + URL + Mentés -->
@@ -741,12 +703,18 @@
                         <div style="display:flex;align-items:center;gap:12px;justify-content:center;width:100%;flex-wrap:wrap;">
                             <button id="btnStart" class="hardware-btn" onclick="if(!helpActive) handleMainButton()" data-help="" style="width:80px;font-size:14px;font-weight:800;letter-spacing:2px;flex-shrink:0;">START</button>
                             <div class="lcd-arrow-wrapper">
+                                <div class="arrow-row arrow-row-center">
+                                    <button type="button" class="nav-disk-btn" id="btnLibPrev" onclick="if(!helpActive) void cyclePieceInActiveLibrary(-1)" data-help="">▲</button>
+                                </div>
                                 <div class="oled-wrapper">
                                     <div class="oled-screen">
                                         <div id="oledScoreTitle" class="oled-section oled-score-title-only" onclick="if(!helpActive) openScoreLibraryModal()" data-help="">
                                             <div class="oled-main oled-lib-title" id="lcdScoreTitleOnly">—</div>
                                         </div>
                                     </div>
+                                </div>
+                                <div class="arrow-row arrow-row-center">
+                                    <button type="button" class="nav-disk-btn" id="btnLibNext" onclick="if(!helpActive) void cyclePieceInActiveLibrary(1)" data-help="">▼</button>
                                 </div>
                             </div>
                             <div style="display:flex;flex-direction:row;align-items:center;gap:4px;flex-shrink:0;">
@@ -765,32 +733,6 @@
                                 <button type="button" id="btnDemoRepeat" class="sq-btn" onclick="if(!helpActive) toggleDemoRepeat()" data-help="" title="" aria-label="" style="align-self:center;flex-shrink:0;">
                                     <svg id="demoRepeatIcon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
                                 </button>
-                                <button type="button" id="btnMidiRec" class="sq-btn" onclick="if(!helpActive) void toggleMidiRecorder()" data-help="" title="" aria-label="MIDI REC" style="align-self:center;flex-shrink:0;margin-left:14px;">
-                                    <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><circle cx="12" cy="12" r="5" fill="currentColor" stroke="none"/></svg>
-                                </button>
-                                <div class="midi-player-wrap" style="position:relative;align-self:center;flex-shrink:0;margin-left:2px;">
-                                    <button type="button" id="btnMidiPlayer" class="sq-btn" onclick="if(!helpActive) toggleMidiPlayerPanel()" data-help="" title="" aria-label="MIDI Player" style="display:flex;align-items:center;justify-content:center;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7,5 19,12 7,19"/></svg>
-                                    </button>
-                                    <div id="midiPlayerPanel" style="display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;width:min(92vw,300px);background:#1a1a1d;border:1px solid #333;border-radius:4px;padding:10px 12px;z-index:1200;flex-direction:column;gap:8px;">
-                                        <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#557799;text-transform:uppercase;">Sessions</div>
-                                        <select id="midiRecSessionSelect" style="background:#111;color:#eee;border:1px solid #333;padding:6px;font-family:'Share Tech Mono';border-radius:3px;width:100%;font-size:11px;"></select>
-                                        <div style="display:flex;align-items:center;gap:8px;">
-                                            <button type="button" id="midiRecPlayBtn" class="sq-btn" onclick="if(!helpActive) void toggleMidiRecPlayback()" style="width:36px;height:38px;flex-shrink:0;padding:0;align-self:center;" title="Play / Stop">▶</button>
-                                            <div style="flex:1;min-width:0;display:flex;align-items:center;">
-                                                <input type="range" id="midiRecSeek" min="0" max="1000" value="0" step="0.1">
-                                            </div>
-                                            <button type="button" id="btnMidiRecRepeat" class="sq-btn" onclick="if(!helpActive) toggleMidiRecRepeat()" data-help="" title="" aria-label="" style="width:36px;height:38px;flex-shrink:0;padding:0;display:flex;align-items:center;justify-content:center;align-self:center;">
-                                                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><polyline points="17 1 21 5 17 9"/><path d="M3 11V9a4 4 0 0 1 4-4h14"/><polyline points="7 23 3 19 7 15"/><path d="M21 13v2a4 4 0 0 1-4 4H3"/></svg>
-                                            </button>
-                                        </div>
-                                        <div style="display:flex;align-items:stretch;gap:10px;justify-content:space-between;">
-                                            <div id="midiRecTimeDisplay" class="midi-rec-clock-box" title="">00:00.0</div>
-                                            <div id="midiRecSpeedBox" class="midi-rec-clock-box" onclick="if(!helpActive) cycleMidiRecPlaySpeed()" title="">×1.0</div>
-                                        </div>
-                                        <button type="button" class="hardware-btn" id="midiRecExportBtn" onclick="if(!helpActive) void exportMidiRecorderSession()" style="width:100%;font-size:11px;padding:8px;letter-spacing:1px;">Export .mid</button>
-                                    </div>
-                                </div>
                             </div>
                         </div>
                     </div>
@@ -848,27 +790,43 @@
             <div class="wood-cheek right"></div>
         </div>
     </div>
-<script src="repertoar_info_guides.js" charset="utf-8"></script>
 <script>
+    if(window.AkiraDb&&typeof AkiraDb.init==='function')void AkiraDb.init().catch(function(e){console.warn('AkiraDb init',e);});
     // ── Language ──────────────────────────────────────────────────────────────
     let currentLang='EN';
     const MODULE_NAMES={EN:['EAR TRAIN','SIGHT READ','CHORDS','SCALES','HANON','REPERTOIRE'],HU:['HALLÁS','KOTTAOLVASÁS','AKKORDOK','SKÁLÁK','HANON','REPERTOÁR']};
     const MODAL_STRINGS={
         EN:{
-            'txt-infoTitle': 'Guide to using the Repertoire module',
-            'txt-infoFullGuide': (typeof window.REPERTOAR_INFO_GUIDE_EN!=='undefined'?window.REPERTOAR_INFO_GUIDE_EN:''),
+            'txt-infoTitle': 'Repertoire module — guide',
+            'txt-infoScoresTitle': 'Score files & sources',
+            'txt-infoScoresBody': 'This module only reads MusicXML (.xml, .musicxml) and compressed .mxl (ZIP with MusicXML). There is no PDF import — PDF is not machine-readable for practice, cursor, MIDI, or measure range; MusicXML is easy to export from any notation app.\n\nLoad:\n• Score file icon (right toolbar, document with staff lines) — pick a file; opens at once.\n• Library (tap score title) — + File / + Batch copies into browser storage; Link folder (Chrome/Edge) lists every .xml / .mxl in a folder you choose.\n• URL — paste a direct link to .musicxml or .mxl. Many sites block cross-site downloads (CORS); saving the file and using the score file icon is often easier.\n\nWhere to get MusicXML:\n• MuseScore Desktop — File → Export → MusicXML (licensing varies by piece).\n• IMSLP and other libraries — choose a MusicXML edition when available, or export from MuseScore / Finale / Dorico / etc.\n• Flat.io, Noteflight, and similar — export MusicXML, then open here.',
+            'txt-howTitle':  'Practice flow',
+            'txt-howBody':   'START — step-by-step practice: play only the notes the score highlights, in order. Spacebar starts or stops.\nDEMO (▶) — the app plays the piece with the current measure highlighted and optional built-in piano sound. Use the ▲▼ arrows next to the ▶ button to adjust playback speed (0.3×–1.8×); tap the speed number to reset to 1.0×. To the right of the speed box, the square loop button toggles DEMO repeat: when the piece reaches the end, DEMO starts again until you tap the button off (▶ still stops playback at any time). If book view uses one column, DEMO temporarily switches to two columns for smoother page scrolling, then restores your layout when DEMO ends.\n\nWhen a measure range is set (soft amber band on the score), START and DEMO work only in that range — not the whole piece.\nNext to the title display, ▲ / ▼ loads the previous or next piece in the library; tap the title to open the full library.\n\nThe sections below explain measure selection and bookmarks in more detail.',
+            'txt-infoMeasureGuideTitle': 'Measure range — choosing and clearing',
+            'txt-infoMeasureGuideBody': 'What it does: limits START and DEMO to certain measures. The selected area is shown as a light amber tint on the score.\n\nHow to set the range:\n• Open the measure range dialog (staff-lines icon, top right of the 2×2 control block). Enter the first and last measure number, then tap OK.\n• Click-to-select on the score: turn ON the tilted pointer (top left of that block), or use the checkbox in the measure range dialog. It is OFF by default so normal clicks on the score do not change the selection.\n\nWith click-to-select ON:\n• One click on a measure — only that measure stays selected (previous selection is replaced).\n• Shift+click another measure — every measure from the one you last clicked up to the new click is included (you can extend the range in several steps).\n• Cmd+click (Mac) or Ctrl+click (Windows) — add or remove single measures without clearing the rest.\n\nHow to clear the range (whole piece again):\n• Tap ∅ bottom left of the 2×2 block — same as ∅ next to OK in the measure range dialog.\n• Bookmarks open from bottom right. Turning click-to-select OFF only stops further clicks from changing the range; it does not remove the amber band — use ∅ to clear the range.\n\nWhen you are done, turn click-to-select OFF if you do not want accidental changes.',
+            'txt-infoBookmarksGuideTitle': 'Bookmarks B1 · B2 · B3',
+            'txt-infoBookmarksGuideBody': 'Saved only in your browser, separately for each score file.\n\n• Click B1, B2, or B3 — loads that slot for the current score: restores the saved measure range, scroll position in the score area, and (in two- or three-column book view) which page spread you were on.\n• Shift+click the same button — saves the current state into that slot (for this file only).\n\nSaved: the active measure selection (amber band), vertical scroll in the score panel, and the spread index in multi-column book view.\n\nNot saved: zoom, number of columns (1 / 2 / 3), tempo, or other files. If nothing was saved in a slot, a normal click tells you it is empty.\n\nLOG in the bookmark panel shows a short history of completed practice runs (tempo, steps, measure range if any).',
+            'txt-infoPanelTitle': 'Toolbar (right of the sheet)',
+            'txt-infoPanelBody': 'Expand corners — full-screen score view: hides rack and keyboard; score fills the area; browser fullscreen optional (Esc exits).\nSliders — zoom, page margins, staff spacing.\nOpen book — cycles 1 / 2 / 3 columns (scroll vs spreads). With 2–3 columns, ◀ ▶ change spreads.\nSun button — cycles score colours: light, paper (sepia), dark with white notation, dark with warm notation.\nScore file — open .xml / .musicxml / .mxl from disk.\n2×2 block next to the piano button: top left — click-to-select on the score; top right — measure range dialog; bottom left — ∅ clears the measure selection (full score again); bottom right — bookmarks.\nStar — five view presets: click a number to load zoom + layout; Shift+click saves the current view.',
+            'txt-infoShortcutsTitle': 'Keyboard',
+            'txt-infoShortcutsBody': '← → — previous / next spread when BOOK uses 2–3 columns.\nSpace — START / STOP practice.\nNumpad + / − — zoom in or out.',
+            'txt-ctrlTitle': 'Rack (below the score)',
+            'txt-ctrl0':     'Clef strip — cycles Treble+Bass / Treble only / Bass only (hints and which staff you practice).',
+            'txt-ctrl4':     'Eye — practice hints: key LEDs and ▼ markers above the keyboard (cyan = right hand, pastel orange = left hand); tap again to turn off.',
+            'txt-infoHelpTitle': 'Help mode (? )',
+            'txt-infoHelpBody': 'Turn ? on, then tap any control that has a description — text appears in the info bar. Tap ? again to exit. The I button opens this guide (EN / HU with the language buttons).',
             'txt-gotIt':     'Got it',
             'txt-logTitle':  'Practice log (recent sessions)',
             'txt-logClose':  'Close',
             'txt-measureRangeTitle': 'Measure range',
             'txt-measureRangeSec': 'START / DEMO scope',
-            'txt-measureRangeClickPickLabel': 'Let me pick measures by clicking the score (see the guide for Shift-click and Ctrl-click).',
+            'txt-measureRangeClickPickLabel': 'Allow clicking the score to choose measures (Shift / Ctrl+click as described in the guide)',
             'txt-measureRangeClose': 'Close',
             'txt-bookmarksTitle': 'Bookmarks',
             'txt-bookmarksClose': 'Close',
             'txt-workshopBmSec': 'B1 · B2 · B3',
             'txt-scoreLibTitle': 'Score library',
-            'txt-scoreLibHint': 'You can keep more than one library. Each library has its own list of pieces. Nothing leaves your browser unless you export it yourself.\n\nThe first time you open this page, a sample library may appear. You can delete pieces you do not want. Use + File or + Batch to bring your own MusicXML or MXL files in. In Chrome or Edge, Link folder lets you attach a folder on your computer so its scores stay listed after you refresh.\n\nIf a pasted web link does not download, save the file with your browser first, then open it with the score icon on the right.\n\nSave stores the score that is open now under a name inside the library you picked.',
+            'txt-scoreLibHint': 'Several named libraries; each has its own piece list (stored in the browser only).\n\nOn first visit, a \"Samples\" library is filled from samples/manifest.json (list of .mxl/.xml) plus the files in samples/; you can remove pieces with Del — they will not reappear unless you clear site data. To add scores, put the file in samples/ and add its filename to manifest.json, then clear localStorage key repertoar_builtin_samples_seeded_v1 once (or site data).\n\n+ File / + Batch — import MusicXML/MXL into storage.\nLink folder — Chrome/Edge can attach a local folder; all .xml / .mxl inside stay listed after refresh.\nURL — only works if the server allows other sites to fetch the file (CORS). MuseScore, IMSLP, and many hosts do not; download the file and use the score file icon on the right instead.\nSave — store the currently open score under a name in the active library.',
             'txt-scoreLibLibsHdr': 'Libraries',
             'btnScoreLibAddLibrary': '+ New collection',
             'txt-scoreLibPiecesHdr': 'Pieces',
@@ -877,20 +835,36 @@
             'btnScoreLibFetch': 'URL'
         },
         HU:{
-            'txt-infoTitle': 'Útmutató a repertoár modul használatához',
-            'txt-infoFullGuide': (typeof window.REPERTOAR_INFO_GUIDE_HU!=='undefined'?window.REPERTOAR_INFO_GUIDE_HU:''),
+            'txt-infoTitle': 'Repertoár modul — útmutató',
+            'txt-infoScoresTitle': 'Kottafájlok és források',
+            'txt-infoScoresBody': 'A modul csak MusicXML (.xml, .musicxml) és tömörített .mxl (ZIP-ben MusicXML) fájlt tud megnyitni. PDF-et nem: gyakorlásra, kurzorra, MIDI-re és ütemtartományra a PDF nem alkalmas; MusicXML-et viszont a legtöbb kottaszerkesztőből egyszerűen exportálhatsz.\n\nBetöltés:\n• Kottafájl ikon a jobb oldali eszköztáron (dokumentum kottavonalakkal) — kiválasztod a fájlt, és azonnal megnyílik.\n• Könyvtár — kattints a kotta címére a kijelzőn; a + File / + Batch a böngésző tárhelyére másolja a fájlokat. A Link mappa (Chrome, Edge) egy kiválasztott mappa összes .xml és .mxl fájlját kilistázza.\n• URL — közvetlen .musicxml vagy .mxl cím. Sok szerver nem engedi a másik oldalról való letöltést (CORS); ilyenkor gyakran egyszerűbb letölteni a fájlt, majd a kottafájl ikonnal megnyitni.\n\nHonnan legyen MusicXML:\n• MuseScore (asztali) — Fájl → Exportálás → MusicXML (a darab licencétől függ, mit szabad).\n• IMSLP és más gyűjtemények — ha van MusicXML kiadás, azt válaszd, vagy exportálj más programból (MuseScore, Finale, Dorico stb.).\n• Flat.io, Noteflight és hasonlók — export MusicXML, majd megnyitás itt.',
+            'txt-howTitle':  'Gyakorlás menete',
+            'txt-howBody':   'START — lépésről lépésre gyakorlod a kotta által kiemelt hangokat, a megadott sorrendben. Szóköz: indítás vagy leállítás.\nDEMO (▶) — az alkalmazás lejátsza a darabot: az aktuális ütem kiemelve látszik, a hangot pedig opcionálisan a beépített zongora adja. A ▶ gomb melletti ▲▼ nyilakkal állítható a lejátszási sebesség (0,3×–1,8×); a kijelzőre kattintva visszaáll 1,0×-ra. A sebességkijelző jobb oldalán a négyzetes ismétlés ikon kapcsolja a DEMO ismétlést: a darab végén újraindul, amíg ki nem kapcsolod (a ▶ továbbra is bármikor megállítja a lejátszást). Ha a könyvet egy hasábban nézed, a DEMO alatt átmenetileg két hasábra vált a gördülékenyebb lapkövetés miatt; a DEMO végén visszaáll a korábbi nézet.\n\nHa be van állítva ütemtartomány (enyhe borostyánsárga szín a kottán), a START és a DEMO csak erre a szakaszra vonatkozik, nem az egész darabra.\nA cím melletti ▲ és ▼ az aktuális könyvtárban az előző vagy a következő darabra vált; a címre kattintva megnyílik a teljes könyvtár.\n\nA következő két fejezet részletesen elmagyarázza az ütemek kijelölését és a könyvjelzőket.',
+            'txt-infoMeasureGuideTitle': 'Ütemtartomány — kijelölés és törlés',
+            'txt-infoMeasureGuideBody': 'Mire való: meghatározza, hogy a START és a DEMO a kotta mely ütemein dolgozzon. A kijelölt rész enyhén borostyánsárga háttérrel látszik.\n\nBeállítás:\n• Nyisd meg az ütemtartomány ablakot (vonalkás ikon a 2×2-es gombcsoport jobb felső mezőjében). Írd be az első és az utolsó ütem számát, majd koppints az OK gombra.\n• Egérrel a kottán: kapcsold be a ferde egérmutató ikont (bal felső mező ugyanabban a csoportban), vagy jelöld be ugyanezt az ütemtartomány ablakban. Alapból ki van kapcsolva, hogy véletlen kattintásra ne változzon a kijelölés.\n\nHa be van kapcsolva az egérrel választás:\n• Egy kattintás egy ütemre — csak az az ütem marad kijelölve (a korábbi kijelölés törlődik).\n• Shift és kattintás egy másik ütemre — minden ütem bekerül a két ütem között, az első kattintásodtól számítva (több lépésben is bővítheted a szakaszt).\n• Macen Cmd + kattintás, Windowson Ctrl + kattintás — egy-egy ütem külön be- vagy kikapcsolható a kijelölésből.\n\nKijelölés törlése (újra az egész darab):\n• A 2×2-es csoport bal alsó mezőjében a ∅ gomb (ugyanolyan színű, mint a többi ikon), vagy ugyanez az ütemtartomány ablakban az OK mellett. Ez törli a tartományt: a START és a DEMO ismét az egész kottára vonatkozik.\n• A könyvjelzőt a jobb alsó gomb nyitja. Ha kikapcsolod az egérrel választást, attól a borostyánsárga sáv még megmarad; a tartományt csak a ∅ gombbal törölheted.\n\nHa nem szeretnél többé a kottán kattintással módosítani a kijelölést, kapcsold ki az egérrel választást is.',
+            'txt-infoBookmarksGuideTitle': 'Könyvjelzők B1 · B2 · B3',
+            'txt-infoBookmarksGuideBody': 'Csak a böngészőben tárolódnak; minden kottafájlhoz külön tartoznak a B1, B2, B3 helyek.\n\n• Egyszerű kattintás a B1, B2 vagy B3 gombon — betölti a mentést az épp nyitott darabhoz: visszaáll a mentett ütemtartomány, a kotta görgetési helyzete, és ha két vagy három hasábban nézed a könyvet, az is, melyik oldalpáron voltál.\n• Shift és kattintás ugyanezen a gombon — elmenti az aktuális állapotot ebbe a helyre (csak ehhez a fájlhoz).\n\nMit ment: a kijelölt ütemeket (amit a borostyánsárga mutat), a kottaablak függőleges görgetését, több hasábnál pedig az aktuális oldalpár sorszámát.\n\nMit nem ment: a nagyítást, a hasábszámot (1 / 2 / 3), a tempót, más darabot. Üres helyre sima kattintáskor jelzi, hogy még nincs ott mentés.\n\nA könyvjelzők panelen a LOG a korábbi gyakorlások rövid listája (tempó, lépésszám, ütemtartomány, ha volt).',
+            'txt-infoPanelTitle': 'Eszköztár a kotta mellett (jobb)',
+            'txt-infoPanelBody': 'Sarkok ikon — teljes képernyős kotta nézet: eltűnik a rack és a billentyűzet, a kotta kitölti a területet; böngészőben teljes képernyő is lehetséges (Esc kilép).\nCsúszkák — nagyítás, lapmargó, kottasorok távolsága.\nNyitott könyv ikon — 1, 2 vagy 3 hasáb (folyamatos görgetés vagy oldalanként). Két vagy három hasábnál a ◀ ▶ gombok lapoznak.\nNap gomb — négy megjelenés váltása: világos, papír (bézs), sötét fehér jegyzettel, sötét meleg tónusú jegyzettel.\nKottafájl — .xml, .musicxml vagy .mxl megnyitása a gépről.\nA zongora gomb melletti 2×2-es négyes: bal felső — egérrel kijelölés a kottán; jobb felső — ütemtartomány ablak; bal alsó — ∅ törli az ütemkijelölést (vissza az egész kotta); jobb alsó — könyvjelző.\nCsillag — öt nézetmentés: számra kattintva betöltés, Shift + szám mentés (nagyítás és elrendezés).',
+            'txt-infoShortcutsTitle': 'Billentyűparancsok',
+            'txt-infoShortcutsBody': '← → — előző vagy következő oldalpár, ha a könyv nézet két vagy három hasábos.\nSzóköz — START vagy STOP (gyakorlás).\nNumerikus + / − — nagyítás léptetése.',
+            'txt-ctrlTitle': 'Rack (a kotta alatt)',
+            'txt-ctrl0':     'Kulcssáv — sorrendben: két kottasor (violin- és basszuskulcs), csak violin, csak basszus. Meghatározza a segédleteket és azt, melyik sort gyakorlod.',
+            'txt-ctrl4':     'Szem ikon — gyakorláskor LED a billentyűkön és ▼ a sávban (kék = jobb kéz, pasztell narancs = bal kéz); újra rákattintva kikapcsolható.',
+            'txt-infoHelpTitle': 'Súgó mód (? )',
+            'txt-infoHelpBody': 'Kapcsold be a ? gombot, majd kattints bármely olyan elemre, amelyhez leírás tartozik — a szöveg az infósávba kerül. A ? újbóli megnyomásával kilépsz. Az I gomb ezt az útmutatót nyitja meg; a nyelvet az EN / HU gombokkal válthatod.',
             'txt-gotIt':     'Értettem',
             'txt-logTitle':  'Gyakorlás napló (utolsó futások)',
             'txt-logClose':  'Bezár',
             'txt-measureRangeTitle': 'Ütemtartomány',
             'txt-measureRangeSec': 'START / DEMO hatókör',
-            'txt-measureRangeClickPickLabel': 'A kottára kattintva is választhatok ütemeket (a részletek az útmutatóban: Shift és Ctrl).',
+            'txt-measureRangeClickPickLabel': 'Engedélyezem, hogy a kottán kattintva válasszak ütemeket (Shift és Ctrl: lásd az útmutatóban)',
             'txt-measureRangeClose': 'Bezár',
             'txt-bookmarksTitle': 'Könyvjelzők',
             'txt-bookmarksClose': 'Bezár',
             'txt-workshopBmSec': 'B1 · B2 · B3',
             'txt-scoreLibTitle': 'Kottakönyvtár',
-            'txt-scoreLibHint': 'Több könyvtárat is felvehetsz, mindegyiknek saját darablistája van. Minden adat a böngésződben marad, amíg te nem törlöd.\n\nElső alkalommal megjelenhet egy mintagyűjtemény. A nem kellő darabokat törölheted. Saját kottáidat a + File vagy a + Batch gombbal hozhatod be. Chrome-ban és Edge-ben a Link mappa egy mappa fájljait tartja számon, és újratöltés után is ott maradnak.\n\nHa egy beillesztett webcím nem tölt be, mentsd le a fájlt a böngészővel, majd nyisd meg a jobb oldali kotta-ikonnal.\n\nA Mentés az épp nyitott kottát menti el névvel abba a könyvtárba, amelyiket kiválasztottad.',
+            'txt-scoreLibHint': 'Több elnevezett könyvtár; mindegyik saját darablistát tart (csak a böngészőben tárolva).\n\nElső látogatáskor a samples/manifest.json felsorolásából (és a samples/ mappában lévő fájlokból) töltődik a „Minták” gyűjtemény; egyenként törölheted (Töröl) — nem jönnek vissza, hacsak nem törlöd a böngésző adatait. Új .mxl: tedd a mappába, írd be a fájlnevet a manifest.json-ba, majd egyszer töröld a repertoar_builtin_samples_seeded_v1 kulcsot (vagy az oldal tárhelyét).\n\n+ File / + Batch — MusicXML/MXL import a tárhelyre.\nLink mappa — Chrome/Edge: helyi mappa csatolása; a benne lévő .xml / .mxl fájlok újratöltés után is listázva maradnak.\nURL — csak akkor működik, ha a szerver engedi a külső letöltést (CORS). A MuseScore, IMSLP és sok más oldal általában nem; töltsd le a fájlt, és használd a jobb oldali kotta-fájl ikont.\nMentés — az épp nyitott kotta elmentése névvel az aktív könyvtárba.',
             'txt-scoreLibLibsHdr': 'Könyvtárak',
             'btnScoreLibAddLibrary': '+ Új gyűjtemény',
             'txt-scoreLibPiecesHdr': 'Darabok',
@@ -908,12 +882,11 @@
             metroBpmBox:'Tempo: tap for preset BPM grid; ▲▼ nudge BPM.',
             metroMenuBtn:'Metronome menu: sound, volume, accent on beat 1.',
             btnStart:'START/STOP: step practice on the score, or stop.',
-            oledScoreTitle:'Score title: tap opens the library to pick a piece. The score file icon on the right loads from disk.',
+            btnLibPrev:'Previous piece in the active library.',
+            btnLibNext:'Next piece in the active library.',
+            oledScoreTitle:'Score title: ▲▼ change piece; tap opens library (switch collection in the list). The score file icon on the right loads from disk.',
             btnDemo:'▶ DEMO: plays the score with measure highlight. ▲▼ adjusts playback speed (0.3×–1.8×); tap the speed display to reset to 1.0×. Internal piano audio can be toggled. MIDI can target IAC/Pianoteq on Mac when that port exists.',
             btnDemoRepeat:'DEMO repeat: when on, the score DEMO restarts from the beginning each time it reaches the end, until you tap this button off. ▶ still stops playback immediately.',
-            btnMidiRec:'REC on / off.',
-            btnMidiPlayer:'Player panel.',
-            btnMidiRecRepeat:'Loop playback.',
             audioToggle:'Piano audio: built-in sampled piano on or off.',
             btnMeasureRange:'Measure range (top right of the 2×2 block): limits START and DEMO. Type numbers in the dialog, or use the pointer (top left) / checkbox to pick on the score (Shift / Ctrl+click).',
             btnMeasureClickPick:'Click-to-select (top left of the 2×2 block): OFF by default — ON shows green tint. Same as the checkbox in the measure range dialog.',
@@ -937,12 +910,11 @@
             metroBpmBox:'Tempó: katt BPM előbeállítások; ▲▼ finomhangolás.',
             metroMenuBtn:'Metronóm menü: hang, hangerő, hangsúly az 1. ütésen.',
             btnStart:'START/STOP: lépésenkénti gyakorlás a kottán, vagy megáll.',
-            oledScoreTitle:'Kotta címe: kattintás megnyitja a könyvtárat — onnan választhatsz darabot. A kotta-fájl ikon jobbról lemezről tölt.',
+            btnLibPrev:'Előző darab az aktív könyvtárban.',
+            btnLibNext:'Következő darab az aktív könyvtárban.',
+            oledScoreTitle:'Kotta címe: ▲▼ darab váltás; katt: könyvtár (gyűjtemény a listában). A kotta-fájl ikon jobbról lemezről tölt.',
             btnDemo:'▶ DEMO: lejátszás ütemkiemeléssel. ▲▼ a lejátszási sebesség állítása (0,3×–1,8×); a kijelzőre kattintva visszaáll 1,0×-ra. Belső zongora ki/be. MIDI mehet IAC/Pianoteq felé Macen, ha van ilyen port.',
             btnDemoRepeat:'DEMO ismétlés: bekapcsolva a kotta-DEMO minden lefutás végén elölről indul, amíg ki nem kapcsolod. A ▶ gomb továbbra is azonnal megállítja a lejátszást.',
-            btnMidiRec:'Felvétel be / ki.',
-            btnMidiPlayer:'Lejátszó panel.',
-            btnMidiRecRepeat:'Lejátszás ismétlése.',
             audioToggle:'Zongora hang: belső mintahang be vagy ki.',
             btnMeasureRange:'Ütemtartomány (2×2-es csoport jobb felső): START és DEMO határa. Számok az ablakban, vagy bal felső mutató / jelölőnégyzet + kotta (Shift / Ctrl+katt).',
             btnMeasureClickPick:'Egérrel választás (2×2 bal felső): alapból ki; bekapcsolva zöldes háttér. Ugyanaz, mint az ütemtartomány ablak jelölőnégyzete.',
@@ -973,11 +945,6 @@
                 ?('Előbeállítás '+(i+1)+' — katt: betöltés, Shift+katt: aktuális nézet mentése.')
                 :('Preset '+(i+1)+' — click: load, Shift+click: save current view.'));
         }
-        ['btnMidiRec','btnMidiPlayer'].forEach(id=>{
-            const el=document.getElementById(id);
-            const t=pack[id];
-            if(el&&t)el.setAttribute('title',t);
-        });
     }
     let _sheetContainerCached=null;
     function elSheetContainer(){
@@ -1239,18 +1206,14 @@
         }
         updateLibraryOledText();
     }
-    async function addScoreToLibrary(displayName,xml,opts){
+    function addScoreToLibrary(displayName,xml,opts){
         const xmlStr=String(xml||'');
         if(!xmlStr.trim())return false;
         const id=hashScoreXml(xmlStr);
-        try{
-            await idbPutLibraryXml(id,xmlStr);
-        }catch(e){
-            if(!(opts&&opts.quietQuota))
-                setInfoBar(currentLang==='HU'?'Tárhely tele — törölj a könyvtárból':'Storage full — remove scores from library',null);
+        try{localStorage.setItem(libStorageKey(id),xmlStr);}catch(e){
+            setInfoBar(currentLang==='HU'?'Tárhely tele — törölj a könyvtárból':'Storage full — remove scores from library',null);
             return false;
         }
-        try{localStorage.removeItem(libStorageKey(id));}catch(e){}
         let s=readLibrariesState();
         const lib=getActiveLibrary(s);
         if(!lib.entries)lib.entries=[];
@@ -1300,7 +1263,7 @@
         const lib=getActiveLibrary(s);
         const ent=lib.entries||[];
         lib.entries=ent.filter(e=>e&&e.id!==sid);
-        void idbRemoveLibraryXml(sid);
+        try{localStorage.removeItem(libStorageKey(sid));}catch(e){}
         if(s.activeEntryIndex>=lib.entries.length)s.activeEntryIndex=Math.max(0,lib.entries.length-1);
         saveLibrariesState(s);
         applyLibraryOledAfterLoad();
@@ -1323,32 +1286,25 @@
         })();
     }
     async function loadLibraryEntryById(id){
-        let xml=await idbGetLibraryXml(id);
-        let fromLegacyLs=false;
-        if(!xml||!String(xml).trim()){
-            xml=localStorage.getItem(libStorageKey(id));
-            fromLegacyLs=!!(xml&&String(xml).trim());
-        }
+        const xml=localStorage.getItem(libStorageKey(id));
         if(!xml||!String(xml).trim()){
             setInfoBar(currentLang==='HU'?'Hiányzik a könyvtári adat':'Missing library data',null);
             return;
         }
-        if(fromLegacyLs)
-            void idbPutLibraryXml(id,xml).then(()=>{try{localStorage.removeItem(libStorageKey(id));}catch(e){}}).catch(()=>{});
         await loadXmlScore(xml,id);
     }
     /** Törli a beépített „Minták” gyűjtemény(ek)et és a hozzájuk tartozó XML kulcsokat (újraseed / manifest szinkron). */
-    async function stripBuiltinSamplesLibrariesFromState(){
+    function stripBuiltinSamplesLibrariesFromState(){
         let st=readLibrariesState();
         const had=st.libraries.some(l=>l&&l.id==='lib_builtin_samples');
         if(!had)return;
         const prevFocusId=(st.libraries[st.activeLibIndex|0]||{}).id;
-        for(const lib of st.libraries){
-            if(!lib||lib.id!=='lib_builtin_samples')continue;
-            for(const e of (lib.entries||[])){
-                if(e&&e.id) await idbRemoveLibraryXml(e.id);
-            }
-        }
+        st.libraries.forEach(lib=>{
+            if(!lib||lib.id!=='lib_builtin_samples')return;
+            (lib.entries||[]).forEach(e=>{
+                if(e&&e.id)try{localStorage.removeItem(libStorageKey(e.id));}catch(_){}
+            });
+        });
         st.libraries=st.libraries.filter(l=>l&&l.id!=='lib_builtin_samples');
         if(!st.libraries.length){
             st.libraries.push({id:'lib0',name:currentLang==='HU'?'Alapértelmezett':'Default',entries:[]});
@@ -1376,8 +1332,8 @@
             /* Böngésző biztonság: file:// alatt a mellékelt samples/*.mxl nem kérhető le — üres marad a könyvtár. */
             if(location.protocol==='file:'){
                 setInfoBar(hu
-                    ?'A mintakották így nem töltődnek be — nyisd meg az oldalt a honlap / kurzus linkjén, vagy tölts fel kottát a jobb oldali fájl ikonnal.'
-                    :'Sample scores need the page opened from your site link — or import a score with the file icon on the right.',null);
+                    ?'Minták nem töltődnek fájlból megnyitva. Indíts helyi szervert: terminálban lépj a mappába, majd: python3 -m http.server 8765 — böngésző: http://localhost:8765/repertoar.html'
+                    :'Sample scores do not load when opening the HTML as a file. Run a local server: cd to this folder, then: python3 -m http.server 8765 — open http://localhost:8765/repertoar.html',null);
                 return;
             }
             try{
@@ -1413,11 +1369,11 @@
             }
             if(!loaded.length){
                 setInfoBar(hu
-                    ?'A mintakották most nem töltődtek be — importálhatsz saját fájlt a kotta ikonnal.'
-                    :'Samples did not load — you can import your own file with the score icon.',null);
+                    ?'Minták: nem találom a samples/ mappát (ellenőrizd az URL-t és a fájlneveket).'
+                    :'Samples: could not load files from samples/ (check URL and filenames).',null);
                 return;
             }
-            await stripBuiltinSamplesLibrariesFromState();
+            stripBuiltinSamplesLibrariesFromState();
             let st=readLibrariesState();
             const singleEmpty=st.libraries.length===1&&st.libraries.every(L=>!(L.entries||[]).length);
             const prevActive=st.activeLibIndex|0;
@@ -1427,7 +1383,7 @@
             saveLibrariesState(st);
             for(const {rel,xml} of loaded){
                 const fname=rel.split('/').pop()||'sample.mxl';
-                await addScoreToLibrary(fname,xml);
+                addScoreToLibrary(fname,xml);
             }
             st=readLibrariesState();
             if(!singleEmpty){
@@ -1450,7 +1406,7 @@
         if(ix<0||ix>=ent.length)ix=0;
         await loadLibraryEntryById(ent[ix].id);
     }
-    async function ensureScoreInLibrary(title,xml){
+    function ensureScoreInLibrary(title,xml){
         const xmlStr=String(xml||'');
         if(!xmlStr.trim())return;
         const id=hashScoreXml(xmlStr);
@@ -1458,10 +1414,7 @@
         const lib=getActiveLibrary(s);
         if(!lib.entries)lib.entries=[];
         if(lib.entries.some(e=>e&&e.id===id))return;
-        try{
-            await idbPutLibraryXml(id,xmlStr);
-        }catch(e){return;}
-        try{localStorage.removeItem(libStorageKey(id));}catch(e){}
+        try{localStorage.setItem(libStorageKey(id),xmlStr);}catch(e){return;}
         const nice=extractMusicXmlDisplayTitle(xmlStr)||prettifyFilenameScoreTitle(title||'')||String(title||'Restored').replace(/\.(xml|musicxml|mxl)$/i,'').trim()||'Restored';
         lib.entries.push({id,title:nice});
         s.activeEntryIndex=lib.entries.length-1;
@@ -1499,17 +1452,6 @@
     let _linkedDirHandle=null;
     const LS_DIR_HANDLE_KEY='akira_linked_dir_handle';
 
-    /** Összegyűjti az összes .xml / .musicxml / .mxl fájl handle-jét a mappában és minden almappában (régebben csak a gyökér szinten kerestünk). */
-    async function collectXmlMxlHandlesRecursive(dirHandle, bucket, pathPrefix){
-        for await(const h of dirHandle.values()){
-            const rel=pathPrefix?pathPrefix+'/'+h.name:h.name;
-            if(h.kind==='file'&&/\.(xml|musicxml|mxl)$/i.test(h.name))
-                bucket.push({handle:h, relPath:rel});
-            else if(h.kind==='directory')
-                await collectXmlMxlHandlesRecursive(h, bucket, rel);
-        }
-    }
-
     async function linkLocalFolder(){
         if(helpActive)return;
         const hu=currentLang==='HU';
@@ -1535,14 +1477,18 @@
                 }
             }catch(e){}
 
-            const found=[];
-            await collectXmlMxlHandlesRecursive(dirHandle, found, '');
-            found.sort((a,b)=>a.relPath.localeCompare(b.relPath,'en',{numeric:true}));
+            // Scan folder for .xml / .mxl files
+            const files=[];
+            for await(const entry of dirHandle.values()){
+                if(entry.kind==='file'&&/\.(xml|musicxml|mxl)$/i.test(entry.name)){
+                    files.push(entry);
+                }
+            }
 
-            if(found.length===0){
+            if(files.length===0){
                 alert(hu
-                    ?'Nem találtam .xml / .mxl fájlt ebben a mappában (almappákban sem).'
-                    :'No .xml / .mxl files in this folder (including subfolders).');
+                    ?'Nem találtam .xml / .mxl fájlt ebben a mappában.'
+                    :'No .xml / .mxl files found in this folder.');
                 return;
             }
 
@@ -1555,43 +1501,32 @@
             s.activeEntryIndex=0;
             saveLibrariesState(s);
 
-            let imported=0, skipped=0;
-            let storageFull=false;
-            for(const {handle:fileEntry, relPath} of found){
+            // Import all found files
+            let count=0;
+            for(const fileEntry of files){
                 try{
                     const file=await fileEntry.getFile();
-                    const displayName=relPath.replace(/\.(xml|musicxml|mxl)$/i,'').replace(/\//g,' / ');
+                    const name=file.name.replace(/\.(xml|musicxml|mxl)$/i,'');
                     let xml;
                     if(/\.mxl$/i.test(file.name)){
                         const buf=await file.arrayBuffer();
                         const zip=await JSZip.loadAsync(buf);
                         const xmlFile=Object.keys(zip.files).find(n=>/\.(xml|musicxml)$/i.test(n)&&!n.startsWith('META-INF'));
-                        if(!xmlFile){skipped++;continue;}
+                        if(!xmlFile)continue;
                         xml=await zip.files[xmlFile].async('string');
                     }else{
                         xml=await file.text();
                     }
-                    if(!xml||xml.length<=50){skipped++;continue;}
-                    if(await addScoreToLibrary(displayName,xml,{quietQuota:true}))imported++;
-                    else{storageFull=true;break;}
-                }catch(err){skipped++;console.warn('Folder import skip:',relPath,err);}
+                    if(xml&&xml.length>50){
+                        addScoreToLibrary(name,xml);
+                        count++;
+                    }
+                }catch(err){console.warn('Folder import skip:',fileEntry.name,err);}
             }
 
             refreshScoreLibraryListUI();
             updateLibraryOledText();
-            const total=found.length;
-            let msg;
-            if(hu){
-                msg='\uD83D\uDCC1 '+imported+' / '+total+' kotta importálva · '+libName;
-                if(storageFull)msg+=' — a böngésző tárhelye megtelt; törölj kottákat vagy próbálj másik profilt / böngészőt.';
-                else if(skipped>0&&imported<total)msg+=' — '+skipped+' kimaradt (hiba / üres MXL).';
-            }else{
-                msg='\uD83D\uDCC1 '+imported+' / '+total+' scores imported · '+libName;
-                if(storageFull)msg+=' — browser storage full; remove scores or try another profile / browser.';
-                else if(skipped>0&&imported<total)msg+=' — '+skipped+' skipped (errors / empty MXL).';
-            }
-            setInfoBar(msg,null);
-
+            setInfoBar((hu?'📁 '+count+' kotta importálva: '+libName:'📁 '+count+' scores imported from: '+libName),null);
 
         }catch(err){
             // User cancelled the picker or permission denied
@@ -1608,7 +1543,7 @@
         idx=idx|0;
         if(idx<0||idx>=s.libraries.length)return;
         const lib=s.libraries[idx];
-        (lib.entries||[]).forEach(e=>{if(e&&e.id)void idbRemoveLibraryXml(e.id);});
+        (lib.entries||[]).forEach(e=>{try{localStorage.removeItem(libStorageKey(e.id));}catch(_){}});
         const oldActive=s.activeLibIndex|0;
         s.libraries.splice(idx,1);
         if(idx<oldActive)s.activeLibIndex=oldActive-1;
@@ -1635,9 +1570,7 @@
         const s=readLibrariesState();
         const lib=getActiveLibrary(s);
         const base=hu?'Darabok':'Pieces';
-        const n=(lib.entries||[]).length;
-        const cnt=' ('+n+')';
-        el.textContent=(lib.name?base+' — '+lib.name:base)+cnt;
+        el.textContent=lib.name?base+' — '+lib.name:base;
     }
     function refreshScoreLibraryLibsBody(){
         const host=document.getElementById('scoreLibraryLibsBody');
@@ -1723,33 +1656,25 @@
             const row=document.createElement('div');
             row.className='score-lib-row';
             const t=document.createElement('span');
-            t.className='score-lib-row-title score-lib-piece-title';
+            t.className='score-lib-row-title';
             t.textContent=e.title||e.id;
-            t.title=(hu?'Betöltés: ':'Open: ')+(e.title||e.id);
-            t.onclick=()=>{
-                if(helpActive)return;
+            t.title=e.title||e.id;
+            const act=document.createElement('div');
+            act.className='score-lib-row-actions';
+            const bLoad=document.createElement('button');
+            bLoad.type='button';bLoad.className='lib-action-btn';bLoad.textContent=hu?'Betölt':'Load';
+            bLoad.onclick=()=>{
                 let s2=readLibrariesState();
                 const ent=(getActiveLibrary(s2).entries)||[];
                 const ix=ent.findIndex(x=>x&&x.id===e.id);
                 if(ix>=0){s2.activeEntryIndex=ix;saveLibrariesState(s2);}
-                void (async()=>{
-                    await loadLibraryEntryById(e.id);
-                    closeScoreLibraryModal();
-                })();
+                void loadLibraryEntryById(e.id);
+                refreshScoreLibraryListUI();
             };
-            const act=document.createElement('div');
-            act.className='score-lib-row-actions';
             const bDel=document.createElement('button');
-            bDel.type='button';
-            bDel.className='lib-row-icon-btn lib-del';
-            bDel.textContent='\u2212';
-            bDel.title=hu?'Törlés a könyvtárból':'Remove from library';
-            bDel.setAttribute('aria-label',hu?'Törlés a könyvtárból':'Remove from library');
-            bDel.onclick=ev=>{
-                ev.stopPropagation();
-                if(confirm(hu?'Törlöd ezt a könyvtári bejegyzést?':'Remove this library entry?'))removeLibraryEntryById(e.id);
-            };
-            act.append(bDel);
+            bDel.type='button';bDel.className='lib-action-btn';bDel.textContent=hu?'Töröl':'Del';
+            bDel.onclick=()=>{if(confirm(hu?'Törlöd ezt a könyvtári bejegyzést?':'Remove this library entry?'))removeLibraryEntryById(e.id);};
+            act.append(bLoad,bDel);
             row.append(t,act);
             host.appendChild(row);
         });
@@ -1759,7 +1684,7 @@
         const url=(inp&&inp.value||'').trim();
         const hu=currentLang==='HU';
         if(!url){setInfoBar(hu?'Adj meg URL-t':'Enter a URL',null);return;}
-        setInfoBar(hu?'Betöltés…':'Loading…',null);
+        setInfoBar(hu?'LETÖLTÉS…':'FETCHING…',null);
         try{
             const res=await fetch(url,{mode:'cors'});
             if(!res.ok)throw new Error('HTTP '+res.status);
@@ -1782,13 +1707,12 @@
                 throw new Error(hu?'Nem MusicXML (hiányzik a score-partwise / score-timewise)':'Not MusicXML (missing score root)');
             const nameGuess=(url.split('/').pop()||'download').split('?')[0]||'download';
             await loadXmlScore(xml);
-            await addScoreToLibrary(nameGuess,lastLoadedScoreXml||xml);
+            addScoreToLibrary(nameGuess,lastLoadedScoreXml||xml);
             setInfoBar(hu?'Kotta könyvtárba mentve':'Score saved to library',null);
             if(inp)inp.value='';
         }catch(err){
-            setInfoBar(hu
-                ?'Nem sikerült innen betölteni — próbáld a fájl feltöltését (kotta ikon), vagy másik közvetlen linket.'
-                :'Could not load from that link — try uploading a file (score icon), or another direct link.',null);
+            const tail=hu?' — közvetlen fájl-URL, vagy XML gomb':' — use direct file URL or XML upload';
+            setInfoBar((hu?'HIBA: ':'ERROR: ')+(err&&err.message?err.message:String(err))+tail,null);
             console.error('library fetch',err);
         }
     }
@@ -1799,7 +1723,7 @@
         const inp=document.getElementById('scoreLibSaveNameInput');
         const def=hu?'Darab':'Piece';
         const t=(inp&&(inp.value||'').trim())||def;
-        await addScoreToLibrary(t,xml,{preferUserTitle:true});
+        addScoreToLibrary(t,xml,{preferUserTitle:true});
         setInfoBar(hu?'Mentve a böngésző könyvtárába':'Saved to browser library',null);
         if(inp)inp.value='';
     }
@@ -2134,12 +2058,7 @@
         document.getElementById('btnLangEN').style.color=lang==='EN'?'#fff':'var(--text-dim)';
         document.getElementById('btnLangHU').style.color=lang==='HU'?'#fff':'var(--text-dim)';
         const T=MODAL_STRINGS[lang]||MODAL_STRINGS.EN;
-        Object.keys(T).forEach(id=>{
-            const el=document.getElementById(id);
-            if(!el)return;
-            if(id==='txt-infoFullGuide')el.innerHTML=T[id];
-            else el.innerText=T[id];
-        });
+        Object.keys(T).forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=T[id];});
         const modEl=document.getElementById('lcdModuleText');
         const mn=MODULE_NAMES[lang]||MODULE_NAMES.EN;
         if(modEl)modEl.textContent=mn[currentModuleIdx]||(currentLang==='HU'?'REPERTOÁR':'REPERTOIRE');
@@ -2165,7 +2084,6 @@
         updateViewPresetChrome();
         applyHelpTooltips();
         syncDemoRepeatButtonChrome();
-        syncMidiRecRepeatButtonChrome();
     }
     function syncDemoRepeatButtonChrome(){
         const b=document.getElementById('btnDemoRepeat');
@@ -2211,8 +2129,8 @@
         if(location.protocol==='file:'){
             const hu=currentLang==='HU';
             setInfoBar(hu
-                ?'A hanghoz nyisd meg az oldalt a böngészőben a honlap linkjén (ne dupla kattintással a fájlra), majd kattints a képernyőre.'
-                :'For sound, open this page from your site link in the browser (not by double‑clicking the file), then click the page.', document.getElementById('audioToggle'));
+                ?'Nincs hang, mert a címsorban file:// van (dupla kattintással nyitottad a fájlt). Zárd ezt a lapot. Terminál: lépj a mappába, ahol a repertoar.html van → python3 -m http.server 8080 → böngészőben pontosan: http://localhost:8080/repertoar.html'
+                :'No audio: address bar shows file:// (you opened the .html file directly). Close this tab. Terminal: cd to the folder containing repertoar.html → python3 -m http.server 8080 → in the browser open: http://localhost:8080/repertoar.html', document.getElementById('audioToggle'));
             throw new Error('NEED_HTTP_NOT_FILE');
         }
     }
@@ -2220,8 +2138,8 @@
         if(location.protocol!=='file:')return;
         const hu=currentLang==='HU';
         setInfoBar(hu
-            ?'A zongorahanghoz a honlap linkjén nyisd meg az oldalt a böngészőben, ne közvetlenül a fájlból.'
-            :'For piano sound, open the page from your site link in the browser, not straight from the file.', null);
+            ?'Zongorához ne file://-ról nyisd az oldalt. Terminál a mappában: python3 -m http.server 8080 — majd http://localhost:8080/repertoar.html'
+            :'For piano sound, do not use file://. Terminal in this folder: python3 -m http.server 8080 — then http://localhost:8080/repertoar.html', null);
     }
 
     /** Csak Tone AudioContext (metronome, DEMO időzítés) — nem tölti a Salamander MB-okat. */
@@ -2261,8 +2179,8 @@
                 console.error('Salamander piano (Tone) betöltés sikertelen:',e);
                 const hu=currentLang==='HU';
                 setInfoBar(hu
-                    ?'A zongora hang nem töltődött be — ellenőrizd az internetet, és próbáld újra.'
-                    :'Piano sound did not load — check your internet and try again.', document.getElementById('audioToggle'));
+                    ?'Zongora: hálózati / CDN hiba — ellenőrizd az internetet és hogy http://localhost-ról nyitod (nem file://). Részletek: böngésző konzol (F12).'
+                    :'Piano load failed — check network, use http://localhost (not file://). Details: browser console (F12).', document.getElementById('audioToggle'));
             }
             _pianoInitPromise=null;
             salamanderPiano=null;
@@ -2272,27 +2190,21 @@
 
     function attachMidiInputHandler(input){
         input.onmidimessage=(msg)=>{
-            _midiRecorderFromHardwareInput=true;
-            try{
-                midiRecorderOnMidiMessage(msg);
-                const d=msg.data;if(d.length<3)return;
-                const cmd=d[0]>>4,n=d[1],v=d[2];
-                if(cmd===11){ // Sustain Pedal
-                    if(n===64){
-                        const on=v>=64;
-                        if(sustainPedalDown&&!on){
-                            midiSustainReleaseQueue.forEach(noteNum=>releaseNoteAudio(noteNum));
-                            midiSustainReleaseQueue.clear();
-                        }
-                        sustainPedalDown=on;
+            const d=msg.data;if(d.length<3)return;
+            const cmd=d[0]>>4,n=d[1],v=d[2];
+            if(cmd===11){ // Sustain Pedal
+                if(n===64){
+                    const on=v>=64;
+                    if(sustainPedalDown&&!on){
+                        midiSustainReleaseQueue.forEach(noteNum=>releaseNoteAudio(noteNum));
+                        midiSustainReleaseQueue.clear();
                     }
-                    return;
+                    sustainPedalDown=on;
                 }
-                if(cmd===9&&v>0){document.getElementById(`k-${n}`)?.classList.add('pressed');handleNoteOn(n,v);}
-                else if(cmd===8||(cmd===9&&v===0)){document.getElementById(`k-${n}`)?.classList.remove('pressed');handleMidiNoteOff(n);}
-            }finally{
-                _midiRecorderFromHardwareInput=false;
+                return;
             }
+            if(cmd===9&&v>0){document.getElementById(`k-${n}`)?.classList.add('pressed');handleNoteOn(n,v);}
+            else if(cmd===8||(cmd===9&&v===0)){document.getElementById(`k-${n}`)?.classList.remove('pressed');handleMidiNoteOff(n);}
         };
     }
 
@@ -2364,7 +2276,6 @@
     }
 
     function sendMidiDemoNoteOn(note,vel){
-        midiRecorderCaptureDemoNoteIfNeeded(note&127,vel,true);
         if(!midiOutPort) return;
         try {
             if(midiOutPort.state !== 'open') midiOutPort.open();
@@ -2395,7 +2306,6 @@
     }
 
     function sendMidiDemoNoteOff(note){
-        midiRecorderCaptureDemoNoteIfNeeded(note&127,0,false);
         if(!midiOutPort) return;
         try {
             midiOutPort.send([0x80|DEMO_MIDI_CHANNEL, note&127, 0]);
@@ -2403,7 +2313,6 @@
         } catch(e) {}
     }
     function sendMidiDemoSustain(down){
-        midiRecorderCaptureDemoCC64IfNeeded(down?127:0);
         if(!midiOutPort)return;
         try{
             if(midiOutPort.state!=='open')midiOutPort.open();
@@ -2497,12 +2406,10 @@
         const dOff=Math.max(0,(tOff-audioCtx.currentTime)*1000);
         demoTimeouts.push(setTimeout(()=>{
             if(!demoPlaying)return;
-            midiRecorderCaptureDemoNoteIfNeeded(m,Math.max(1,Math.min(127,Math.round(vel*127))),true);
             try{ salamanderPiano.keyDown({ midi:m, velocity:vel }); }catch(e){}
         },dOn));
         demoTimeouts.push(setTimeout(()=>{
             if(!demoPlaying)return;
-            midiRecorderCaptureDemoNoteIfNeeded(m,0,false);
             try{ salamanderPiano.keyUp({ midi:m }); }catch(e){}
         },dOff));
     }
@@ -2517,13 +2424,11 @@
         const dOn=Math.max(0,(t0-audioCtx.currentTime)*1000);
         demoTimeouts.push(setTimeout(()=>{
             if(!demoPlaying||pbGen!==demoLaunchGen)return;
-            midiRecorderCaptureDemoNoteIfNeeded(m,Math.max(1,Math.min(127,Math.round(vel*127))),true);
             try{ salamanderPiano.keyDown({ midi:m, velocity:vel }); }catch(e){}
         },dOn));
         const dOff=Math.max(0,(tNat-audioCtx.currentTime)*1000);
         demoTimeouts.push(setTimeout(()=>{
             if(!demoPlaying||pbGen!==demoLaunchGen)return;
-            midiRecorderCaptureDemoNoteIfNeeded(m,0,false);
             try{ salamanderPiano.keyUp({ midi:m }); }catch(e){}
         },dOff));
     }
@@ -2577,7 +2482,6 @@
     }
 
     function releaseNoteAudio(midi){
-        midiRecorderCaptureAppNoteIfNeeded(midi,0,false);
         if(!salamanderPiano)return;
         try{ salamanderPiano.keyUp({ midi:midi&127 }); }catch(e){}
     }
@@ -2650,43 +2554,6 @@
             }catch(e2){return null;}
         }
     }
-    /** Könyvtári kották: IndexedDB (sok nagy XML); localStorage csak régi / vész fallback. */
-    const IDB_LIB_PREFIX='libxml:';
-    function idbLibraryRecordId(scoreId){return IDB_LIB_PREFIX+String(scoreId||'');}
-    async function idbPutLibraryXml(scoreId,xml){
-        const s=String(xml||'');
-        if(!s.trim())throw new Error('empty xml');
-        const db=await openScoreIdb();
-        await new Promise((res,rej)=>{
-            const tx=db.transaction(IDB_SCORE_STORE,'readwrite');
-            tx.objectStore(IDB_SCORE_STORE).put({id:idbLibraryRecordId(scoreId),xml:s});
-            tx.oncomplete=()=>res();
-            tx.onerror=()=>rej(tx.error);
-        });
-    }
-    async function idbGetLibraryXml(scoreId){
-        try{
-            const db=await openScoreIdb();
-            return await new Promise((res,rej)=>{
-                const tx=db.transaction(IDB_SCORE_STORE,'readonly');
-                const q=tx.objectStore(IDB_SCORE_STORE).get(idbLibraryRecordId(scoreId));
-                q.onsuccess=()=>{const r=q.result;res(r&&r.xml?String(r.xml):null);};
-                q.onerror=()=>rej(q.error);
-            });
-        }catch(e){return null;}
-    }
-    async function idbRemoveLibraryXml(scoreId){
-        try{
-            const db=await openScoreIdb();
-            await new Promise((res,rej)=>{
-                const tx=db.transaction(IDB_SCORE_STORE,'readwrite');
-                tx.objectStore(IDB_SCORE_STORE).delete(idbLibraryRecordId(scoreId));
-                tx.oncomplete=()=>res();
-                tx.onerror=()=>rej(tx.error);
-            });
-        }catch(e){}
-        try{localStorage.removeItem(libStorageKey(scoreId));}catch(e){}
-    }
     /** Könyvtár törlése nem törölte eddig — a nyitott kotta IndexedDB + meta itt maradt, ezért frissítés után „visszajött”. */
     async function clearRepertoarSessionScoreStorage(){
         try{localStorage.removeItem(LS_SCORE_META);}catch(e){}
@@ -2755,9 +2622,8 @@
             if(t==='light'||t==='sepia'||t==='dark'||t==='darksepia')return t;
             const old=localStorage.getItem(LS_OSMD_DARK);
             if(old==='0')return 'light';
-            if(old==null||old==='')return 'light';
             return 'dark';
-        }catch(e){return 'light';}
+        }catch(e){return 'dark';}
     }
     function applyOsmdScoreThemeClass(){
         const cont=document.getElementById('osmd-container');
@@ -2933,8 +2799,8 @@
         }catch(e){console.warn(e);}
     }
     // ── draw ──────────────────────────────────────────────────────────────────
-    /** 1 = egy hasáb görgetés, 2 = két hasáb / spread, 3 = három hasáb / spread — első megjelenés: 2 hasáb (munkamenet-visszaállítás felülírhatja). */
-    let bookViewColumns=2;
+    /** 1 = egy hasáb görgetés, 2 = két hasáb / spread, 3 = három hasáb / spread */
+    let bookViewColumns=1;
     /** Demó 1 hasábról 2-re vált: leálláskor visszaállítjuk; BOOK a demó alatt törli (felhasználó átvette). */
     let bookViewColumnsBeforeDemo=null;
     function updateBookViewButtonChrome(){
@@ -3090,7 +2956,7 @@
     /** AudioContext + első hang ütemezése a settle után (a fenti ms már ad időt a layoutnak). */
     const DEMO_SCORE_START_LEAD_SEC=0.55;
     let scorePedalEvents=[],scorePedalEventsExpanded=null,demoScoreSustainPedalDown=false,demoSustainInternalHolds=new Map();
-    let scoreMode=true,osmdScoreTheme='light',scoreSteps=[],scorePracticeSteps=[],scoreStepIndex=0,scorePendingRh=new Set(),scorePendingLh=new Set(),scoreOsmdRenderQ=false,scoreOsmdScrollNotesAfterRender=null;
+    let scoreMode=true,osmdScoreTheme='dark',scoreSteps=[],scorePracticeSteps=[],scoreStepIndex=0,scorePendingRh=new Set(),scorePendingLh=new Set(),scoreOsmdRenderQ=false,scoreOsmdScrollNotesAfterRender=null;
     let scoreOsmdFollowSystemKey='';
     let scoreCachedMeasureHLKey='',scoreCachedMeasureHLParts=null;
     let scoreViewFollowQ=false,scoreViewFollowPendingNotes=null;
@@ -3226,7 +3092,6 @@
     function closeInfoGuideModal(){const m=document.getElementById('infoModal');if(m)m.style.display='none';}
     function closePracticeLogModal(){const m=document.getElementById('practiceLogModal');if(m)m.style.display='none';}
     function handleNoteOn(midi,vel=100){
-        midiRecorderCaptureAppNoteIfNeeded(midi,vel,true);
         midiSustainReleaseQueue.delete(midi);
         playTone(midi,vel);
         if(scoreMode&&isRunning&&scorePracticeSteps.length){
@@ -3235,8 +3100,7 @@
         }
     }
     function playScaleRhythmDemo(){
-        if(demoPlaying){stopDemo();stopMidiRecPlayback({rewind:true});return;}
-        stopMidiRecPlayback({rewind:true});
+        if(demoPlaying){stopDemo();return;}
         if(demoAwaitMidi){
             demoLaunchGen++;
             demoAwaitMidi=false;
@@ -3266,7 +3130,7 @@
                 if(!midiOk&&!samplesOk){
                     if(++demoWaitTicks>120){
                         demoAwaitMidi=false;
-                        setInfoBar(currentLang==='HU'?'DEMO: várj egy kicsit a hang betöltésére, vagy kapcsold be a belső zongorát (hang ikon).':'DEMO: wait for sound to load, or turn on built-in piano (audio icon).',null);
+                        setInfoBar(currentLang==='HU'?'DEMO: IAC/Pianoteq MIDI kimenet vagy betöltött minták kellenek':'DEMO: need MIDI output (IAC/Pianoteq) or loaded samples',null);
                         return;
                     }
                     demoTimeouts.push(setTimeout(()=>{void t();},100));
@@ -3313,8 +3177,8 @@
             console.error('DEMO audio init:',err);
             const hu=currentLang==='HU';
             setInfoBar(hu
-                ?'A hang nem indult el — próbáld újra, vagy kapcsold be a belső zongorát.'
-                :'Audio did not start — try again, or turn on built-in piano.',null);
+                ?'Zongora hang betöltése sikertelen (hálózat / CDN). Próbáld újra, vagy használj MIDI-t (IAC).'
+                :'Piano failed to load (network / CDN). Retry or use MIDI (IAC).',null);
         });
     }
     function stopDemo(){
@@ -3467,480 +3331,6 @@
     }
     function toggleMetroMenu(){const menu=document.getElementById('metroSettingsMenu');menu.style.display=(menu.style.display==='none'||menu.style.display==='')?'flex':'none';}
 
-    // ── MIDI recorder / player (Repertoire rack) ─────────────────────────────
-    const LS_MIDI_REC='repertoar_midi_rec_sessions_v1';
-    let midiRecorderIsRecording=false,midiRecorderEvents=[],midiRecorderStartMs=null,midiRecSilenceTimer=null;
-    let midiRecEventSeq=0;
-    let midiRecSessions=[];
-    let midiRecPlayback=false,midiRecPlayTimers=[],midiRecRafId=0;
-    let midiRecPlayheadSec=0,midiRecDurationSec=1,midiRecPlaySpeed=1,midiRecSpeedIdx=1;
-    const MIDI_REC_SPEEDS=[0.5,1,1.5,2];
-    let midiRecSeekDragging=false,midiRecPlayBaseAudioTime=0,midiRecPlayContentAnchorSec=0;
-    let midiRecRepeatEnabled=false;
-    /** Belső zongora lejátszás: mint élő MIDI — CC64 alatt nem küldünk keyUp-ot note-offra, csak felengedéskor (sor + ürítés). */
-    let midiRecPlaybackSustainActive=false;
-    const midiRecPlaybackSustainReleaseQueue=new Set();
-    /** Web MIDI callback közben true — ne duplázzuk a virtuális billentyű rögzítésével. */
-    let _midiRecorderFromHardwareInput=false;
-    function loadMidiSessionsFromStorage(){
-        try{
-            const j=JSON.parse(localStorage.getItem(LS_MIDI_REC)||'null');
-            midiRecSessions=Array.isArray(j)?j.filter(x=>x&&Array.isArray(x.events)):[];
-        }catch(e){midiRecSessions=[];}
-    }
-    function persistMidiSessions(){
-        try{localStorage.setItem(LS_MIDI_REC,JSON.stringify(midiRecSessions));}catch(e){console.warn('midi sessions persist',e);}
-    }
-    function getMidiRecSelectedSession(){
-        const sel=document.getElementById('midiRecSessionSelect');
-        if(!sel||sel.value===''||sel.selectedIndex<0)return null;
-        const i=parseInt(sel.value,10);
-        return Number.isFinite(i)?midiRecSessions[i]||null:null;
-    }
-    function refreshMidiRecSessionSelect(){
-        const sel=document.getElementById('midiRecSessionSelect');
-        if(!sel)return;
-        sel.innerHTML='';
-        if(!midiRecSessions.length){
-            const opt=document.createElement('option');
-            opt.value='';
-            opt.textContent=currentLang==='HU'?'(nincs felvétel)':'(no sessions)';
-            sel.appendChild(opt);
-            return;
-        }
-        midiRecSessions.forEach((s,i)=>{
-            const opt=document.createElement('option');
-            opt.value=String(i);
-            const sec=Math.max(1,Math.round((s.durationMs||0)/1000));
-            opt.textContent=(s.title||'Session').slice(0,28)+' · '+sec+'s · '+(s.events?s.events.length:0);
-            sel.appendChild(opt);
-        });
-        sel.selectedIndex=midiRecSessions.length-1;
-    }
-    function updateMidiRecSeekBounds(){
-        const sess=getMidiRecSelectedSession();
-        const sk=document.getElementById('midiRecSeek');
-        if(!sk)return;
-        midiRecDurationSec=sess?Math.max(0.5,(sess.durationMs||1000)/1000):1;
-        sk.max=Math.max(100,midiRecDurationSec*1000);
-        if(midiRecPlayheadSec>midiRecDurationSec)midiRecPlayheadSec=midiRecDurationSec;
-        if(!midiRecSeekDragging)sk.value=midiRecPlayheadSec*1000;
-    }
-    function formatMidiRecTime(s){
-        if(!Number.isFinite(s)||s<0)s=0;
-        const m=Math.floor(s/60);
-        const r=s-m*60;
-        const t=Math.floor(r*10)%10;
-        const ss=Math.floor(r);
-        return String(m).padStart(2,'0')+':'+String(ss).padStart(2,'0')+'.'+t;
-    }
-    function updateMidiRecSeekUi(){
-        const sk=document.getElementById('midiRecSeek');
-        const el=document.getElementById('midiRecTimeDisplay');
-        if(el)el.textContent=formatMidiRecTime(midiRecPlayheadSec);
-        if(sk&&!midiRecSeekDragging)sk.value=midiRecPlayheadSec*1000;
-    }
-    function syncMidiRecRepeatButtonChrome(){
-        const b=document.getElementById('btnMidiRecRepeat');
-        if(!b)return;
-        b.classList.toggle('active',midiRecRepeatEnabled);
-        const pack=HELP_TOOLTIPS[currentLang]||HELP_TOOLTIPS.EN;
-        const th=pack.btnMidiRecRepeat||'';
-        b.title=th;
-        b.setAttribute('aria-label',th);
-        if(th)b.setAttribute('data-help',th);
-    }
-    function toggleMidiRecRepeat(){
-        if(helpActive)return;
-        midiRecRepeatEnabled=!midiRecRepeatEnabled;
-        syncMidiRecRepeatButtonChrome();
-    }
-    function midiRecScrubToTime(tSec){
-        midiRecPlayheadSec=Math.max(0,Math.min(midiRecDurationSec||1,tSec));
-        updateMidiRecSeekUi();
-    }
-    function touchMidiRecSilenceWatch(){
-        if(!midiRecorderIsRecording)return;
-        if(midiRecSilenceTimer)clearTimeout(midiRecSilenceTimer);
-        midiRecSilenceTimer=setTimeout(()=>{
-            midiRecSilenceTimer=null;
-            if(midiRecorderIsRecording)endMidiRecordingCapture(true);
-        },15000);
-    }
-    /** Virtuális billentyű / egér: nincs Web MIDI üzenet, ezért közvetlenül ide kerülnek a hangok. */
-    function midiRecorderCaptureAppNoteIfNeeded(midi,vel,isOn){
-        if(!midiRecorderIsRecording||midiRecPlayback||_midiRecorderFromHardwareInput)return;
-        if(midiRecorderStartMs==null){
-            midiRecorderStartMs=performance.now();
-            touchMidiRecSilenceWatch();
-        }
-        const t=performance.now()-midiRecorderStartMs;
-        const n=midi&127;
-        midiRecorderEvents.push({t,on:!!isOn,note:n,vel:isOn?Math.max(1,Math.min(127,vel|0)):0,seq:++midiRecEventSeq});
-        touchMidiRecSilenceWatch();
-    }
-    /** DEMO (MIDI kimenet vagy belső minta): mindig az alkalmazásból jön, nem Web MIDI bemenet. */
-    function midiRecorderCaptureDemoNoteIfNeeded(note,vel,isOn){
-        if(!midiRecorderIsRecording||midiRecPlayback)return;
-        if(midiRecorderStartMs==null){
-            midiRecorderStartMs=performance.now();
-            touchMidiRecSilenceWatch();
-        }
-        const t=performance.now()-midiRecorderStartMs;
-        const n=note&127;
-        const v=isOn?Math.max(1,Math.min(127,Math.round(Number(vel))||80)):0;
-        midiRecorderEvents.push({t,on:!!isOn,note:n,vel:v,seq:++midiRecEventSeq});
-        touchMidiRecSilenceWatch();
-    }
-    function midiRecorderCaptureDemoCC64IfNeeded(val){
-        if(!midiRecorderIsRecording||midiRecPlayback)return;
-        if(midiRecorderStartMs==null){
-            midiRecorderStartMs=performance.now();
-            touchMidiRecSilenceWatch();
-        }
-        const t=performance.now()-midiRecorderStartMs;
-        midiRecorderEvents.push({t,cc:true,ctrl:64,val:val&127,seq:++midiRecEventSeq});
-        touchMidiRecSilenceWatch();
-    }
-    function midiRecorderOnMidiMessage(msg){
-        if(!midiRecorderIsRecording||midiRecPlayback)return;
-        const d=msg.data;
-        if(!d||d.length<3)return;
-        const cmd=d[0]>>4,n=d[1],v=d[2];
-        let cap=false;
-        if(cmd===11&&n===64)cap=true;
-        else if(cmd===9&&v>0)cap=true;
-        else if(cmd===8||(cmd===9&&v===0))cap=true;
-        if(!cap)return;
-        if(midiRecorderStartMs==null){
-            midiRecorderStartMs=performance.now();
-            touchMidiRecSilenceWatch();
-        }
-        const t=performance.now()-midiRecorderStartMs;
-        if(cmd===11&&n===64){
-            midiRecorderEvents.push({t,cc:true,ctrl:64,val:v&127,seq:++midiRecEventSeq});
-            touchMidiRecSilenceWatch();
-            return;
-        }
-        const on=cmd===9&&v>0;
-        midiRecorderEvents.push({t,on,note:n&127,vel:on?Math.max(1,v&127):0,seq:++midiRecEventSeq});
-        touchMidiRecSilenceWatch();
-    }
-    function endMidiRecordingCapture(fromIdle){
-        if(!midiRecorderIsRecording)return;
-        midiRecorderIsRecording=false;
-        if(midiRecSilenceTimer){clearTimeout(midiRecSilenceTimer);midiRecSilenceTimer=null;}
-        const b=document.getElementById('btnMidiRec');
-        if(b)b.classList.remove('recording');
-        if(midiRecorderEvents.length>0){
-            const dur=Math.max(...midiRecorderEvents.map(e=>e.t),80)+120;
-            const title=(document.getElementById('lcdScoreTitleOnly')&&document.getElementById('lcdScoreTitleOnly').textContent||'Recording').replace(/\s+/g,' ').trim().slice(0,48);
-            const sess={id:Date.now(),createdAt:new Date().toISOString(),title:title||'Recording',events:midiRecorderEvents.slice(),durationMs:dur};
-            midiRecSessions.push(sess);
-            if(midiRecSessions.length>5)midiRecSessions=midiRecSessions.slice(-5);
-            persistMidiSessions();
-            refreshMidiRecSessionSelect();
-            if(!fromIdle){
-                const hu=currentLang==='HU';
-                setInfoBar(hu?'Felvétel elmentve.':'Recording saved.',document.getElementById('btnMidiRec'));
-            }
-        }else if(!fromIdle){
-            setInfoBar(currentLang==='HU'?'Nem rögzült semmi.':'Nothing was recorded.',document.getElementById('btnMidiRec'));
-        }
-        midiRecorderEvents=[];
-        midiRecorderStartMs=null;
-    }
-    async function toggleMidiRecorder(){
-        if(helpActive)return;
-        if(midiRecorderIsRecording){endMidiRecordingCapture(false);return;}
-        await userUnlockAudioAndMidi();
-        stopMidiRecPlayback({rewind:true});
-        midiRecorderIsRecording=true;
-        midiRecorderEvents=[];
-        midiRecEventSeq=0;
-        midiRecorderStartMs=null;
-        const br=document.getElementById('btnMidiRec');
-        if(br)br.classList.add('recording');
-        const hu=currentLang==='HU';
-        setInfoBar(hu?'Felvétel… REC újra: stop.':'Recording… tap REC again to stop.',br);
-    }
-    function stopMidiRecPlayback(opts){
-        const o=opts&&typeof opts==='object'?opts:{};
-        const rewind=o.rewind===true;
-        if(midiRecRafId){cancelAnimationFrame(midiRecRafId);midiRecRafId=0;}
-        midiRecPlayTimers.forEach(id=>clearTimeout(id));
-        midiRecPlayTimers=[];
-        midiRecPlayback=false;
-        midiRecPlaybackSustainActive=false;
-        midiRecPlaybackSustainReleaseQueue.clear();
-        const pb=document.getElementById('midiRecPlayBtn');
-        if(pb)pb.textContent='▶';
-        try{
-            if(midiOutPort){
-                if(midiOutPort.state!=='open')midiOutPort.open();
-                for(let ch=0;ch<16;ch++)try{midiOutPort.send([0xB0|ch,123,0]);}catch(e){}
-                try{midiOutPort.send([0xB0|DEMO_MIDI_CHANNEL,64,0]);}catch(e){}
-            }
-        }catch(e){}
-        if(salamanderPiano){try{salamanderPiano.stopAll();}catch(e){}}
-        document.querySelectorAll('.key-glow.pressed').forEach(k=>k.classList.remove('pressed'));
-        try{updatePedalStripVisual(false);}catch(e){}
-        if(rewind){
-            midiRecPlayheadSec=0;
-            midiRecScrubToTime(0);
-        }else{
-            updateMidiRecSeekUi();
-        }
-    }
-    function midiRecOnNaturalEnd(sess){
-        if(!sess)return;
-        stopMidiRecPlayback({rewind:false});
-        midiRecPlayheadSec=0;
-        midiRecScrubToTime(0);
-        if(midiRecRepeatEnabled)void startMidiRecPlayback();
-    }
-    function midiRecPlaybackTick(){
-        if(!midiRecPlayback)return;
-        if(!audioCtx){midiRecRafId=0;return;}
-        const sess=getMidiRecSelectedSession();
-        if(!sess){midiRecRafId=0;return;}
-        const speed=Math.max(0.25,midiRecPlaySpeed||1);
-        const elapsed=(audioCtx.currentTime-midiRecPlayBaseAudioTime)*speed;
-        const endT=sess.durationMs/1000;
-        midiRecPlayheadSec=Math.min(endT,midiRecPlayContentAnchorSec+elapsed);
-        updateMidiRecSeekUi();
-        if(midiRecPlayheadSec>=endT-0.01){midiRecRafId=0;return;}
-        midiRecRafId=requestAnimationFrame(midiRecPlaybackTick);
-    }
-    async function startMidiRecPlayback(){
-        const sess=getMidiRecSelectedSession();
-        if(!sess||!sess.events||!sess.events.length)return;
-        await ensureAudioContextBase();
-        await userUnlockAudioAndMidi();
-        if(!audioCtx)return;
-        if(demoPlaying)stopDemo();
-        stopMidiRecPlayback({rewind:false});
-        if(audioCtx.state==='suspended')try{await audioCtx.resume();}catch(e){}
-        if(audioOn&&!midiOutPort&&!salamanderPiano){try{await initAudio();}catch(e){}}
-        midiRecPlaybackSustainActive=false;
-        midiRecPlaybackSustainReleaseQueue.clear();
-        const speed=Math.max(0.25,midiRecPlaySpeed||1);
-        const evs=sess.events.slice().sort((a,b)=>{
-            if(a.t!==b.t)return a.t-b.t;
-            const ca=!!a.cc,cb=!!b.cc;
-            if(ca!==cb)return ca?-1:1;
-            const sa=typeof a.seq==='number'?a.seq:0,sb=typeof b.seq==='number'?b.seq:0;
-            return sa-sb;
-        });
-        const endT0=sess.durationMs/1000;
-        if(midiRecPlayheadSec>=endT0-0.04)midiRecPlayheadSec=0;
-        const playhead=midiRecPlayheadSec;
-        const tBase=audioCtx.currentTime+0.03;
-        midiRecPlayback=true;
-        midiRecPlayBaseAudioTime=tBase;
-        midiRecPlayContentAnchorSec=playhead;
-        const pb=document.getElementById('midiRecPlayBtn');
-        if(pb)pb.textContent='■';
-        evs.forEach(evt=>{
-            const te=evt.t/1000;
-            if(te+1e-6<playhead)return;
-            const tAudio=tBase+(te-playhead)/speed;
-            const delay=Math.max(0,(tAudio-audioCtx.currentTime)*1000);
-            const id=setTimeout(()=>{
-                if(!midiRecPlayback)return;
-                if(evt.cc&&evt.ctrl===64){
-                    const vv=Math.max(0,Math.min(127,evt.val|0));
-                    const pedOn=vv>=64;
-                    try{updatePedalStripVisual(pedOn);}catch(e){}
-                    if(midiOutPort){
-                        try{
-                            if(midiOutPort.state!=='open')midiOutPort.open();
-                            midiOutPort.send([0xB0|DEMO_MIDI_CHANNEL,64,vv]);
-                        }catch(e){}
-                    }
-                    /* Belső zongora: ugyanaz mint DEMO applyDemoScoreSustainState — pedalDown/Up kell, különben a hangok „levágnak”. */
-                    if(audioOn&&salamanderPiano){
-                        try{
-                            if(pedOn){
-                                salamanderPiano.pedalDown();
-                                midiRecPlaybackSustainActive=true;
-                            }else{
-                                try{salamanderPiano.pedalUp();}catch(e2){}
-                                if(midiRecPlaybackSustainActive){
-                                    midiRecPlaybackSustainReleaseQueue.forEach(m=>{
-                                        try{salamanderPiano.keyUp({midi:m&127});}catch(e3){}
-                                    });
-                                    midiRecPlaybackSustainReleaseQueue.clear();
-                                }
-                                midiRecPlaybackSustainActive=false;
-                            }
-                        }catch(e){}
-                    }
-                    return;
-                }
-                const n=evt.note&127;
-                if(evt.on){
-                    document.getElementById('k-'+n)?.classList.add('pressed');
-                    if(midiOutPort){
-                        try{
-                            if(midiOutPort.state!=='open')midiOutPort.open();
-                            midiOutPort.send([0x90|DEMO_MIDI_CHANNEL,n,scaleMidiOutNoteVelocity(evt.vel||90)]);
-                        }catch(e){}
-                    }
-                    if(audioOn&&salamanderPiano){
-                        try{
-                            const v=Math.min(1,Math.max(0.02,(evt.vel||90)/127));
-                            try{salamanderPiano.keyUp({midi:n});}catch(e2){}
-                            salamanderPiano.keyDown({midi:n,velocity:v});
-                        }catch(e){}
-                    }
-                }else{
-                    document.getElementById('k-'+n)?.classList.remove('pressed');
-                    if(midiOutPort){
-                        try{
-                            if(midiOutPort.state!=='open')midiOutPort.open();
-                            midiOutPort.send([0x80|DEMO_MIDI_CHANNEL,n,0]);
-                        }catch(e){}
-                    }
-                    if(audioOn&&salamanderPiano){
-                        try{
-                            if(midiRecPlaybackSustainActive)midiRecPlaybackSustainReleaseQueue.add(n);
-                            else salamanderPiano.keyUp({midi:n});
-                        }catch(e){}
-                    }
-                }
-            },delay);
-            midiRecPlayTimers.push(id);
-        });
-        const endT=sess.durationMs/1000;
-        const remain=Math.max(0,(endT-playhead)/speed);
-        midiRecPlayTimers.push(setTimeout(()=>{
-            if(!midiRecPlayback)return;
-            midiRecOnNaturalEnd(sess);
-        },remain*1000+120));
-        midiRecRafId=requestAnimationFrame(midiRecPlaybackTick);
-    }
-    async function toggleMidiRecPlayback(){
-        if(helpActive)return;
-        if(midiRecPlayback){stopMidiRecPlayback({rewind:true});return;}
-        loadMidiSessionsFromStorage();
-        const s=getMidiRecSelectedSession();
-        if(s){
-            const et=s.durationMs/1000;
-            if(midiRecPlayheadSec>=et-0.04)midiRecPlayheadSec=0;
-        }
-        await startMidiRecPlayback();
-    }
-    function toggleMidiPlayerPanel(){
-        const p=document.getElementById('midiPlayerPanel');
-        if(!p)return;
-        const isOpen=p.style.display==='flex';
-        if(isOpen){
-            stopMidiRecPlayback({rewind:true});
-            p.style.display='none';
-            return;
-        }
-        p.style.display='flex';
-        loadMidiSessionsFromStorage();
-        refreshMidiRecSessionSelect();
-        midiRecPlaySpeed=MIDI_REC_SPEEDS[midiRecSpeedIdx=1];
-        const sb=document.getElementById('midiRecSpeedBox');
-        if(sb)sb.textContent='×'+midiRecPlaySpeed.toFixed(1);
-        syncMidiRecRepeatButtonChrome();
-        updateMidiRecSeekBounds();
-        midiRecPlayheadSec=0;
-        midiRecScrubToTime(0);
-    }
-    function onMidiRecSessionChange(){
-        stopMidiRecPlayback({rewind:true});
-        loadMidiSessionsFromStorage();
-        midiRecPlayheadSec=0;
-        updateMidiRecSeekBounds();
-        midiRecScrubToTime(0);
-    }
-    function cycleMidiRecPlaySpeed(){
-        if(helpActive)return;
-        const was=midiRecPlayback;
-        if(was)stopMidiRecPlayback({rewind:false});
-        midiRecSpeedIdx=(midiRecSpeedIdx+1)%MIDI_REC_SPEEDS.length;
-        midiRecPlaySpeed=MIDI_REC_SPEEDS[midiRecSpeedIdx];
-        const sb=document.getElementById('midiRecSpeedBox');
-        if(sb)sb.textContent='×'+midiRecPlaySpeed.toFixed(1);
-        if(was)void startMidiRecPlayback();
-    }
-    function midiEncodeVarLen(n){
-        n=Math.max(0,n|0);
-        const stack=[];
-        let v=n;
-        stack.unshift(v&127);
-        v>>=7;
-        while(v>0){stack.unshift((v&127)|128);v>>=7;}
-        return Uint8Array.from(stack);
-    }
-    function encodeStandardMidiFile0(events,bpmExport){
-        const PPQ=480;
-        const bpmX=Math.max(40,Math.min(208,bpmExport||120));
-        const micro=Math.round(60000000/bpmX);
-        const evs=events.slice().sort((a,b)=>{
-            if(a.t!==b.t)return a.t-b.t;
-            const sa=typeof a.seq==='number'?a.seq:0,sb=typeof b.seq==='number'?b.seq:0;
-            return sa-sb;
-        });
-        const track=[];
-        track.push(...midiEncodeVarLen(0),0xff,0x51,0x03,(micro>>16)&255,(micro>>8)&255,micro&255);
-        let prevTick=0;
-        for(const e of evs){
-            const tick=Math.round((e.t/1000)*(bpmX/60)*PPQ);
-            const d=Math.max(0,tick-prevTick);
-            prevTick=tick;
-            track.push(...midiEncodeVarLen(d));
-            if(e.cc){
-                const cc=Math.max(0,Math.min(127,(e.ctrl!=null?e.ctrl:64)|0));
-                const vv=Math.max(0,Math.min(127,(e.val!=null?e.val:0)|0));
-                track.push(0xB0,cc,vv);
-            }else if(e.on)track.push(0x90,e.note&127,Math.max(1,(e.vel||80)&127));
-            else track.push(0x80,e.note&127,0);
-        }
-        track.push(...midiEncodeVarLen(0),0xff,0x2f,0x00);
-        const td=new Uint8Array(track);
-        const len=td.length;
-        const mtrk=new Uint8Array(8+len);
-        mtrk.set([0x4d,0x54,0x72,0x6b,(len>>24)&255,(len>>16)&255,(len>>8)&255,len&255],0);
-        mtrk.set(td,8);
-        const header=new Uint8Array(14);
-        header.set([0x4d,0x54,0x68,0x64,0,0,0,6,0,0,0,1,(PPQ>>8)&255,PPQ&255],0);
-        const out=new Uint8Array(header.length+mtrk.length);
-        out.set(header,0);
-        out.set(mtrk,header.length);
-        return out;
-    }
-    function midiRecFilenameTimestamp(sess){
-        let d;
-        try{
-            if(sess&&typeof sess.createdAt==='string'&&sess.createdAt.trim())
-                d=new Date(sess.createdAt);
-            else if(sess&&typeof sess.id==='number'&&sess.id>1e11)
-                d=new Date(sess.id);
-            else
-                d=new Date();
-        }catch(e){d=new Date();}
-        if(!(d instanceof Date)||isNaN(d.getTime()))d=new Date();
-        const p=n=>String(n).padStart(2,'0');
-        return d.getFullYear()+'-'+p(d.getMonth()+1)+'-'+p(d.getDate())+'_'+p(d.getHours())+'-'+p(d.getMinutes())+'-'+p(d.getSeconds());
-    }
-    function exportMidiRecorderSession(){
-        const sess=getMidiRecSelectedSession();
-        if(!sess||!sess.events||!sess.events.length)return;
-        const bytes=encodeStandardMidiFile0(sess.events,(typeof bpm==='number'?bpm:120));
-        const blob=new Blob([bytes],{type:'audio/midi'});
-        const a=document.createElement('a');
-        const safe=(sess.title||'take').replace(/[^\w\-]+/g,'_').slice(0,32);
-        a.href=URL.createObjectURL(blob);
-        a.download=safe+'_'+midiRecFilenameTimestamp(sess)+'.mid';
-        a.click();
-        setTimeout(()=>URL.revokeObjectURL(a.href),5000);
-    }
-
     // ── DOMContentLoaded & init ───────────────────────────────────────────────
     document.addEventListener('DOMContentLoaded',()=>{
         window.addEventListener('pointerdown',()=>{void userUnlockAudioAndMidi().catch(()=>{});},{once:true,passive:true,capture:true});
@@ -3971,20 +3361,6 @@
                 if(!slp.contains(e.target)&&!slWrap.contains(e.target))slp.style.display='none';
             }
         });
-        const msel=document.getElementById('midiRecSessionSelect');
-        if(msel)msel.addEventListener('change',()=>{if(!helpActive)onMidiRecSessionChange();});
-        const msk=document.getElementById('midiRecSeek');
-        if(msk){
-            msk.addEventListener('pointerdown',()=>{midiRecSeekDragging=true;});
-            msk.addEventListener('pointerup',()=>{midiRecSeekDragging=false;});
-            msk.addEventListener('pointercancel',()=>{midiRecSeekDragging=false;});
-            msk.addEventListener('input',()=>{
-                if(helpActive)return;
-                const v=parseFloat(msk.value)||0;
-                midiRecScrubToTime(v/1000);
-            });
-        }
-        syncMidiRecRepeatButtonChrome();
     });
     let _resizeOsmdTimer=null;
     let _lastResizeWidth=0;
@@ -4078,9 +3454,7 @@
         }
     },true);
     window.onload=()=>{
-        bookViewColumns=2;
-        osmdBookSpreadIndex=0;
-        osmdScoreTheme='light';
+        osmdScoreTheme=readPersistedOsmdTheme();
         applyOsmdScoreThemeClass();
         practiceRangeClickPickMode=readPersistedPracticeRangeClickPick();
         const sl=localStorage.getItem('akira_lang')||'EN';setLang(sl);
@@ -6201,9 +5575,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
         scoreSteps=[];
         resetScoreOsmdFollowSnap();
         extractScorePedalEventsFromSheet();
-        if(!osmdInstance||!osmdInstance.cursor){
-            return;
-        }
+        if(!osmdInstance||!osmdInstance.cursor)return;
         let mergedAll;
         try{
             mergedAll=osmdMergeRawRowsToMergedSteps(expandRawRowsWithRepeats(osmdCollectRawCursorRows()));
@@ -6317,7 +5689,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
             const bd=document.getElementById('btnDemo');
             if(bd)bd.classList.remove('active');
             syncDemoButtonIcon(false);
-            setInfoBar(currentLang==='HU'?'Nincs hang — kattints a képernyőre, majd indítsd újra a DEMO-t.':'No sound — click the page, then try DEMO again.',null);
+            setInfoBar(currentLang==='HU'?'Nincs hangkimenet (AudioContext). Kattints a képernyőre, vagy ellenőrizd a hálózatot / CDN-t.':'No audio output (AudioContext). Click the page, or check network/CDN.',null);
             return;
         }
         let merged;
@@ -6484,7 +5856,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
             },280);
         },pbGen);
         const isHU=currentLang==='HU';
-        setInfoBar(isHU?(isPracticeRangeActive()?'▶ MINTA — a kijelölt ütemektől':'▶ MINTA fut — kotta + hang'):(isPracticeRangeActive()?'▶ DEMO — from selected measures':'▶ DEMO running — score + sound'),null);
+        setInfoBar(isHU?(isPracticeRangeActive()?'▶ MINTA — a kijelölt ütemektől':'▶ MINTA fut — kurzor + hang + MIDI'):(isPracticeRangeActive()?'▶ DEMO — from selected measures':'▶ DEMO running — cursor + audio + MIDI'),null);
     }
     async function refreshOsmdLayoutAfterRevisionBump(applySavedZoom){
         if(!scoreMode||!osmdInstance)return;
@@ -6521,12 +5893,8 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
         const savedLayoutRev=Number(meta.lr)||0;
         const layoutStale=savedLayoutRev<SCORE_LAYOUT_REVISION;
         if(meta.in===1){
-            osmdScoreTheme=readPersistedOsmdTheme();
-            applyOsmdScoreThemeClass();
-            const bmPre=document.getElementById('btnOsmdDark');
-            if(bmPre)syncOsmdThemeToggleButtonChrome();
             await loadXmlScore(xml);
-            await ensureScoreInLibrary(currentLang==='HU'?'Munkamenet':'Session',lastLoadedScoreXml||xml);
+            ensureScoreInLibrary(currentLang==='HU'?'Munkamenet':'Session',lastLoadedScoreXml||xml);
             if(layoutStale)
                 setTimeout(()=>{void refreshOsmdLayoutAfterRevisionBump();},700);
         }
@@ -6543,7 +5911,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
     async function loadXmlScore(xmlContent, libEntryId){
         ensureOsmd();
         resetDemoSpeedSlider();
-        setInfoBar(currentLang==='HU'?'Kotta betöltése…':'Loading score…',null);
+        setInfoBar('LOADING SCORE…',null);
         try{
             await osmdInstance.load(xmlContent);
             osmdPracticeCanonicalCacheInvalidate();
@@ -6558,7 +5926,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
             queuePersistScoreSession();
             setTimeout(()=>{try{applyLibraryOledAfterLoad();}catch(e){}},280);
         }catch(e){
-            setInfoBar(currentLang==='HU'?'Nem sikerült megjeleníteni a kottát — lehet, hogy hibás vagy nem támogatott fájl.':'Could not display the score — the file may be invalid or unsupported.',null);
+            setInfoBar('ERROR LOADING SCORE: '+e.message,null);
             console.error('OSMD error:',e);
         }
     }
@@ -6609,6 +5977,23 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
         if(best)return await best.async('string');
         throw new Error('No MusicXML entry found inside MXL');
     }
+    function emitRepertoireFileLoadAnalytics(file){
+        if(!file||typeof file.name!=='string')return;
+        if(!window.AkiraDb||typeof AkiraDb.insertEvent!=='function')return;
+        var payload={
+            metadata:{
+                fileName:file.name,
+                fileSize:file.size,
+                fileType:file.name.split('.').pop()
+            }
+        };
+        var send=function(){return AkiraDb.insertEvent('repertoire_file_load',payload);};
+        if(typeof AkiraDb.ensureAnonymousUserRow==='function'){
+            void AkiraDb.ensureAnonymousUserRow().then(send).catch(function(e){console.warn('repertoire_file_load',e);});
+        }else{
+            void send();
+        }
+    }
     async function readLocalFileAsText(file){
         if(typeof file.text==='function')return file.text();
         return new Promise((res,rej)=>{
@@ -6628,7 +6013,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
         try{
             let xml;
             if(/\.mxl$/i.test(file.name)){
-                setInfoBar(isHU?'Kotta kibontása…':'Unpacking score…',null);
+                setInfoBar(isHU?'MXL KIBONTÁSA…':'UNPACKING MXL…',null);
                 const buf=await file.arrayBuffer();
                 xml=await extractMusicXmlStringFromMxlBuffer(buf);
             }else{
@@ -6637,9 +6022,10 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
             if(!xml||typeof xml!=='string'||!xml.trim())
                 throw new Error(isHU?'Üres vagy hibás fájl':'Empty or invalid file');
             await loadXmlScore(xml);
-            await addScoreToLibrary(file.name,lastLoadedScoreXml);
+            emitRepertoireFileLoadAnalytics(file);
+            addScoreToLibrary(file.name,lastLoadedScoreXml);
         }catch(e){
-            setInfoBar(isHU?'Nem sikerült betölteni a fájlt — ellenőrizd, hogy MusicXML vagy MXL.':'Could not load the file — use a MusicXML or MXL file.',null);
+            setInfoBar((isHU?'HIBA: ':'ERROR: ')+(e&&e.message?e.message:String(e)),null);
             console.error('Score load:',e);
         }
     }
@@ -6662,9 +6048,7 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
         scoreStepIndex=0;
         const oc=document.getElementById('osmd-container');
         oc.style.display='block';
-        bookViewColumns=2;
-        osmdBookSpreadIndex=0;
-        osmdScoreTheme='light';
+        osmdScoreTheme=readPersistedOsmdTheme();
         applyOsmdScoreThemeClass();
         updateScoreSheetLayoutShell();
         updateOsmdScoreControlsVisibility();
@@ -6745,14 +6129,15 @@ function osmdSystemGrandStaffClientVerticalSpan(sys){
                     xml=await file.text();
                 }
                 if(xml&&xml.length>50){
-                    if(await addScoreToLibrary(name,xml,{quietQuota:true}))count++;
+                    emitRepertoireFileLoadAnalytics(file);
+                    addScoreToLibrary(name,xml);
+                    count++;
                 }
             }catch(err){console.warn('Batch import skip:',file.name,err);}
         }
         if(count>0){
             refreshScoreLibraryListUI();
-            const tot=files.length;
-            setInfoBar((hu?(count+' / '+tot+' kotta importálva (tárhely / hiba esetén kevesebb)'):(count+' / '+tot+' scores imported (less if storage full)')),null);
+            setInfoBar((hu?count+' kotta importálva':count+' scores imported'),null);
         }
         e.target.value='';
     });
