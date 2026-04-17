@@ -329,7 +329,7 @@
         }
         .modal-overlay .workshop-tools-grid .modal-btn { font-size: 13px; padding: 10px 20px; margin-top: 4px; letter-spacing: 0.5px; }
         #scoreLibraryModal .modal-content.workshop-tools-grid {
-            max-width: min(94vw, 680px); padding: 16px 18px;
+            max-width: min(96vw, 920px); padding: 16px 18px;
             max-height: min(92vh, 900px); overflow-y: auto; box-sizing: border-box;
         }
         #scoreLibraryModal .lib-hint { font: 11px/1.4 'Inter',sans-serif; color: #888; margin: 0 0 8px 0; }
@@ -364,7 +364,10 @@
             overflow: hidden;
         }
         #scoreLibraryModal .score-library-libs-col {
-            flex: 0 0 140px; display: flex; flex-direction: column; min-height: 0; min-width: 0;
+            flex: 0 0 34%;
+            min-width: min(280px, 100%);
+            max-width: 380px;
+            display: flex; flex-direction: column; min-height: 0;
         }
         #scoreLibraryModal .score-library-pieces-col {
             flex: 1; min-width: 0; min-height: 0; display: flex; flex-direction: column;
@@ -382,13 +385,18 @@
             background: rgba(0,0,0,0.25);
         }
         #scoreLibraryModal .score-lib-row {
-            display: flex; align-items: center; gap: 8px; margin-bottom: 5px;             flex-wrap: nowrap;
+            display: flex; align-items: center; gap: 8px; margin-bottom: 7px; flex-wrap: nowrap;
         }
         #scoreLibraryModal .score-lib-row:last-child { margin-bottom: 0; }
         #scoreLibraryModal .score-lib-row-title {
             flex: 1; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
-            font: 12px 'Share Tech Mono',monospace; color: #bbb;
+            font: 13px 'Share Tech Mono',monospace; color: #bbb; line-height: 1.3;
         }
+        #scoreLibraryModal .score-lib-piece-title {
+            font-size: 16px; color: #e4e4e4; line-height: 1.35;
+            cursor: pointer; padding: 6px 2px; border-radius: 3px;
+        }
+        #scoreLibraryModal .score-lib-piece-title:hover { color: #fff; background: rgba(255,255,255,0.07); }
         #scoreLibraryModal .score-lib-row-actions {
             display: flex; flex-direction: row; gap: 4px; flex-shrink: 0; align-items: center;
         }
@@ -403,6 +411,9 @@
         #scoreLibraryModal .lib-row-icon-btn.lib-add { color: #8ecf9a; border-color: #355a40; }
         #scoreLibraryModal .lib-row-icon-btn.lib-del { color: #d08080; border-color: #5a3535; }
         #scoreLibraryModal .lib-row-icon-btn:active { transform: translateY(1px); box-shadow: 0 0 0 #000; }
+        #scoreLibraryModal .score-lib-row-actions .lib-action-btn {
+            min-width: 0; padding: 4px 7px; font-size: 10px; flex: 0 0 auto; white-space: nowrap;
+        }
         #scoreLibraryModal .lib-action-btn {
             min-width: 4.5em; padding: 5px 10px; font-size: 11px; font-weight: 700; font-family: 'Share Tech Mono',monospace;
             color: #ccc; background: var(--btn-dark); border: 1px solid var(--btn-border); border-radius: 3px; cursor: pointer;
@@ -546,7 +557,7 @@
         </div>
     </div>
     <div id="scoreLibraryModal" class="modal-overlay" onclick="if(event.target===this)closeScoreLibraryModal()">
-        <div class="modal-content workshop-tools-grid" style="text-align:left;max-width:min(96vw,680px);width:94%;" onclick="event.stopPropagation()">
+        <div class="modal-content workshop-tools-grid" style="text-align:left;max-width:min(96vw,920px);width:96%;" onclick="event.stopPropagation()">
             <h2 class="modal-title wts-title" id="txt-scoreLibTitle" style="text-align:center;">Score library</h2>
             <!-- Kétpaneles elrendezés: görgethető lista — minden kotta -->
             <div class="score-library-split-pane">
@@ -1712,33 +1723,33 @@
             const row=document.createElement('div');
             row.className='score-lib-row';
             const t=document.createElement('span');
-            t.className='score-lib-row-title';
+            t.className='score-lib-row-title score-lib-piece-title';
             t.textContent=e.title||e.id;
-            t.title=e.title||e.id;
-            const act=document.createElement('div');
-            act.className='score-lib-row-actions';
-            const bLoad=document.createElement('button');
-            bLoad.type='button';
-            bLoad.className='lib-row-icon-btn lib-add';
-            bLoad.textContent='+';
-            bLoad.title=hu?'Kotta betöltése':'Load score';
-            bLoad.setAttribute('aria-label',hu?'Kotta betöltése':'Load score');
-            bLoad.onclick=()=>{
+            t.title=(hu?'Betöltés: ':'Open: ')+(e.title||e.id);
+            t.onclick=()=>{
+                if(helpActive)return;
                 let s2=readLibrariesState();
                 const ent=(getActiveLibrary(s2).entries)||[];
                 const ix=ent.findIndex(x=>x&&x.id===e.id);
                 if(ix>=0){s2.activeEntryIndex=ix;saveLibrariesState(s2);}
-                void loadLibraryEntryById(e.id);
-                refreshScoreLibraryListUI();
+                void (async()=>{
+                    await loadLibraryEntryById(e.id);
+                    closeScoreLibraryModal();
+                })();
             };
+            const act=document.createElement('div');
+            act.className='score-lib-row-actions';
             const bDel=document.createElement('button');
             bDel.type='button';
             bDel.className='lib-row-icon-btn lib-del';
             bDel.textContent='\u2212';
             bDel.title=hu?'Törlés a könyvtárból':'Remove from library';
             bDel.setAttribute('aria-label',hu?'Törlés a könyvtárból':'Remove from library');
-            bDel.onclick=()=>{if(confirm(hu?'Törlöd ezt a könyvtári bejegyzést?':'Remove this library entry?'))removeLibraryEntryById(e.id);};
-            act.append(bLoad,bDel);
+            bDel.onclick=ev=>{
+                ev.stopPropagation();
+                if(confirm(hu?'Törlöd ezt a könyvtári bejegyzést?':'Remove this library entry?'))removeLibraryEntryById(e.id);
+            };
+            act.append(bDel);
             row.append(t,act);
             host.appendChild(row);
         });
