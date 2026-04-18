@@ -378,6 +378,7 @@
             <div class="wood-cheek right"></div>
         </div>
     </div>
+<script src="skala_adatok.js" charset="utf-8"></script>
 <script>
     // ── Language ──────────────────────────────────────────────────────────────
     let currentLang='EN';
@@ -610,28 +611,9 @@
     const NOTE_CHROMA={c:0,d:2,e:4,f:5,g:7,a:9,b:11};
     // Fingerings: std=7-note, penta=5-note, hex=6-note
     // Arrays: rh1/lh1 = 1-octave (2n+1 notes), rh2/lh2 = 2-octave (4n+1 notes)
-    // 2-oct rule: final finger of oct1 becomes '1' (thumb tuck) to start oct2
-    // Closest-Comfort: avoid thumb(1)/pinky(5) on BLACK keys during tuck
-    const fingerings={
-        std:{
-            rh1:[1,2,3,1,2,3,4,5,4,3,2,1,3,2,1],
-            rh2:[1,2,3,1,2,3,4,1,2,3,1,2,3,4,5,4,3,2,1,3,2,1,4,3,2,1,3,2,1],
-            lh1:[5,4,3,2,1,3,2,1,2,3,1,2,3,4,5],
-            lh2:[5,4,3,2,1,3,2,1,4,3,2,1,3,2,1,2,3,1,2,3,4,1,2,3,1,2,3,4,5]
-        },
-        penta:{
-            rh1:[1,2,3,1,2,3,2,1,3,2,1],
-            lh1:[5,4,3,2,1,2,1,2,3,4,5],
-            rh2:[1,2,3,1,2,1,2,3,1,2,3,2,1,3,2,1,2,1,3,2,1],
-            lh2:[5,4,3,2,1,5,4,3,2,1,2,1,2,3,4,5,1,2,3,4,5]
-        },
-        hex:{
-            rh1:[1,2,3,4,1,2,3,2,1,4,3,2,1],
-            lh1:[5,4,3,2,1,2,1,2,1,2,3,4,5],
-            rh2:[1,2,3,4,1,2,1,2,3,4,1,2,3,2,1,4,3,2,1,2,1,4,3,2,1],
-            lh2:[5,4,3,2,1,2,5,4,3,2,1,2,1,2,1,2,3,4,5,2,1,2,3,4,5]
-        }
-    };
+    // Ujjrend adatbázis a skala_adatok.js külső fájlból (window.SCALES_FINGERING).
+    // Ha egy skálához nincs bejegyzés vagy üres a tömb: nem mutat ujjrendet.
+    // A hibás számok javításához a skala_adatok.js-t kell szerkeszteni.
 
     function getVexKey(midi,noteLetter,acc){
         // 'n' = natural sign: no semitone offset, but explicit natural accidental on staff
@@ -656,11 +638,12 @@
         }
         const descTop=seq.length-2;
         for(let i=descTop;i>=0;i--)seq.push({...seq[i]});
-        let fset=fingerings.std;
-        if(nLen===5)fset=fingerings.penta;
-        else if(nLen===6)fset=fingerings.hex;
-        const rhF=fset['rh'+octaves]||fset.rh2||fingerings.std.rh2;
-        const lhF=fset['lh'+octaves]||fset.lh2||fingerings.std.lh2;
+        // Ujjrend: kizárólag a külső adatbázisból (skala_adatok.js).
+        // Ha nincs bejegyzés a skálához vagy üres a tömb: üres marad → nem mutat számot.
+        const fdb=(typeof window!=='undefined'&&window.SCALES_FINGERING)||{};
+        const entry=fdb[scaleKey]||{};
+        const rhF=entry['rh'+octaves]||[];
+        const lhF=entry['lh'+octaves]||[];
         seq.forEach((n,i)=>{n.f_rh=rhF[i]||'';n.f_lh=lhF[i]||'';});
         return seq;
     }
@@ -838,9 +821,23 @@
             });
         }
         if(showKeyNums){
+            // JAVÍTVA: egy MIDI billentyűhöz csak AZ ELSŐ előfordulás ujjszáma kerül,
+            // hogy a felmenő rész ujjrendje maradjon látható (a leszálló ne írja felül).
+            const seenRH=new Set();
+            const seenLH=new Set();
             seq.forEach(n=>{
-                if(activeLH&&n.f_lh){const el=document.getElementById('k-'+n.m_lh);const fn=el&&el.querySelector('.key-finger-num');if(fn){fn.textContent=String(n.f_lh);fn.style.display='block';el.classList.add('scale-num-hint');}}
-                if(activeRH&&n.f_rh){const el=document.getElementById('k-'+n.m_rh);const fn=el&&el.querySelector('.key-finger-num');if(fn){fn.textContent=String(n.f_rh);fn.style.display='block';el.classList.add('scale-num-hint');}}
+                if(activeLH&&n.f_lh&&!seenLH.has(n.m_lh)){
+                    seenLH.add(n.m_lh);
+                    const el=document.getElementById('k-'+n.m_lh);
+                    const fn=el&&el.querySelector('.key-finger-num');
+                    if(fn){fn.textContent=String(n.f_lh);fn.style.display='block';el.classList.add('scale-num-hint');}
+                }
+                if(activeRH&&n.f_rh&&!seenRH.has(n.m_rh)){
+                    seenRH.add(n.m_rh);
+                    const el=document.getElementById('k-'+n.m_rh);
+                    const fn=el&&el.querySelector('.key-finger-num');
+                    if(fn){fn.textContent=String(n.f_rh);fn.style.display='block';el.classList.add('scale-num-hint');}
+                }
             });
         }
     }
