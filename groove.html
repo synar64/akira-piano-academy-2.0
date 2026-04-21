@@ -1104,8 +1104,6 @@
     let jamChordIdx = 0;
     let jamStepInChord = 0;
     let jamTimer = null;
-    /** GROOVE: 8-ütemes ciklus számláló a variációhoz és break-hez */
-    let jamBarInCycle = 0;
     /** Jam negyed tempó — OLED és nyilak ezt állítják (120–350 BPM). */
     let jamBpm = 221;
     const JAM_BPM_MIN = 120;
@@ -1115,6 +1113,11 @@
     const JAM_BPM_ARROW_STEP = 4;
     let jamStaffChord = null;
     const jamLoopTimeouts = [];
+    // ── LOOP MODE STATE ──────────────────────────────────────────────────────
+    // Előre felvett MP3 kíséret lejátszásához (CAFE NOIR stílus és jövőbeli loopok)
+    let loopAudioElement = null;
+    let loopAudioCurrent = null; // melyik fájl van betöltve
+    let loopAudioLoaded = false;
     /** Repertoár belső minták: playScoreDemoInternalNote vel≈0.58, playDemoNoteInternalLive vel≈0.62, playTone = MIDI/127. A jam 0.8-as basszus más velocity-réteget (kalapács / „kopogás”) hívott elő — ugyanaz a Piano(), ugyanazok a WAV-ok. */
     const RP_AUTO_VEL_TRIAD = 0.56;
     const RP_AUTO_VEL_BASS = 0.5;
@@ -1174,6 +1177,8 @@
         }
         jamLoopTimeouts.forEach(t => clearTimeout(t));
         jamLoopTimeouts.length = 0;
+        // Loop MP3 leállítása (ha szólt)
+        stopLoopAudio();
     }
 
     function jamBpmClamped() {
@@ -1281,7 +1286,12 @@
         { id: 'latin', progression: progressionBossa, triadDurMul: 0.9, bassDurMul: 0.88, velMul: 0.9, jamPattern: 'block', groove: 'bossa_lite',
             labelEN: 'LATIN', labelHU: 'LATIN', descEN: 'Bossa ii–V–I–I · clave floats on rim + heartbeat kick (0, 1.5, 2, 3.5)', descHU: 'Bossa ii–V–I–I · clave rim + „szív” láb (0, 1.5, 2, 3.5)' },
         { id: 'jazz', progression: progressionJazz2516, triadDurMul: 0.88, bassDurMul: 0.88, velMul: 0.88, jamPattern: 'block', groove: 'jazz_comp',
-            labelEN: 'JAZZ', labelHU: 'JAZZ', descEN: 'ii–V–I–vi · sparse shell piano · thinner swing ride layer', descHU: 'ii–V–I–vi · ritka shell zongora · vékonyabb swing ride réteg' }
+            labelEN: 'JAZZ', labelHU: 'JAZZ', descEN: 'ii–V–I–vi · sparse shell piano · thinner swing ride layer', descHU: 'ii–V–I–vi · ritka shell zongora · vékonyabb swing ride réteg' },
+        // LOOP STÍLUS: előre felvett MP3 kíséret, ciklusban. A procedurális dob/basszus/zongora KI,
+        // csak a loop szól. Hangnem: C-moll (126 BPM). A Safe Notes LED-ek ehhez igazodnak.
+        { id: 'loop_cafe_noir', progression: progressionJazz2516, triadDurMul: 1, bassDurMul: 1, velMul: 0, jamPattern: 'loop', groove: 'loop_audio',
+            loopFile: 'loop16bar_faded.mp3', loopKey: 'Cm', loopBpm: 126,
+            labelEN: 'CAFE NOIR', labelHU: 'CAFE NOIR', descEN: 'Jazz backing loop (C minor, 126 BPM) — play freely over the rhythm section, no generated notes', descHU: 'Jazz alap loop (c-moll, 126 BPM) — improvizálj a ritmusszekción, generált hang nincs' }
     ];
     /** Kíséret: 5 lépés — rövid felugró csúszka, nem fiók. */
     /** 0 = kísérő zongora teljesen néma; utána fokozatos erősítés (POP/JAZZ „lüktetés” lekapcsolható). */
@@ -1416,26 +1426,14 @@
 
     function jamScheduleNoteDownUp(midi, vel, durMs) {
         if (!salamanderPiano) return;
-        // Humanizáció: velocity jitter + timing jitter minden zongora hangra
-        const humanVel = grooveVelocityJitter(vel);
-        const timingOffset = Math.max(0, grooveTimingJitter());
-        const vPlay = scaleBackingVelocity(humanVel);
+        const vPlay = scaleBackingVelocity(vel);
         if (vPlay < 0.004) return;
-        const playNote = () => {
+        try { salamanderPiano.keyDown({ midi: midi & 127, velocity: vPlay }); } catch (e) {}
+        const tid = setTimeout(() => {
             if (!salamanderPiano) return;
-            try { salamanderPiano.keyDown({ midi: midi & 127, velocity: vPlay }); } catch (e) {}
-            const tid = setTimeout(() => {
-                if (!salamanderPiano) return;
-                try { salamanderPiano.keyUp({ midi: midi & 127 }); } catch (e) {}
-            }, Math.max(20, durMs | 0));
-            jamLoopTimeouts.push(tid);
-        };
-        if (timingOffset < 1) {
-            playNote();
-        } else {
-            const tid = setTimeout(playNote, timingOffset);
-            jamLoopTimeouts.push(tid);
-        }
+            try { salamanderPiano.keyUp({ midi: midi & 127 }); } catch (e) {}
+        }, Math.max(20, durMs | 0));
+        jamLoopTimeouts.push(tid);
     }
 
     function jamScheduleNoteDownUpDelayed(midi, vel, durMs, delayMs) {
@@ -1707,39 +1705,61 @@
         playJamSnare(bt(2.5), false, 0.7);
     }
 
-    // ── DRUM FILL & VARIATION ────────────────────────────────────────────────
-    /** Apró ghost fill az 4/8. ütem utolsó negyedén — kis "lendítő" érzet */
-    function scheduleJamDrumFillEnd(at, qSec) {
-        // Három gyors snare-ütés az utolsó negyedben, halkulóan
-        playJamSnare(at, false, 0.35);
-        playJamSnare(at + qSec * 0.33, false, 0.48);
-        playJamSnare(at + qSec * 0.66, false, 0.62);
+    // ── LOOP AUDIO PLAYBACK ──────────────────────────────────────────────────
+    /** Lejátszik egy MP3 fájlt ciklusban. Ha már szól ugyanez a fájl, nem indítjuk újra. */
+    function startLoopAudio(file) {
+        if (!file) return;
+        // Ha már szól ugyanez — ne csináljunk semmit
+        if (loopAudioCurrent === file && loopAudioElement && !loopAudioElement.paused) {
+            return;
+        }
+        // Új fájl vagy lejárt — állítsuk le az előzőt
+        stopLoopAudio();
+        const el = new Audio(file);
+        el.loop = true;
+        el.preload = 'auto';
+        el.crossOrigin = 'anonymous';
+        el.volume = 0.82; // alapértelmezett hangerő
+        loopAudioElement = el;
+        loopAudioCurrent = file;
+        loopAudioLoaded = false;
+        el.addEventListener('canplaythrough', () => { loopAudioLoaded = true; }, { once: true });
+        el.addEventListener('error', (e) => {
+            console.warn('Loop audio load error:', file, e);
+            loopAudioElement = null;
+            loopAudioCurrent = null;
+        });
+        const p = el.play();
+        if (p && typeof p.catch === 'function') {
+            p.catch(err => { console.warn('Loop audio play rejected:', err); });
+        }
     }
-
-    /** Kisebb hat-variáció minden második ütemen (pl. megduplázott offbeat). */
-    function grooveHatOrnament() {
-        // 30% eséllyel ornamentet ad hozzá
-        return Math.random() < 0.30;
+    function stopLoopAudio() {
+        if (loopAudioElement) {
+            try { loopAudioElement.pause(); } catch (e) {}
+            try { loopAudioElement.src = ''; } catch (e) {}
+            try { loopAudioElement.load(); } catch (e) {}
+        }
+        loopAudioElement = null;
+        loopAudioCurrent = null;
+        loopAudioLoaded = false;
+    }
+    /** A "Keys" mix slider a loop hangerejét is szabályozza — 0 = néma. */
+    function updateLoopAudioVolume() {
+        if (!loopAudioElement) return;
+        // A backingGainMul 0..1 között, a "Keys" 0 = néma
+        loopAudioElement.volume = Math.max(0, Math.min(1, backingGainMul * 1.15));
     }
 
     function scheduleJamDrumHits(st, beat, beatsPerBar, pattern, qMs) {
+        // LOOP MÓD: ha ez egy loop-stílus, NEM szólalnak meg a procedurális dobok
+        if (st && st.jamPattern === 'loop') return;
         if (!audioCtx) return;
         if (audioCtx.state === 'suspended') void audioCtx.resume();
         ensureJamDrumMaster();
-        // Humanizált timing: ± jitter az ideális ütemponthoz képest
-        const jitterSec = grooveTimingJitter() / 1000;
-        const at = audioCtx.currentTime + 0.012 + Math.max(0, jitterSec);
+        const at = audioCtx.currentTime + 0.012;
         const qSec = Math.max(0.08, qMs / 1000);
         const sid = st.id || '';
-
-        // BREAK: 8. ütem — teljes dob csend 1 ütemen át (csak a zongora marad)
-        if (grooveIsBreakBar()) {
-            return;
-        }
-
-        // FILL: az 4/8. ütem UTOLSÓ negyedén apró snare fill jön
-        const isFillBeat = grooveIsFillBar() && beat === beatsPerBar - 1;
-
         if (beatsPerBar === 3) {
             if (beat === 0) playJamKick(at);
             else if (beat === 1) playJamHat(at);
@@ -1748,17 +1768,14 @@
         }
         if (sid === 'jazz') {
             if (beat === 0) scheduleJamDrumBarJazz(at, qSec);
-            if (isFillBeat) scheduleJamDrumFillEnd(at, qSec);
             return;
         }
         if (sid === 'pop') {
             if (beat === 0) scheduleJamDrumBarPopBreath(at, qSec);
-            if (isFillBeat) scheduleJamDrumFillEnd(at, qSec);
             return;
         }
         if (sid === 'latin') {
             if (beat === 0) scheduleJamDrumBarLatin(at, qSec);
-            if (isFillBeat) scheduleJamDrumFillEnd(at, qSec);
             return;
         }
         if (sid === 'march') {
@@ -1774,14 +1791,12 @@
                 playJamHat(at);
                 playJamSnare(at + qSec * 0.46, false);
             }
-            if (isFillBeat) scheduleJamDrumFillEnd(at, qSec);
             return;
         }
         if (beat === 0) playJamKick(at);
         else if (beat === 1) playJamHat(at);
         else if (beat === 2) playJamSnare(at, true);
         else playJamHat(at);
-        if (isFillBeat) scheduleJamDrumFillEnd(at, qSec);
     }
 
     function jamPlayTriadSubset(mids, indices, vel, durMs) {
@@ -1894,10 +1909,20 @@
         if (!jamBackingActive || helpActive) return;
         const st = activeJamStyle();
         const styleLab = currentLang === 'HU' ? st.labelHU : st.labelEN;
+        const hu = currentLang === 'HU';
+        // LOOP MÓD: csak a hangnem + BPM, nincs akkord cycle
+        if (st.jamPattern === 'loop') {
+            const loopKey = st.loopKey || 'Cm';
+            const loopBpm = st.loopBpm || jamBpmClamped();
+            const msg = hu
+                ? `LOOP: ${loopKey} | ${styleLab} | ${loopBpm} BPM — improvizálj szabadon`
+                : `LOOP: ${loopKey} | ${styleLab} | ${loopBpm} BPM — improvise freely`;
+            setInfoBar(msg, null);
+            return;
+        }
         const prog = getProgressionForKey(currentKey);
         const ch = prog[jamChordIdx % prog.length];
         const sym = chordSymbolFromPc(ch.rootPc, ch.mode);
-        const hu = currentLang === 'HU';
         const bpm = jamBpmClamped();
         const msg = hu
             ? `JAM: ${currentKey} dúr | ${styleLab} | most: ${sym} (${ch.roman}) | ${bpm} BPM`
@@ -1925,37 +1950,6 @@
         }
     }
 
-    // ── GROOVE HUMANIZATION ──────────────────────────────────────────────────
-    /** ± ms jitter (timing humanizáció) — kisebb érték = feszesebb, nagyobb = lazább.
-     *  Neo-soul / jazz ballade: 8–15ms a normális emberi előadásban. */
-    const GROOVE_TIMING_JITTER_MS = 10;
-    /** Velocity humanizáció: ± ezen százalékkal ingadozik hit-enként. */
-    const GROOVE_VELOCITY_JITTER = 0.18;
-
-    function grooveTimingJitter() {
-        return (Math.random() - 0.5) * 2 * GROOVE_TIMING_JITTER_MS;
-    }
-    function grooveVelocityJitter(baseVel) {
-        const delta = (Math.random() - 0.5) * 2 * GROOVE_VELOCITY_JITTER;
-        return Math.max(0.05, Math.min(1, baseVel * (1 + delta)));
-    }
-
-    /** 8-ütemes ciklus állapotkérdők — break és fill-ek időzítéséhez.
-     *  jamBarInCycle: 0..7 (8 ütem után visszaáll 0-ra). */
-    function grooveIsBreakBar() {
-        // 8. ütemen (index 7) 1 ütemre elhallgat a dob — "break".
-        return jamBarInCycle === 7;
-    }
-    function grooveIsFillBar() {
-        // 4. és 8. ütemen apró fill a dobon — szakaszhatárt jelez.
-        return jamBarInCycle === 3 || jamBarInCycle === 7;
-    }
-    /** Sparsity: 4 ütemenként egy ütem "szellősebb" — kevesebb akkord-ütés.
-     *  Ez az "üres tér" ami helyet ad a tanuló improvizációjának. */
-    function grooveIsSparseBar() {
-        return jamBarInCycle === 2 || jamBarInCycle === 6;
-    }
-
     function jamPlayBeat() {
         if (!isRunning || !jamBackingActive) return;
         if (!salamanderPiano) return;
@@ -1981,13 +1975,19 @@
         updateJamTempoLcd();
         scheduleJamDrumHits(st, beat, beatsPerBar, pattern, q);
 
-        // GROOVE: sparse ütemeken a zongora kíséret halkabb — "levegőt hagy" az improvizációnak
-        const sparsityMul = grooveIsSparseBar() ? 0.55 : 1.0;
-        // Effective velocity multiplier = style velMul * sparsity
-        const effVelMul = st.velMul * sparsityMul;
+        // LOOP MÓD: csak az MP3 szól, nincs procedurális bassz/akkord
+        if (pattern === 'loop') {
+            if (beat === 0 && jamChordIdx === 0) {
+                // Első ütem — indítsuk a loopot
+                const file = st.loopFile;
+                if (file) startLoopAudio(file);
+            }
+            updateLoopAudioVolume();
+            return;
+        }
 
         if (pattern === 'arpeggio') {
-            const arpVel = [0.78, 0.5, 0.5, 0.6].map(x => Math.min(1, x * effVelMul));
+            const arpVel = [0.78, 0.5, 0.5, 0.6].map(x => Math.min(1, x * st.velMul));
             const dNote = Math.round(q * 0.44);
             if (beat === 0) {
                 jamScheduleNoteDownUp(bassMidi, arpVel[0], Math.round(q * st.bassDurMul));
@@ -1999,7 +1999,7 @@
                 jamScheduleNoteDownUp(mids[2], arpVel[3], dNote);
             }
         } else if (pattern === 'waltz_arp') {
-            const arpVel = [0.82, 0.55, 0.52].map(x => Math.min(1, x * effVelMul));
+            const arpVel = [0.82, 0.55, 0.52].map(x => Math.min(1, x * st.velMul));
             const dNote = Math.round(q * 0.42);
             if (beat === 0) {
                 jamScheduleNoteDownUp(bassMidi, arpVel[0], Math.round(q * st.bassDurMul * 0.92));
@@ -2011,24 +2011,24 @@
             }
         } else if (pattern === 'waltz') {
             if (beat === 0) {
-                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * effVelMul * 1.05, Math.round(q * st.bassDurMul * 0.95));
+                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * st.velMul * 1.05, Math.round(q * st.bassDurMul * 0.95));
             } else if (beat === 1) {
                 const triDur = Math.round(q * 0.4 * st.triadDurMul);
-                mids.forEach(m => jamScheduleNoteDownUp(m, RP_AUTO_VEL_TRIAD * effVelMul * 0.58, triDur));
+                mids.forEach(m => jamScheduleNoteDownUp(m, RP_AUTO_VEL_TRIAD * st.velMul * 0.58, triDur));
             } else {
-                jamPlayTriadSubset(mids, [1, 2], RP_AUTO_VEL_TRIAD * effVelMul * 0.48, Math.round(q * 0.55 * st.triadDurMul));
+                jamPlayTriadSubset(mids, [1, 2], RP_AUTO_VEL_TRIAD * st.velMul * 0.48, Math.round(q * 0.55 * st.triadDurMul));
             }
         } else if (pattern === 'swing') {
             const triDur = Math.round(q * 0.34 * st.triadDurMul);
             if (beat === 0) {
-                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * effVelMul, Math.round(q * st.bassDurMul));
+                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * st.velMul, Math.round(q * st.bassDurMul));
             } else if (beat === 1) {
-                mids.forEach(m => jamScheduleNoteDownUp(m, RP_AUTO_VEL_TRIAD * effVelMul * 0.58, triDur));
+                mids.forEach(m => jamScheduleNoteDownUp(m, RP_AUTO_VEL_TRIAD * st.velMul * 0.58, triDur));
             } else if (beat === 2) {
-                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * effVelMul * 0.92, Math.round(q * st.bassDurMul * 0.88));
+                jamScheduleNoteDownUp(bassMidi, RP_AUTO_VEL_BASS * st.velMul * 0.92, Math.round(q * st.bassDurMul * 0.88));
             } else {
                 const delay = Math.round(q * 0.48);
-                mids.forEach(m => jamScheduleNoteDownUpDelayed(m, RP_AUTO_VEL_TRIAD * effVelMul * 0.78, triDur, delay));
+                mids.forEach(m => jamScheduleNoteDownUpDelayed(m, RP_AUTO_VEL_TRIAD * st.velMul * 0.78, triDur, delay));
             }
         } else {
             jamPlayBlockGroove(st, beat, q, bassMidi, mids);
@@ -2038,8 +2038,6 @@
         if (jamStepInChord >= beatsPerBar) {
             jamStepInChord = 0;
             jamChordIdx++;
-            // GROOVE: 8-ütemes ciklus számláló (break és fill időzítéshez)
-            jamBarInCycle = (jamBarInCycle + 1) % 8;
         }
         jamTimer = setTimeout(jamPlayBeat, q);
     }
@@ -2452,7 +2450,6 @@
         jamBackingActive = true;
         jamChordIdx = 0;
         jamStepInChord = 0;
-        jamBarInCycle = 0;
         jamStaffChord = null;
         isRunning = true;
         updateStartStop(true);
@@ -3082,6 +3079,7 @@
             const si = parseInt(sl.value, 10);
             backingGainMul = backingGainFromStep(isNaN(si) ? 2 : si);
             try { localStorage.setItem('harmony_backing_gain', String(backingGainMul)); } catch (e) {}
+            updateLoopAudioVolume(); // LOOP MP3 hangerő is
         });
         slKk.addEventListener('input', () => {
             const si = parseInt(slKk.value, 10);
