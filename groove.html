@@ -2127,6 +2127,28 @@
     }
     function applyJamStyleIndexChange() {
         try { localStorage.setItem('harmony_jam_style', String(jamStyleIdx)); } catch (e) {}
+        // LOOP stílus választása: automatikusan állítsuk át a kvintkör hangnemét,
+        // hogy a Safe Notes LED-ek az MP3 hangnemével megegyezzenek.
+        const st = JAM_STYLE_DEFS[jamStyleIdx];
+        if (st && st.loopKey) {
+            // loopKey formátum: 'Cm', 'Fm', 'Dm', 'Am', 'C', 'F'...
+            // A moll hangnem párhuzamos dúrát kell a WHEEL_MAJORS-ban megtalálni.
+            const MINOR_TO_MAJOR = {
+                'Am':'C', 'Em':'G', 'Bm':'D', 'F#m':'A', 'C#m':'E', 'G#m':'B',
+                'Ebm':'F#', 'Bbm':'Db', 'Fm':'Ab', 'Cm':'Eb', 'Gm':'Bb', 'Dm':'F'
+            };
+            let targetMajor = st.loopKey;
+            if (targetMajor.endsWith('m')) {
+                targetMajor = MINOR_TO_MAJOR[st.loopKey] || st.loopKey.slice(0, -1);
+            }
+            const idx = WHEEL_MAJORS.indexOf(targetMajor);
+            if (idx >= 0) {
+                activeWheelKeyIndex = idx;
+                currentKey = targetMajor;
+                drawWheel();
+                updateKeyboardHints();
+            }
+        }
         updateJamStyleLcd();
         if (isRunning) {
             jamChordIdx = 0;
