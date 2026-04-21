@@ -1288,10 +1288,14 @@
         { id: 'jazz', progression: progressionJazz2516, triadDurMul: 0.88, bassDurMul: 0.88, velMul: 0.88, jamPattern: 'block', groove: 'jazz_comp',
             labelEN: 'JAZZ', labelHU: 'JAZZ', descEN: 'ii–V–I–vi · sparse shell piano · thinner swing ride layer', descHU: 'ii–V–I–vi · ritka shell zongora · vékonyabb swing ride réteg' },
         // LOOP STÍLUS: előre felvett MP3 kíséret, ciklusban. A procedurális dob/basszus/zongora KI,
-        // csak a loop szól. Hangnem: C-moll (126 BPM). A Safe Notes LED-ek ehhez igazodnak.
+        // csak a loop szól. A Safe Notes LED-ek a megadott hangnemhez igazodnak.
         { id: 'loop_cafe_noir', progression: progressionJazz2516, triadDurMul: 1, bassDurMul: 1, velMul: 0, jamPattern: 'loop', groove: 'loop_audio',
             loopFile: 'loop16bar_faded.mp3', loopKey: 'Cm', loopBpm: 126,
-            labelEN: 'CAFE NOIR', labelHU: 'CAFE NOIR', descEN: 'Jazz backing loop (C minor, 126 BPM) — play freely over the rhythm section, no generated notes', descHU: 'Jazz alap loop (c-moll, 126 BPM) — improvizálj a ritmusszekción, generált hang nincs' }
+            labelEN: 'CAFE NOIR', labelHU: 'CAFE NOIR', descEN: 'Jazz backing loop (C minor, 126 BPM) — play freely over the rhythm section, no generated notes', descHU: 'Jazz alap loop (c-moll, 126 BPM) — improvizálj a ritmusszekción, generált hang nincs' },
+        // VELORA — lassú jazz ballade F-mollban, 65 BPM, 8 ütemes
+        { id: 'loop_velora', progression: progressionJazz2516, triadDurMul: 1, bassDurMul: 1, velMul: 0, jamPattern: 'loop', groove: 'loop_audio',
+            loopFile: 'loop_velora_fm.mp3', loopKey: 'Fm', loopBpm: 65,
+            labelEN: 'VELORA', labelHU: 'VELORA', descEN: 'Slow jazz ballade loop (F minor, 65 BPM) — space for melodic improvisation', descHU: 'Lassú jazz ballada loop (f-moll, 65 BPM) — levegős dallamimprovizációhoz' }
     ];
     /** Kíséret: 5 lépés — rövid felugró csúszka, nem fiók. */
     /** 0 = kísérő zongora teljesen néma; utána fokozatos erősítés (POP/JAZZ „lüktetés” lekapcsolható). */
