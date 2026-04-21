@@ -1095,9 +1095,9 @@
     const C_ACTIVE = '#b3e6ff', C_INACTIVE = 'rgba(179,230,255,0.28)', C_ERROR = '#ff6655';
 
     // ── ÁLLAPOTOK ──
-    let isRunning = false, showNames = false, showKeys = false, showWheel = false, helpActive = false, audioOn = true;
+    let isRunning = false, showNames = true, showKeys = true, showWheel = true, helpActive = false, audioOn = true;
     let currentKey = 'C'; // Ez tárolja a tárcsán kiválasztott hangnemet
-    let hintsState = 0;
+    let hintsState = 2; // Alapból: hangnevek + LED aktív
     let demoPlaying = false, demoTimeouts = [];
     let cadenceTimeouts = [];
     let jamBackingActive = false;
@@ -1311,7 +1311,12 @@
         // EASY GROOVE — C-dúr, 88 BPM, 16 ütemes, kezdő-barát egyszerű groove
         { id: 'loop_easy', progression: progressionPop, triadDurMul: 1, bassDurMul: 1, velMul: 0, jamPattern: 'loop', groove: 'loop_audio',
             loopFile: 'loop_easy_groove.mp3', loopKey: 'C', loopBpm: 88,
-            labelEN: 'EASY GROOVE', labelHU: 'EASY GROOVE', descEN: 'Easy Groove Jam (C major, 88 BPM, 16 bars) — beginner-friendly, only white keys safe, perfect for first improvisation', descHU: 'Easy Groove Jam (C-dúr, 88 BPM, 16 ütem) — kezdőknek ideális, csak fehér billentyűk biztonságosak, első improvizációhoz tökéletes' }
+            labelEN: 'EASY GROOVE', labelHU: 'EASY GROOVE', descEN: 'Easy Groove Jam (C major, 88 BPM, 16 bars) — beginner-friendly, only white keys safe, perfect for first improvisation', descHU: 'Easy Groove Jam (C-dúr, 88 BPM, 16 ütem) — kezdőknek ideális, csak fehér billentyűk biztonságosak, első improvizációhoz tökéletes' },
+        // FOOTPRINTS — Wayne Shorter (Herbie Hancock embellishments), C-moll, 140 BPM, jazz waltz feel
+        // Akkordok: F#m7b5(11), F7(9 #11 13), E7(9 #11 13), A7(#9 b13) — modális/kromatikus jazz
+        { id: 'loop_footprints', progression: progressionJazz2516, triadDurMul: 1, bassDurMul: 1, velMul: 0, jamPattern: 'loop', groove: 'loop_audio',
+            loopFile: 'loop_footprints.mp3', loopKey: 'Cm', loopBpm: 140,
+            labelEN: 'FOOTPRINTS', labelHU: 'FOOTPRINTS', descEN: 'Footprints (Wayne Shorter, C minor, 140 BPM, jazz waltz feel) — modal/chromatic improv, Herbie Hancock-style voicings', descHU: 'Footprints (Wayne Shorter, c-moll, 140 BPM, jazz waltz feel) — modális/kromatikus improvizáció, Herbie Hancock-féle akkordok' }
     ];
     /** Kíséret: 5 lépés — rövid felugró csúszka, nem fiók. */
     /** 0 = kísérő zongora teljesen néma; utána fokozatos erősítés (POP/JAZZ „lüktetés” lekapcsolható). */
@@ -3161,6 +3166,19 @@
         setupJamStylePopup();
         updateLCD(); updateProgress();
         buildSequence();
+        // Alapértelmezett UI: hints gomb aktív (hangnevek + LED) és kvintkör látható
+        const btnH = document.getElementById('btnHints');
+        if (btnH) btnH.classList.add('active');
+        updateKeyboardHints();
+        // Kvintkör aktiválása — showWheel már true, csak a DOM-ot kell frissíteni
+        const wc = document.getElementById('wheelCanvas');
+        if (wc) wc.style.display = 'block';
+        if (typeof wheelClose !== 'undefined' && wheelClose && wheelClose.style) {
+            wheelClose.style.display = 'flex';
+        }
+        const bw = document.getElementById('btnWheel');
+        if (bw) bw.classList.add('active');
+        if (typeof drawWheel === 'function') drawWheel();
         draw();
         document.fonts.ready.then(() => { fitWidth(); });
         window.addEventListener('pointerdown', () => initAudio(), { once: true });
