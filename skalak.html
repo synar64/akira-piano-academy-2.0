@@ -76,7 +76,14 @@
         .key-finger-num { position:absolute; top:-24px; left:50%; transform:translateX(-50%); min-width:10px; text-align:center; font-family:'Inter',sans-serif; font-size:11px; font-weight:700; color:rgba(179,230,255,0.65); opacity:0; transition:opacity 0.2s,color 0.2s,text-shadow 0.2s; pointer-events:none; z-index:10000; line-height:1; display:none; }
         .key-glow.scale-num-hint .key-finger-num { display:block; opacity:0.45; color:rgba(179,230,255,0.75); text-shadow:0 0 6px rgba(179,230,255,0.4); }
         .key-glow.chord-num-hint .key-finger-num { display:block; opacity:1; color:#b3e6ff; text-shadow:0 0 12px rgba(179,230,255,0.85); }
+        .key-glow.mistake-mark .key-led { opacity:1 !important; background:#e53333 !important; box-shadow:0 0 14px rgba(229,51,51,0.95) !important; }
+        .key-glow.scale-hint.mistake-mark .key-led { background:#e53333 !important; box-shadow:0 0 12px rgba(229,51,51,0.9) !important; }
+        .key-glow.mistake-mark .key-finger-num { color:#e85555 !important; text-shadow:0 0 8px rgba(229,80,80,0.6) !important; }
+        .key-glow.chord-hint.mistake-mark .key-led { background:#e53333 !important; box-shadow:0 0 12px rgba(229,51,51,0.9) !important; }
+        .key-glow.chord-num-hint.mistake-mark .key-finger-num { color:#ff6b6b !important; text-shadow:0 0 10px rgba(255,100,100,0.8) !important; }
+        .key-glow.scale-num-hint.mistake-mark .key-finger-num { color:#e85555 !important; opacity:0.9 !important; }
         .hitbox-layer.wrap-keynums .key-glow:not(.demo-flash) .key-led { opacity:0 !important; box-shadow:none !important; }
+        .hitbox-layer.wrap-keynums .key-glow.mistake-mark:not(.demo-flash) .key-finger-num { color:#e85555 !important; }
         .metro-preset { background:#222;border:1px solid #333;color:#aaa;padding:6px 2px;font-family:'Share Tech Mono';font-size:12px;cursor:pointer;border-radius:3px;text-align:center;transition:0.1s; }
         .metro-preset:hover { background:#333;color:#fff; }
         .metro-preset:active { transform:translateY(1px); }
@@ -563,7 +570,34 @@
     const VJ_BOTTOM=(VFAnnotation&&VFAnnotation.VerticalJustify)?VFAnnotation.VerticalJustify.BOTTOM:4;
     let KOTTA_ZOOM=1.1;
     const VEXFLOW_BASE_WIDTH=1100,VEXFLOW_ROW_HEIGHT=230;
-    const C_LINES='#4a4a4a',C_BRIGHT='#c3c3c3',C_PAST='#888888',C_ACTIVE='#00d0ff';
+    const C_LINES='#4a4a4a',C_BRIGHT='#c3c3c3',C_PAST='#888888',C_ACTIVE='#00d0ff',C_ERROR='#e53333';
+    let errorStepIndices=new Set();
+    let sessionReviewMode=false;
+    let errorCount=0,errorPositionLabels=[];
+    function blockBaseOffset(bIdx){
+        let g=0;for(let b=0;b<bIdx && b<seqBlocks.length;b++)g+=seqBlocks[b].length;
+        return g;
+    }
+    function collectMistakeKeyMidis(){
+        const s=new Set();
+        if(!errorStepIndices.size||!seqBlocks.length)return s;
+        const flat=seqBlocks.flat();
+        errorStepIndices.forEach(idx=>{if(idx<0||idx>=flat.length)return;const n=flat[idx];
+            if(activeRH&&n.m_rh)s.add(n.m_rh);
+            if(activeLH&&n.m_lh)s.add(n.m_lh);
+        });
+        return s;
+    }
+    function applyMistakeMarkToKeys(){
+        const mm=collectMistakeKeyMidis();
+        mm.forEach(midi=>{const el=document.getElementById('k-'+midi);if(el)el.classList.add('mistake-mark');});
+    }
+    function resetMistakeState(){
+        errorStepIndices.clear();
+        errorCount=0;
+        errorPositionLabels.length=0;
+        sessionReviewMode=false;
+    }
 
     function getMaxZoom(){
         const c=document.querySelector('.sheet-container');if(!c)return 2.5;
@@ -714,9 +748,10 @@
                         const blockIdx=startIdx+(page*ROWS)+i;
                         const block=seqBlocks[blockIdx];if(!block)break;
                         let active=-1;
-                        if(currentBlockIndex===blockIdx)active=currentNoteInBlock;
+                        if(sessionReviewMode&&!isRunning)active=999;
+                        else if(currentBlockIndex===blockIdx)active=currentNoteInBlock;
                         else if(currentBlockIndex>blockIdx)active=999;
-                        renderScaleSystem(ctx,block,30,i*VEXFLOW_ROW_HEIGHT,active,i===0&&page===0&&startIdx===0);
+                        renderScaleSystem(ctx,block,30,i*VEXFLOW_ROW_HEIGHT,active,i===0&&page===0&&startIdx===0,blockIdx);
                     }
                     const pageNum=spreadIdx*2+page+1;
                     const totalPages=Math.ceil(seqBlocks.length/ROWS);
@@ -729,11 +764,13 @@
                 renderer.resize(VEXFLOW_BASE_WIDTH*KOTTA_ZOOM,(ROWS*VEXFLOW_ROW_HEIGHT+60)*KOTTA_ZOOM);
                 const ctx=renderer.getContext();ctx.scale(KOTTA_ZOOM,KOTTA_ZOOM);
                 for(let i=0;i<ROWS;i++){
-                    const block=seqBlocks[startIdx+i];if(!block)break;
+                    const blockIdx=startIdx+i;
+                    const block=seqBlocks[blockIdx];if(!block)break;
                     let active=-1;
-                    if(currentBlockIndex===startIdx+i)active=currentNoteInBlock;
-                    else if(currentBlockIndex>startIdx+i)active=999;
-                    renderScaleSystem(ctx,block,30,i*VEXFLOW_ROW_HEIGHT,active,i===0&&startIdx===0);
+                    if(sessionReviewMode&&!isRunning)active=999;
+                    else if(currentBlockIndex===blockIdx)active=currentNoteInBlock;
+                    else if(currentBlockIndex>blockIdx)active=999;
+                    renderScaleSystem(ctx,block,30,i*VEXFLOW_ROW_HEIGHT,active,i===0&&startIdx===0,blockIdx);
                 }
                 const totalPages=Math.ceil(seqBlocks.length/ROWS);
                 if(totalPages>1){const lbl=document.createElement('div');lbl.style.cssText='text-align:center;font-family:"Share Tech Mono";font-size:11px;color:#444;margin-top:4px;';lbl.textContent=(pageIdx+1)+' / '+totalPages;container.appendChild(lbl);}
@@ -743,7 +780,7 @@
         paintScaleKeys(document.getElementById('scaleSelectValue').value);
     }
 
-    function renderScaleSystem(ctx,block,x,y,activeIndex,showClef){
+    function renderScaleSystem(ctx,block,x,y,activeIndex,showClef,blockIdxInSeq){
         const staveW=VEXFLOW_BASE_WIDTH-60;
         const fmtW=staveW-(showClef?85:30);
         const staveTreble=new VF.Stave(x,y,staveW);
@@ -764,14 +801,20 @@
         }
         function buildVoice(isTreble){
             const vfNotes=block.map((n,i)=>{
+                const gIdx=blockBaseOffset(blockIdxInSeq)+i;
+                const isErr=errorStepIndices.has(gIdx);
                 const ki=isTreble?{key:n.rh_key,acc:n.rh_acc}:{key:n.lh_key,acc:n.lh_acc};
                 const vfn=new VF.StaveNote({clef:isTreble?'treble':'bass',keys:[ki.key],duration:'q',auto_stem:true});
                 if(ki.acc)vfn.addModifier(new VF.Accidental(ki.acc));
                 let color=C_BRIGHT;
-                if(i===activeIndex)color=C_ACTIVE;
+                if(isErr)color=C_ERROR;
+                else if(i===activeIndex)color=C_ACTIVE;
                 else if(activeIndex===999||(activeIndex>-1&&i<activeIndex))color=C_PAST;
                 vfn.setStyle({fillStyle:color,strokeStyle:color});
-                if(vfn.setLedgerLineStyle){const lc=i===activeIndex?C_ACTIVE:'#666';vfn.setLedgerLineStyle({strokeStyle:lc,fillStyle:lc,lineWidth:1.5});}
+                if(vfn.setLedgerLineStyle){
+                    const lc=isErr?C_ERROR:(i===activeIndex?C_ACTIVE:'#666');
+                    vfn.setLedgerLineStyle({strokeStyle:lc,fillStyle:lc,lineWidth:1.5});
+                }
                 if(showNames){
                     const accStr=n.na==='#'?'♯':n.na==='b'?'♭':'';
                     let letter=n.nl.toUpperCase();
@@ -783,7 +826,12 @@
                 }
                 if(showFinger){
                     const f=isTreble?n.f_rh:n.f_lh;
-                    if(f){const fa=new VFAnnotation(String(f)).setFont('Inter',7,'bold').setVerticalJustification(isTreble?VJ_BOTTOM:VJ_TOP);fa.setStyle({fillStyle:C_BRIGHT,strokeStyle:C_BRIGHT});vfn.addModifier(fa);}
+                    if(f){
+                        const fCol=isErr?C_ERROR:C_BRIGHT;
+                        const fa=new VFAnnotation(String(f)).setFont('Inter',7,'bold').setVerticalJustification(isTreble?VJ_BOTTOM:VJ_TOP);
+                        fa.setStyle({fillStyle:fCol,strokeStyle:fCol});
+                        vfn.addModifier(fa);
+                    }
                 }
                 return vfn;
             });
@@ -798,7 +846,7 @@
     let isRunning=false,activeRH=true,activeLH=true,currentNoteInBlock=0,currentBlockIndex=0;
     let showNames=false,showFinger=false,showLeds=false,showKeyNums=false,hintState=0;
     let seqBlocks=[],rhHit=false,lhHit=false,lastHitTime=0,hitIntervals=[],demoActiveNoteIdx=-1;
-    let strictMode=true,errorFlashEnabled=true,errorCount=0,errorPositionLabels=[],sessionStepTotal=0;
+    let strictMode=true,errorFlashEnabled=true,sessionStepTotal=0;
     let demoPlaying=false,demoTimeouts=[];
     function loadPracticePreferences(){
         try{strictMode=localStorage.getItem('akira_scales_strict')!=='0';}catch(e){strictMode=true;}
@@ -826,6 +874,8 @@
         return letter;
     }
     function registerMistake(note){
+        const gIdx=blockBaseOffset(currentBlockIndex)+currentNoteInBlock;
+        errorStepIndices.add(gIdx);
         errorCount++;
         errorPositionLabels.push(formatPracticeNoteName(note));
         triggerErrorFlash();
@@ -863,10 +913,20 @@
         paintScaleKeys(document.getElementById('scaleSelectValue').value);
     }
     function updateKeyLeds(){
-        document.querySelectorAll('.key-glow').forEach(k=>{k.classList.remove('chord-hint','chord-num-hint');});
-        if((!showLeds&&!showKeyNums)||seqBlocks.length===0)return;
+        document.querySelectorAll('.key-glow').forEach(k=>{k.classList.remove('chord-hint','chord-num-hint','mistake-mark');});
+        const mm=collectMistakeKeyMidis();
+        function markMistakeKeys(){
+            if(mm.size)mm.forEach(midi=>{const el=document.getElementById('k-'+midi);if(el)el.classList.add('mistake-mark');});
+        }
+        if((!showLeds&&!showKeyNums)||seqBlocks.length===0){
+            markMistakeKeys();
+            return;
+        }
         const note=seqBlocks[currentBlockIndex]?seqBlocks[currentBlockIndex][currentNoteInBlock]:null;
-        if(!note)return;
+        if(!note){
+            markMistakeKeys();
+            return;
+        }
         if(showLeds){
             if(activeRH){const el=document.getElementById('k-'+note.m_rh);if(el)el.classList.add('chord-hint');}
             if(activeLH){const el=document.getElementById('k-'+note.m_lh);if(el)el.classList.add('chord-hint');}
@@ -875,17 +935,21 @@
             if(activeRH){const el=document.getElementById('k-'+note.m_rh);if(el)el.classList.add('chord-num-hint');}
             if(activeLH){const el=document.getElementById('k-'+note.m_lh);if(el)el.classList.add('chord-num-hint');}
         }
+        markMistakeKeys();
     }
     // Lights LED dots (hint 3) or fingering digits above keys (hint 4) for every scale tone; bright = next note to play
     function paintScaleKeys(scaleKey){
         const wrap=document.getElementById('hb-wrap');
         if(wrap)wrap.classList.toggle('wrap-keynums',showKeyNums);
         document.querySelectorAll('.key-glow').forEach(k=>{
-            k.classList.remove('scale-hint','scale-num-hint');
+            k.classList.remove('scale-hint','scale-num-hint','mistake-mark');
             const fn=k.querySelector('.key-finger-num');
             if(fn){fn.textContent='';fn.style.display='none';}
         });
-        if(!showLeds&&!showKeyNums)return;
+        if(!showLeds&&!showKeyNums){
+            applyMistakeMarkToKeys();
+            return;
+        }
         if(!scaleKey||!SCALES_DATABASE[scaleKey])return;
         const seq=buildScaleSequence(scaleKey,selectedOctaves);
         if(showLeds){
@@ -914,6 +978,7 @@
                 }
             });
         }
+        applyMistakeMarkToKeys();
     }
     function cycleClef(){
         if(helpActive)return;clefState=(clefState+1)%3;activeRH=clefState!==2;activeLH=clefState!==1;
@@ -988,6 +1053,7 @@
         closePatchBrowser();if(isRunning)stopPractice();buildSequence();draw();syncWheelToScale();
     }
     function buildSequence(){
+        resetMistakeState();
         const scaleKey=document.getElementById('scaleSelectValue').value;
         const rawSeq=buildScaleSequence(scaleKey,selectedOctaves);
         const loops=MODES[currentModeIdx]==='SPRINT'?1:MODES[currentModeIdx]==='MARATHON'?3:100;
@@ -1007,13 +1073,14 @@
         if(helpActive)return;
         if(!isRunning){
             initAudio();initMidi();buildSequence();
-            errorCount=0;errorPositionLabels=[];sessionStepTotal=seqBlocks.flat().length;lastHitTime=0;hitIntervals=[];
+            sessionStepTotal=seqBlocks.flat().length;lastHitTime=0;hitIntervals=[];
             isRunning=true;document.getElementById('btnStart').textContent='STOP';
             rhHit=false;lhHit=false;draw();
         }
         else stopPractice();
     }
     function stopPractice(){
+        if(isRunning)sessionReviewMode=false;
         isRunning=false;currentNoteInBlock=0;currentBlockIndex=0;rhHit=false;lhHit=false;
         document.getElementById('btnStart').textContent='START';draw();
     }
@@ -1042,7 +1109,7 @@
             else notesEl.textContent=currentLang==='HU'?'(nincs hiba)':'(none)';
         }
         document.getElementById('resultModal').style.display='flex';
-        currentBlockIndex=0;currentNoteInBlock=0;draw();
+        currentBlockIndex=0;currentNoteInBlock=0;sessionReviewMode=true;draw();
     }
     function closeModal(){document.getElementById('resultModal').style.display='none';stopPractice();}
     function handleNoteOn(midi,vel=100){
@@ -1063,8 +1130,11 @@
             if(hit)advancePracticeStep();
             return;
         }
-        if(needsRh||needsLh)registerMistake(note);
-        if(!strictMode)advancePracticeStep();
+        if(needsRh||needsLh){
+            registerMistake(note);
+            if(!strictMode)advancePracticeStep();
+            else draw();
+        }
     }
     function playScaleRhythmDemo(){
         if(demoPlaying){stopDemo();return;}
