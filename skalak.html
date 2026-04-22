@@ -87,6 +87,12 @@
         .modal-btn:active { transform:translateY(3px); box-shadow:0 0 0 #000; }
         #wheelCanvas { position:fixed; right:40px; top:60px; width:400px; height:400px; z-index:10000; pointer-events:auto; background:rgba(5,5,8,0.85); border-radius:50%; box-shadow:0 10px 40px rgba(0,0,0,0.9),inset 0 0 0 2px rgba(255,255,255,0.05); backdrop-filter:blur(8px); display:none; cursor:grab; }
         #wheelCanvas:active { cursor:grabbing; }
+        .error-flash { animation: flash-red 0.4s ease-out; }
+        @keyframes flash-red {
+            0% { box-shadow: inset 0 0 0 0px rgba(255, 0, 0, 0); }
+            30% { box-shadow: inset 0 0 100px 20px rgba(255, 0, 0, 0.7); }
+            100% { box-shadow: inset 0 0 0 0px rgba(255, 0, 0, 0); }
+        }
     </style>
     <script src="https://cdn.jsdelivr.net/npm/vexflow@4.2.2/build/cjs/vexflow.js"></script>
 </head>
@@ -164,10 +170,19 @@
         </div>
     </div>
     <div id="resultModal" class="modal-overlay">
-        <div class="modal-content">
-            <h2 class="modal-title">Session Complete</h2>
-            <div style="margin-bottom:20px;"><div class="oled-header" style="margin-bottom:8px;">Avg Tempo</div><div id="modalBpm" style="font-family:'Share Tech Mono';font-size:28px;color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
-            <button class="modal-btn" onclick="closeModal()">Acknowledge</button>
+        <div class="modal-content" style="max-width:580px;">
+            <h2 class="modal-title" id="modalResultTitle">Session Complete</h2>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:18px;text-align:left;">
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblStrokes">Total notes</div><div id="modalStrokes" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblErr">Mistakes</div><div id="modalErrCount" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblAcc">Accuracy</div><div id="modalAccuracy" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">100%</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblBpm">Avg Tempo</div><div id="modalBpm" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
+            </div>
+            <div style="margin-bottom:20px;text-align:left;">
+                <div class="oled-header" style="margin-bottom:8px;" id="modalLblNotes">Trouble spots</div>
+                <div id="modalErrorNotes" style="font-family:'Inter',sans-serif;font-size:15px;color:#aaa;line-height:1.5;min-height:1.2em;">—</div>
+            </div>
+            <button class="modal-btn" onclick="closeModal()" id="modalResultOk">Acknowledge</button>
         </div>
     </div>
     <div id="infoModal" class="modal-overlay">
@@ -231,6 +246,8 @@
                         </svg>
                     </div>
                     <div class="control-group">
+                        <button type="button" id="btnStrict" class="sq-btn active" onclick="if(!helpActive) toggleStrictMode()" data-help="STRICT: WAIT FOR CORRECT NOTE — PERFORMANCE: LOG ERROR AND ADVANCE" style="font-size:9px;font-weight:800;letter-spacing:0.5px;padding:0 2px;min-width:38px;" title="Strict / Performance">S</button>
+                        <button type="button" id="btnErrorFlash" class="sq-btn active" onclick="if(!helpActive) toggleErrorFlash()" data-help="ERROR FLASH: RED BORDER ON WRONG NOTE" style="font-size:9px;padding:0 2px;min-width:38px;" title="Error flash on/off">⚡</button>
                         <a id="btnHome" href="index.html" class="sq-btn" style="text-decoration:none;" data-help="HOME: RETURN TO MAIN MODULE MENU">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
                         </a>
@@ -399,7 +416,14 @@
             'txt-wheelBody': 'Use the Wheel icon to open the Circle of Fifths. Click sectors to jump to keys and see I-IV-V relationships.',
             'txt-tipTitle':  'Learning Tip',
             'txt-tipBody':   'Start with Sprint mode and 1 octave. Once you can play a scale cleanly, switch to 2 octaves and Marathon to build muscle memory.',
-            'txt-gotIt':     'Got It'
+            'txt-gotIt':     'Got It',
+            'modalResultTitle': 'Session complete',
+            'modalLblStrokes': 'Total notes',
+            'modalLblErr': 'Mistakes',
+            'modalLblAcc': 'Accuracy',
+            'modalLblBpm': 'Avg tempo',
+            'modalLblNotes': 'Trouble spots (expected notes)',
+            'modalResultOk': 'OK'
         },
         HU:{
             'txt-infoTitle': 'Skálák — Modul útmutató',
@@ -416,7 +440,14 @@
             'txt-wheelBody': 'Használd a Kerék ikont a kvintkör megnyitásához. Kattints a szektorokra a hangnemváltáshoz és az I-IV-V fokok megjelenítéséhez.',
             'txt-tipTitle':  'Tanulási tipp',
             'txt-tipBody':   'Kezdj Sprint módban és 1 oktávval. Ha tisztán tudod játszani a skálát, válts 2 oktávra és Maratonra az izommemória fejlesztéséhez.',
-            'txt-gotIt':     'Értettem'
+            'txt-gotIt':     'Értettem',
+            'modalResultTitle': 'Szakasz vége',
+            'modalLblStrokes': 'Összes hang (lépés)',
+            'modalLblErr': 'Hibák',
+            'modalLblAcc': 'Pontosság',
+            'modalLblBpm': 'Átlag tempó',
+            'modalLblNotes': 'Kritikus hangok (elvárt hangnév)',
+            'modalResultOk': 'Rendben'
         }
     };
     function setLang(lang){
@@ -433,6 +464,7 @@
         // Update info modal text
         const T=MODAL_STRINGS[lang]||MODAL_STRINGS.EN;
         Object.keys(T).forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=T[id];});
+        updateStrictFlashButtons();
         if(helpActive)setInfoBar(lang==='HU'?'SÚGÓ MÓD — KATTINTS BÁRMELY ELEMRE A LEÍRÁSÉRT':'HELP MODE — CLICK ANY ELEMENT TO READ ITS DESCRIPTION',null);
         else if(!isRunning)setInfoBar(lang==='HU'?'VÁLASSZ SKÁLÁT VAGY NYOMJ STARTOT':'SELECT SCALE OR PRESS START',null);
     }
@@ -766,7 +798,49 @@
     let isRunning=false,activeRH=true,activeLH=true,currentNoteInBlock=0,currentBlockIndex=0;
     let showNames=false,showFinger=false,showLeds=false,showKeyNums=false,hintState=0;
     let seqBlocks=[],rhHit=false,lhHit=false,lastHitTime=0,hitIntervals=[],demoActiveNoteIdx=-1;
+    let strictMode=true,errorFlashEnabled=true,errorCount=0,errorPositionLabels=[],sessionStepTotal=0;
     let demoPlaying=false,demoTimeouts=[];
+    function loadPracticePreferences(){
+        try{strictMode=localStorage.getItem('akira_scales_strict')!=='0';}catch(e){strictMode=true;}
+        try{errorFlashEnabled=localStorage.getItem('akira_scales_errflash')!=='0';}catch(e){errorFlashEnabled=true;}
+    }
+    function updateStrictFlashButtons(){
+        const bs=document.getElementById('btnStrict');const bf=document.getElementById('btnErrorFlash');
+        if(bs){bs.classList.toggle('active',strictMode);const hu=currentLang==='HU';bs.textContent=strictMode?(hu?'S':'S'):'P';bs.title=strictMode?(hu?'Szigorú: jó hang kell':'Strict: wait for correct note'):(hu?'Előadás: hiba + továbblépés':'Performance: log miss and advance');}
+        if(bf){bf.classList.toggle('active',errorFlashEnabled);bf.style.opacity=errorFlashEnabled?'1':'0.4';}
+    }
+    function toggleStrictMode(){if(helpActive)return;strictMode=!strictMode;try{localStorage.setItem('akira_scales_strict',strictMode?'1':'0');}catch(e){}updateStrictFlashButtons();}
+    function toggleErrorFlash(){if(helpActive)return;errorFlashEnabled=!errorFlashEnabled;try{localStorage.setItem('akira_scales_errflash',errorFlashEnabled?'1':'0');}catch(e){}updateStrictFlashButtons();}
+    function triggerErrorFlash(){
+        if(!errorFlashEnabled)return;
+        document.body.classList.add('error-flash');
+        setTimeout(()=>document.body.classList.remove('error-flash'),400);
+    }
+    function formatPracticeNoteName(n){
+        if(!n||!n.nl)return'';
+        let letter=n.nl.toUpperCase();
+        if(currentLang==='HU'&&letter==='B'&&(!n.na||n.na==='n'))letter='H';
+        if(n.na==='#')return letter+'#';
+        if(n.na==='b'||n.na==='bb')return letter+(n.na==='bb'?'bb':'b');
+        if(n.na==='n')return letter+'♮';
+        return letter;
+    }
+    function registerMistake(note){
+        errorCount++;
+        errorPositionLabels.push(formatPracticeNoteName(note));
+        triggerErrorFlash();
+    }
+    function advancePracticeStep(){
+        rhHit=false;lhHit=false;const now=performance.now();
+        if(lastHitTime>0)hitIntervals.push(now-lastHitTime);
+        lastHitTime=now;
+        currentNoteInBlock++;
+        if(currentNoteInBlock>=seqBlocks[currentBlockIndex].length){
+            currentNoteInBlock=0;currentBlockIndex++;
+            if(currentBlockIndex>=seqBlocks.length){showResults();return;}
+        }
+        draw();
+    }
     let selectedOctaves=1,clefState=0;
     const MODES=['SPRINT','MARATHON','TRAINING'];let currentModeIdx=0;
     const RHYTHMS=[
@@ -931,30 +1005,66 @@
     // ── Practice & Demo ───────────────────────────────────────────────────────
     function handleMainButton(){
         if(helpActive)return;
-        if(!isRunning){initAudio();initMidi();buildSequence();isRunning=true;document.getElementById('btnStart').textContent='STOP';lastHitTime=0;hitIntervals=[];draw();}
+        if(!isRunning){
+            initAudio();initMidi();buildSequence();
+            errorCount=0;errorPositionLabels=[];sessionStepTotal=seqBlocks.flat().length;lastHitTime=0;hitIntervals=[];
+            isRunning=true;document.getElementById('btnStart').textContent='STOP';
+            rhHit=false;lhHit=false;draw();
+        }
         else stopPractice();
     }
-    function stopPractice(){isRunning=false;currentNoteInBlock=0;currentBlockIndex=0;document.getElementById('btnStart').textContent='START';draw();}
+    function stopPractice(){
+        isRunning=false;currentNoteInBlock=0;currentBlockIndex=0;rhHit=false;lhHit=false;
+        document.getElementById('btnStart').textContent='START';draw();
+    }
     function showResults(){
         isRunning=false;document.getElementById('btnStart').textContent='START';
-        if(hitIntervals.length===0){stopPractice();return;}
-        let avgDiff=hitIntervals.reduce((a,b)=>a+b)/hitIntervals.length;let avgBpm=Math.round(60000/avgDiff);
-        document.getElementById('modalBpm').innerText=avgBpm+' BPM';
-        document.getElementById('resultModal').style.display='flex';currentBlockIndex=0;currentNoteInBlock=0;draw();
+        const total=sessionStepTotal>0?sessionStepTotal:seqBlocks.flat().length;
+        const elS=document.getElementById('modalStrokes');
+        if(elS)elS.textContent=String(total);
+        const elE=document.getElementById('modalErrCount');
+        if(elE)elE.textContent=String(errorCount);
+        let accPct=100;
+        if(errorCount>0&&total>0)accPct=Math.round(100*total/(total+errorCount));
+        const elA=document.getElementById('modalAccuracy');
+        if(elA)elA.textContent=accPct+'%';
+        const bpmEl=document.getElementById('modalBpm');
+        if(hitIntervals.length>0){
+            const avgDiff=hitIntervals.reduce((a,b)=>a+b)/hitIntervals.length;
+            if(bpmEl)bpmEl.textContent=Math.round(60000/avgDiff)+' BPM';
+        }else{
+            if(bpmEl)bpmEl.textContent=currentLang==='HU'?'—':'—';
+        }
+        const uniques=[...new Set(errorPositionLabels)];
+        const notesEl=document.getElementById('modalErrorNotes');
+        if(notesEl){
+            if(uniques.length)notesEl.textContent=uniques.join(', ');
+            else notesEl.textContent=currentLang==='HU'?'(nincs hiba)':'(none)';
+        }
+        document.getElementById('resultModal').style.display='flex';
+        currentBlockIndex=0;currentNoteInBlock=0;draw();
     }
     function closeModal(){document.getElementById('resultModal').style.display='none';stopPractice();}
     function handleNoteOn(midi,vel=100){
-        playTone(midi,vel);if(!isRunning||seqBlocks.length===0)return;
-        let note=seqBlocks[currentBlockIndex][currentNoteInBlock];
-        if(activeRH&&midi===note.m_rh)rhHit=true;if(activeLH&&midi===note.m_lh)lhHit=true;
-        let hit=false;
-        if(activeRH&&!activeLH&&rhHit)hit=true;else if(!activeRH&&activeLH&&lhHit)hit=true;else if(activeRH&&activeLH&&rhHit&&lhHit)hit=true;
-        if(hit){
-            rhHit=false;lhHit=false;let now=performance.now();if(lastHitTime>0)hitIntervals.push(now-lastHitTime);lastHitTime=now;
-            currentNoteInBlock++;
-            if(currentNoteInBlock>=seqBlocks[currentBlockIndex].length){currentNoteInBlock=0;currentBlockIndex++;if(currentBlockIndex>=seqBlocks.length){showResults();return;}}
-            draw();
+        playTone(midi,vel);
+        if(!isRunning||seqBlocks.length===0)return;
+        const note=seqBlocks[currentBlockIndex][currentNoteInBlock];
+        if(!note)return;
+        const needsRh=activeRH&&!rhHit;
+        const needsLh=activeLH&&!lhHit;
+        const isValidPart=(needsRh&&midi===note.m_rh)||(needsLh&&midi===note.m_lh);
+        if(isValidPart){
+            if(activeRH&&midi===note.m_rh)rhHit=true;
+            if(activeLH&&midi===note.m_lh)lhHit=true;
+            let hit=false;
+            if(activeRH&&!activeLH&&rhHit)hit=true;
+            else if(!activeRH&&activeLH&&lhHit)hit=true;
+            else if(activeRH&&activeLH&&rhHit&&lhHit)hit=true;
+            if(hit)advancePracticeStep();
+            return;
         }
+        if(needsRh||needsLh)registerMistake(note);
+        if(!strictMode)advancePracticeStep();
     }
     function playScaleRhythmDemo(){
         if(demoPlaying){stopDemo();return;}
@@ -1163,7 +1273,7 @@
         });
     });
     window.addEventListener('resize',()=>{if(seqBlocks.length>0)draw();});
-    window.onload=()=>{const sl=localStorage.getItem('akira_lang')||'EN';setLang(sl);showFileProtocolAudioHintIfNeeded();create88();buildSequence();draw();};
+    window.onload=()=>{const sl=localStorage.getItem('akira_lang')||'EN';loadPracticePreferences();setLang(sl);showFileProtocolAudioHintIfNeeded();create88();buildSequence();draw();};
 </script>
 </body>
 </html>
