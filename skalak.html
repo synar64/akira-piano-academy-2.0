@@ -31,7 +31,8 @@
         .control-group { display:flex; align-items:center; gap:8px; z-index:10; }
         .dashboard-tool-stack { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex-shrink:0; }
         .sq-btn.sq-btn-practice { width:40px; min-width:40px; height:36px; min-height:36px; padding:0; font-size:18px; font-weight:800; line-height:1; display:inline-flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; }
-        #btnErrorFlash.sq-btn-practice { font-size:27px; line-height:0.85; }
+        #btnErrorFlash.sq-btn-practice { font-size:0; line-height:0; }
+        #btnErrorFlash.sq-btn-practice svg { width:22px; height:22px; flex-shrink:0; display:block; }
         .sq-btn.sq-btn-tool-ow { width:40px; min-width:40px; height:36px; min-height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
         .sq-btn.sq-btn-tool-ow svg { width:28px; height:28px; }
         .control-hints-col { display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; min-height:76px; padding:0 4px; }
@@ -214,7 +215,7 @@
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:baseline;"><span style="font-family:'Share Tech Mono';font-size:11px;background:#111;border:1px solid #222;border-radius:3px;padding:2px 8px;white-space:nowrap;min-width:80px;text-align:center;color:#555;">Scale ▲▼</span><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl1">Cycle through scales. Click the SCALE display to open the Encyclopedia.</span></div>
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:baseline;"><span style="font-family:'Share Tech Mono';font-size:11px;background:#111;border:1px solid #222;border-radius:3px;padding:2px 8px;white-space:nowrap;min-width:80px;text-align:center;color:#555;">Mode ▲▼</span><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl2">Sprint (1×), Marathon (3×), Training (endless loop).</span></div>
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;border-radius:3px;min-width:40px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#888;font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:800;">S</div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl3">Strict (S) vs Performance (P) and error flash (see below).</span></div>
-                <div style="display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;border-radius:3px;min-width:40px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#888;font-size:18px;line-height:1;">⚡</div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl5">Error flash on wrong note.</span></div>
+                <div style="display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;border-radius:3px;min-width:40px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#888;line-height:0;"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/></svg></div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl5">Error flash on wrong note.</span></div>
             </div>
             <div style="margin-bottom:18px;">
                 <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--lcd-label-color);text-transform:uppercase;letter-spacing:2px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #222;padding-bottom:5px;" id="txt-encTitle">Scale Encyclopedia</div>
@@ -273,7 +274,7 @@
                         </button>
                         <div class="dashboard-tool-stack" style="flex-shrink:0;" title="Practice mode &amp; error flash">
                             <button type="button" id="btnStrict" class="sq-btn active sq-btn-practice" onclick="if(!helpActive) toggleStrictMode()">S</button>
-                            <button type="button" id="btnErrorFlash" class="sq-btn active sq-btn-practice" onclick="if(!helpActive) toggleErrorFlash()">⚡</button>
+                            <button type="button" id="btnErrorFlash" class="sq-btn active sq-btn-practice" onclick="if(!helpActive) toggleErrorFlash()" aria-label="Error flash"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L3 14H12L11 22L21 10H12L13 2Z"/></svg></button>
                         </div>
                         <div class="dashboard-tool-stack" style="flex-shrink:0;" title="Octave &amp; circle of fifths">
                             <button id="btnOctave" class="sq-btn sq-btn-tool-ow" onclick="if(!helpActive) toggleOctave()" data-help="OCTAVE: TOGGLE BETWEEN 1 AND 2 OCTAVE SCALE RUN">
@@ -435,8 +436,8 @@
             'txt-ctrl2':     'Sprint (1×), Marathon (3×), Training (endless loop).',
             'txt-ctrl3':     'Strict (S) or Performance (P). Strict: wait for the correct note. Performance: log a wrong key, then move to the next.',
             'txt-ctrl5':     'Error flash: on — red border when you miss; off — no flash, mistakes still saved and shown on the staff and in the summary.',
-            'help-strict':   'S / P: STRICT (S) — only the right key advances. Wrong key = mistake, red note on staff, cursor does not move. PERFORMANCE (P) — wrong key = mistake, then the next expected note. Click to switch.',
-            'help-flash':    'ERROR FLASH (⚡): on = red full-screen border flash for wrong keys. off = no flash; mistakes and red staff marks are still kept for the end summary.',
+            'help-strict':   'Strict or performance',
+            'help-flash':    'Flashes for mistakes',
             'help-bubble':   'Open control tooltips',
             'txt-encTitle':  'Scale Encyclopedia',
             'txt-encBody':   'Click the SCALE display to open the Scale Encyclopedia. Browse Standard, Modal (Church) and Exotic (World) scales from around the globe.',
@@ -464,8 +465,8 @@
             'txt-ctrl2':     'Sprint (1×), Maraton (3×), Tréning (végtelen hurok).',
             'txt-ctrl3':     'Szigorú (S) vagy Előadás (P). Szigorú: a jó hang kell. Előadás: hiba után jön a következő hang.',
             'txt-ctrl5':     'Hibavillanás: be — piros szélvillanás; ki — nincs villanás, a hibák és a kotta jelölése megmarad.',
-            'help-strict':   'S / P: SZIGORÚ (S) — csak jó leütésnél lép. Rossz húr = hiba, piros hangjegy, kurzor vár. ELŐADÁS (P) — hiba, majd a következő elvárt hang. Kattintással vált.',
-            'help-flash':    'HIBAVILLANÁS (⚡): be = piros villanás rossz hangra. ki = nincs villanás, a hibák a kottán és az összefoglalóban megmaradnak.',
+            'help-strict':   'Szigor vagy előadás',
+            'help-flash':    'Hibánál piros villanás',
             'help-bubble':   'Súgó a vezérlőkhöz',
             'txt-encTitle':  'Skála Enciklopédia',
             'txt-encBody':   'Kattints a SKÁLA kijelzőre a Skála Enciklopédia megnyitásához. Böngészd a Szabványos, Modális (Egyházi) és Egzotikus (Világi) skálákat a világ minden tájáról.',
