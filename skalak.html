@@ -29,6 +29,14 @@
         .master-dashboard { display:flex; justify-content:space-between; align-items:center; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px); background-size:100% 3px; padding:25px 30px; border-top:1px solid #333; position:relative; width:100%; box-sizing:border-box; }
         .dashboard-logo { position:absolute; top:-35px; left:30px; z-index:5; pointer-events:none; }
         .control-group { display:flex; align-items:center; gap:8px; z-index:10; }
+        .dashboard-tool-stack { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex-shrink:0; }
+        .sq-btn.sq-btn-practice { width:40px; min-width:40px; height:36px; min-height:36px; padding:0; font-size:18px; font-weight:800; line-height:1; display:inline-flex; align-items:center; justify-content:center; font-family:'Share Tech Mono',monospace; }
+        #btnErrorFlash.sq-btn-practice { font-size:27px; line-height:0.85; }
+        .sq-btn.sq-btn-tool-ow { width:40px; min-width:40px; height:36px; min-height:36px; padding:0; display:inline-flex; align-items:center; justify-content:center; }
+        .sq-btn.sq-btn-tool-ow svg { width:28px; height:28px; }
+        .control-hints-col { display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; min-height:76px; padding:0 4px; }
+        .control-hints-col .sq-btn { width:40px; height:40px; min-width:40px; min-height:40px; }
+        .control-hints-col .sq-btn svg { width:27px; height:27px; }
         .hardware-btn { width:95px; height:38px; background-color:var(--btn-dark); color:var(--text-dim); border:1px solid var(--btn-border); border-radius:3px; cursor:pointer; font-weight:700; font-size:12px; text-transform:uppercase; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 3px 0 #000; transition:transform 0.1s; }
         .hardware-btn:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
         .hardware-btn.active { color:#fff; background-color:#121214; }
@@ -205,6 +213,8 @@
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:center;"><div style="background:#111;border:1px solid #222;padding:4px;border-radius:3px;min-width:80px;display:flex;justify-content:center;color:#555;"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg></div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl4">Cycles: 1× note names, 2× + fingering, 3× keyboard LEDs, 4× fingering numbers above keys (same as staff), 5× all off.</span></div>
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:baseline;"><span style="font-family:'Share Tech Mono';font-size:11px;background:#111;border:1px solid #222;border-radius:3px;padding:2px 8px;white-space:nowrap;min-width:80px;text-align:center;color:#555;">Scale ▲▼</span><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl1">Cycle through scales. Click the SCALE display to open the Encyclopedia.</span></div>
                 <div style="display:flex;gap:10px;margin-bottom:7px;align-items:baseline;"><span style="font-family:'Share Tech Mono';font-size:11px;background:#111;border:1px solid #222;border-radius:3px;padding:2px 8px;white-space:nowrap;min-width:80px;text-align:center;color:#555;">Mode ▲▼</span><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl2">Sprint (1×), Marathon (3×), Training (endless loop).</span></div>
+                <div style="display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;border-radius:3px;min-width:40px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#888;font-family:'Share Tech Mono',monospace;font-size:18px;font-weight:800;">S</div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl3">Strict (S) vs Performance (P) and error flash (see below).</span></div>
+                <div style="display:flex;gap:10px;margin-bottom:7px;align-items:flex-start;"><div style="background:#111;border:1px solid #222;border-radius:3px;min-width:40px;min-height:36px;display:flex;align-items:center;justify-content:center;color:#888;font-size:18px;line-height:1;">⚡</div><span style="font-size:14px;color:#999;font-family:'Inter';line-height:1.6;" id="txt-ctrl5">Error flash on wrong note.</span></div>
             </div>
             <div style="margin-bottom:18px;">
                 <div style="font-family:'Share Tech Mono';font-size:11px;color:var(--lcd-label-color);text-transform:uppercase;letter-spacing:2px;font-weight:bold;margin-bottom:8px;border-bottom:1px solid #222;padding-bottom:5px;" id="txt-encTitle">Scale Encyclopedia</div>
@@ -252,27 +262,33 @@
                             <text x="135" y="28" fill="#444" font-family="'Inter',sans-serif" font-weight="600" font-size="14" letter-spacing="3">WORKSTATION</text>
                         </svg>
                     </div>
-                    <div class="control-group">
-                        <button type="button" id="btnStrict" class="sq-btn active" onclick="if(!helpActive) toggleStrictMode()" data-help="STRICT: WAIT FOR CORRECT NOTE — PERFORMANCE: LOG ERROR AND ADVANCE" style="font-size:9px;font-weight:800;letter-spacing:0.5px;padding:0 2px;min-width:38px;" title="Strict / Performance">S</button>
-                        <button type="button" id="btnErrorFlash" class="sq-btn active" onclick="if(!helpActive) toggleErrorFlash()" data-help="ERROR FLASH: RED BORDER ON WRONG NOTE" style="font-size:9px;padding:0 2px;min-width:38px;" title="Error flash on/off">⚡</button>
-                        <a id="btnHome" href="index.html" class="sq-btn" style="text-decoration:none;" data-help="HOME: RETURN TO MAIN MODULE MENU">
+                    <div class="control-group" style="align-items:center;">
+                        <a id="btnHome" href="index.html" class="sq-btn" style="text-decoration:none;flex-shrink:0;" data-help="HOME: RETURN TO MAIN MODULE MENU">
                             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 9.5L12 3l9 6.5V20a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1V9.5z"/><polyline points="9 21 9 12 15 12 15 21"/></svg>
                         </a>
-                        <button id="btnClef" class="clef-split" onclick="if(!helpActive) cycleClef()" data-help="CLEF: CYCLES THROUGH — TREBLE + BASS / TREBLE ONLY / BASS ONLY">
+                        <button id="btnClef" class="clef-split" style="flex-shrink:0;" onclick="if(!helpActive) cycleClef()" data-help="CLEF: CYCLES THROUGH — TREBLE + BASS / TREBLE ONLY / BASS ONLY">
                             <span id="clefRH" class="active" style="font-size:28px;">𝄞</span>
                             <div class="clef-divider"></div>
                             <span id="clefLH" class="active" style="font-size:22px;">𝄢</span>
                         </button>
-                        <button id="btnHints" class="sq-btn" onclick="if(!helpActive) cycleHints()" data-help="HINTS: 1× NOTE NAMES | 2× + FINGERING | 3× KEY LEDS | 4× FINGER # ON KEYS (LED OFF) | 5× OFF">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
-                        </button>
-                        <button id="btnOctave" class="sq-btn" onclick="if(!helpActive) toggleOctave()" data-help="OCTAVE: TOGGLE BETWEEN 1 AND 2 OCTAVE SCALE RUN">
-                            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="10" width="8" height="10" rx="1"/><rect x="14" y="4" width="8" height="16" rx="1"/></svg>
-                        </button>
-                        <button id="btnWheel" class="sq-btn" onclick="if(!helpActive) toggleWheel()" data-help="WHEEL: SHOW OR HIDE THE DRAGGABLE CIRCLE OF FIFTHS">
-                            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
-                        </button>
-                        <div style="width:8px;"></div>
+                        <div class="dashboard-tool-stack" style="flex-shrink:0;" title="Practice mode &amp; error flash">
+                            <button type="button" id="btnStrict" class="sq-btn active sq-btn-practice" onclick="if(!helpActive) toggleStrictMode()">S</button>
+                            <button type="button" id="btnErrorFlash" class="sq-btn active sq-btn-practice" onclick="if(!helpActive) toggleErrorFlash()">⚡</button>
+                        </div>
+                        <div class="dashboard-tool-stack" style="flex-shrink:0;" title="Octave &amp; circle of fifths">
+                            <button id="btnOctave" class="sq-btn sq-btn-tool-ow" onclick="if(!helpActive) toggleOctave()" data-help="OCTAVE: TOGGLE BETWEEN 1 AND 2 OCTAVE SCALE RUN">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><rect x="2" y="10" width="8" height="10" rx="1"/><rect x="14" y="4" width="8" height="16" rx="1"/></svg>
+                            </button>
+                            <button id="btnWheel" class="sq-btn sq-btn-tool-ow" onclick="if(!helpActive) toggleWheel()" data-help="WHEEL: SHOW OR HIDE THE DRAGGABLE CIRCLE OF FIFTHS">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><circle cx="12" cy="12" r="3"/><line x1="12" y1="2" x2="12" y2="5"/><line x1="12" y1="19" x2="12" y2="22"/><line x1="2" y1="12" x2="5" y2="12"/><line x1="19" y1="12" x2="22" y2="12"/></svg>
+                            </button>
+                        </div>
+                        <div class="control-hints-col" style="flex-shrink:0;" title="Hints">
+                            <button id="btnHints" class="sq-btn" onclick="if(!helpActive) cycleHints()" data-help="HINTS: 1× NOTE NAMES | 2× + FINGERING | 3× KEY LEDS | 4× FINGER # ON KEYS (LED OFF) | 5× OFF">
+                                <svg width="27" height="27" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3" fill="currentColor"/></svg>
+                            </button>
+                        </div>
+                        <div style="width:8px;flex-shrink:0;"></div>
                         <div class="metronome-block" style="display:flex;align-items:center;gap:4px;position:relative;">
                             <button id="metroToggle" class="sq-btn" onclick="if(!helpActive) toggleMetronome()" data-help="METRONOME: START/STOP CLICK">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2L7 22h10l-5-20z"/><circle cx="12" cy="18" r="1"/></svg>
@@ -417,6 +433,11 @@
             'txt-ctrl4':     'Cycles: 1× note names, 2× + fingering, 3× keyboard LEDs, 4× fingering numbers above keys (same as staff), 5× all off.',
             'txt-ctrl1':     'Cycle through scales. Click the SCALE display to open the Encyclopedia.',
             'txt-ctrl2':     'Sprint (1×), Marathon (3×), Training (endless loop).',
+            'txt-ctrl3':     'Strict (S) or Performance (P). Strict: wait for the correct note. Performance: log a wrong key, then move to the next.',
+            'txt-ctrl5':     'Error flash: on — red border when you miss; off — no flash, mistakes still saved and shown on the staff and in the summary.',
+            'help-strict':   'S / P: STRICT (S) — only the right key advances. Wrong key = mistake, red note on staff, cursor does not move. PERFORMANCE (P) — wrong key = mistake, then the next expected note. Click to switch.',
+            'help-flash':    'ERROR FLASH (⚡): on = red full-screen border flash for wrong keys. off = no flash; mistakes and red staff marks are still kept for the end summary.',
+            'help-bubble':   'Open control tooltips',
             'txt-encTitle':  'Scale Encyclopedia',
             'txt-encBody':   'Click the SCALE display to open the Scale Encyclopedia. Browse Standard, Modal (Church) and Exotic (World) scales from around the globe.',
             'txt-wheelTitle':'Circle of Fifths',
@@ -441,6 +462,11 @@
             'txt-ctrl4':     'Körkörösen: 1× hangnevek, 2× + ujjrend a kottán, 3× billentyű LED, 4× ujjszámok a billentyűk felett (ugyanaz mint a kottán), 5× mind ki.',
             'txt-ctrl1':     'Váltás a skálák között. Kattints a SKÁLA kijelzőre az Enciklopédia megnyitásához.',
             'txt-ctrl2':     'Sprint (1×), Maraton (3×), Tréning (végtelen hurok).',
+            'txt-ctrl3':     'Szigorú (S) vagy Előadás (P). Szigorú: a jó hang kell. Előadás: hiba után jön a következő hang.',
+            'txt-ctrl5':     'Hibavillanás: be — piros szélvillanás; ki — nincs villanás, a hibák és a kotta jelölése megmarad.',
+            'help-strict':   'S / P: SZIGORÚ (S) — csak jó leütésnél lép. Rossz húr = hiba, piros hangjegy, kurzor vár. ELŐADÁS (P) — hiba, majd a következő elvárt hang. Kattintással vált.',
+            'help-flash':    'HIBAVILLANÁS (⚡): be = piros villanás rossz hangra. ki = nincs villanás, a hibák a kottán és az összefoglalóban megmaradnak.',
+            'help-bubble':   'Súgó a vezérlőkhöz',
             'txt-encTitle':  'Skála Enciklopédia',
             'txt-encBody':   'Kattints a SKÁLA kijelzőre a Skála Enciklopédia megnyitásához. Böngészd a Szabványos, Modális (Egyházi) és Egzotikus (Világi) skálákat a világ minden tájáról.',
             'txt-wheelTitle':'Kvintkör',
@@ -457,6 +483,13 @@
             'modalResultOk': 'Rendben'
         }
     };
+    function setPracticeHelpDatasets(){
+        const T=MODAL_STRINGS[currentLang]||MODAL_STRINGS.EN;
+        const s=document.getElementById('btnStrict'),f=document.getElementById('btnErrorFlash'),h=document.getElementById('btnHelp');
+        if(s&&T['help-strict'])s.setAttribute('data-help',T['help-strict']);
+        if(f&&T['help-flash'])f.setAttribute('data-help',T['help-flash']);
+        if(h&&T['help-bubble'])h.setAttribute('data-help',T['help-bubble']);
+    }
     function setLang(lang){
         localStorage.setItem('akira_lang',lang);currentLang=lang;
         document.getElementById('btnLangEN').classList.toggle('active',lang==='EN');
@@ -472,6 +505,7 @@
         const T=MODAL_STRINGS[lang]||MODAL_STRINGS.EN;
         Object.keys(T).forEach(id=>{const el=document.getElementById(id);if(el)el.innerText=T[id];});
         updateStrictFlashButtons();
+        setPracticeHelpDatasets();
         if(helpActive)setInfoBar(lang==='HU'?'SÚGÓ MÓD — KATTINTS BÁRMELY ELEMRE A LEÍRÁSÉRT':'HELP MODE — CLICK ANY ELEMENT TO READ ITS DESCRIPTION',null);
         else if(!isRunning)setInfoBar(lang==='HU'?'VÁLASSZ SKÁLÁT VAGY NYOMJ STARTOT':'SELECT SCALE OR PRESS START',null);
     }
