@@ -13,9 +13,30 @@
     <link rel="preconnect" href="https://tonejs.github.io" crossorigin>
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/opensheetmusicdisplay@1.9.7/build/opensheetmusicdisplay.min.js?v=osmd197" as="script">
     <link rel="preload" href="https://cdn.jsdelivr.net/npm/jszip@3.10.1/dist/jszip.min.js" as="script">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --rack-bg:#1a1a1d; --rack-border:#2a2a2d; --btn-dark:#101012; --btn-border:#050505; --text-dim:#555; --lcd-bg-dark:#111213; --lcd-label-color:#557799; --oled-text:#b3e6ff; --info-bar-height:25px; --score-paper-bg:#ebe6dc; }
+        :root {
+            --rack-bg:#1a1a1d;
+            --rack-border:#2a2a2d;
+            --btn-dark:#101012;
+            --btn-border:#050505;
+            --text-dim:#555;
+            --lcd-bg-dark:#0a0e10;
+            --lcd-label-color:#557799;
+            --oled-text:#b3e6ff;
+            --oled-glow: rgba(179,230,255,0.35);
+            --info-bar-height:25px;
+            --score-paper-bg:#ebe6dc;
+            /* Moog-stílusú dizájn változók */
+            --rack-metal-top:#252528;
+            --rack-metal-mid:#17171a;
+            --rack-metal-deep:#08080a;
+            --wood-dark:#2a1508;
+            --wood-mid:#4a2510;
+            --wood-light:#6a3818;
+            --wood-grain:#1a0a04;
+            --display-font: 'Rajdhani', 'Share Tech Mono', monospace;
+        }
         body { font-family:'Inter',sans-serif; background:#000; margin:0; padding:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; justify-content:flex-start; color:#fff; -webkit-user-select:none; user-select:none; }
         /* Teljes képernyős kotta: alsó rack + billentyűzet rejtve; böngésző fullscreen mellett a teljes monitor */
         body.score-theater-mode .lower-section { display:none !important; }
@@ -112,34 +133,240 @@
             height:6px; border-radius:3px; background:#111;
         }
         .workstation-chassis { display:flex; width:100%; max-width:2560px; position:relative; border-radius:6px 6px 0 0; background:var(--rack-bg); }
-        .wood-cheek { width:24px; background:linear-gradient(to right,#3a1c0d,#1a0c05); box-shadow:inset 1px 0 2px rgba(255,255,255,0.1),inset -2px 0 5px rgba(0,0,0,0.8); border-radius:6px 0 0 0; z-index:10; }
-        .wood-cheek.right { border-radius:0 6px 0 0; background:linear-gradient(to left,#3a1c0d,#1a0c05); }
+        .wood-cheek {
+            width:26px; position:relative;
+            background:
+                linear-gradient(90deg,
+                    var(--wood-grain) 0%,
+                    var(--wood-dark) 20%,
+                    var(--wood-mid) 50%,
+                    var(--wood-dark) 80%,
+                    var(--wood-grain) 100%);
+            box-shadow:
+                inset 1px 0 2px rgba(255,255,255,0.12),
+                inset -2px 0 5px rgba(0,0,0,0.8),
+                0 2px 6px rgba(0,0,0,0.6);
+            border-radius:6px 0 0 0;
+            z-index:10;
+        }
+        .wood-cheek::before {
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(180deg,
+                    transparent 0px, transparent 8px,
+                    rgba(255,255,255,0.025) 8px, rgba(255,255,255,0.025) 9px,
+                    transparent 9px, transparent 20px,
+                    rgba(0,0,0,0.12) 20px, rgba(0,0,0,0.12) 21px);
+            pointer-events:none;
+        }
+        .wood-cheek.right {
+            border-radius:0 6px 0 0;
+            background:
+                linear-gradient(270deg,
+                    var(--wood-grain) 0%,
+                    var(--wood-dark) 20%,
+                    var(--wood-mid) 50%,
+                    var(--wood-dark) 80%,
+                    var(--wood-grain) 100%);
+        }
+        .wood-cheek::after {
+            content:''; position:absolute;
+            top:10px; left:50%; transform:translateX(-50%);
+            width:10px; height:10px; border-radius:50%;
+            background:
+                radial-gradient(circle at 35% 30%, #8a8a92 0%, #3a3a40 45%, #0a0a0c 100%);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.3),
+                0 1px 2px rgba(0,0,0,0.8);
+            z-index:12;
+        }
         .synth-core { flex-grow:1; display:flex; flex-direction:column; position:relative; }
-        .info-bar-integrated { width:100%; height:var(--info-bar-height); background-color:var(--lcd-bg-dark); display:flex; align-items:center; z-index:10; position:relative; overflow:hidden; box-sizing:border-box; }
+        .info-bar-integrated {
+            width:100%; height:var(--info-bar-height);
+            background:
+                linear-gradient(180deg, var(--lcd-bg-dark) 0%, #050708 100%);
+            display:flex; align-items:center;
+            z-index:10; position:relative; overflow:hidden; box-sizing:border-box;
+            box-shadow:
+                inset 0 3px 8px rgba(0,0,0,0.9),
+                inset 0 -1px 0 rgba(179,230,255,0.04);
+        }
+        .info-bar-integrated::before {
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(0deg,
+                    rgba(179,230,255,0.018) 0px,
+                    rgba(179,230,255,0.018) 1px,
+                    transparent 1px, transparent 3px);
+            pointer-events:none;
+        }
         .info-bar-top { border-bottom:0px solid #080808; }
-        .info-bar-hint-strip { border-top:2px solid #080808; border-bottom:2px solid #080808; }
-        .info-bar-text { font-family:'Share Tech Mono',monospace; font-size:18px; font-weight:bold; color:var(--oled-text); text-transform:uppercase; letter-spacing:2px; position:absolute; white-space:nowrap; transition:left 0.15s,right 0.15s; line-height:var(--info-bar-height); }
+        .info-bar-hint-strip { border-top:2px solid #000; border-bottom:2px solid #000; }
+        .info-bar-text {
+            font-family:'Rajdhani', sans-serif;
+            font-size:19px; font-weight:700;
+            color:var(--oled-text);
+            text-transform:uppercase; letter-spacing:3px;
+            position:absolute; white-space:nowrap;
+            transition:left 0.15s,right 0.15s;
+            line-height:var(--info-bar-height);
+            text-shadow: 0 0 6px var(--oled-glow);
+        }
         .key-hint-strip-inner { position:relative; width:100%; height:100%; pointer-events:none; }
         .key-hint-marker { position:absolute; bottom:3px; left:0; transform:translateX(-50%); width:0; height:0; border-left:5px solid transparent; border-right:5px solid transparent; border-top:8px solid #7ecfff; filter:drop-shadow(0 0 4px rgba(120,200,255,0.5)); }
         .key-hint-marker--lh { border-top-color:#e8a878; filter:drop-shadow(0 0 4px rgba(232,168,120,0.55)); }
         .key-hint-marker--alt { bottom:5px; border-left-width:4px; border-right-width:4px; border-top-width:6px; }
-        .master-dashboard { display:flex; justify-content:space-between; align-items:center; margin-top: 3px; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px); background-size:100% 3px; padding:2px 2px; border-top:1px solid #333; position:relative; width:100%; box-sizing:border-box; }
+        .master-dashboard {
+            display:flex; justify-content:space-between; align-items:center;
+            margin-top: 3px;
+            background:
+                linear-gradient(180deg,
+                    var(--rack-metal-top) 0%,
+                    var(--rack-metal-mid) 20%,
+                    var(--rack-metal-mid) 85%,
+                    var(--rack-metal-deep) 100%);
+            padding:2px 2px;
+            border-top:1px solid rgba(255,255,255,0.08);
+            position:relative; width:100%; box-sizing:border-box;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.06),
+                inset 0 -1px 0 rgba(0,0,0,0.8);
+        }
+        .master-dashboard::before {
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(90deg,
+                    rgba(255,255,255,0.012) 0px,
+                    rgba(255,255,255,0.012) 1px,
+                    transparent 1px, transparent 2px);
+            pointer-events:none;
+        }
+        .master-dashboard > * { position:relative; z-index:2; }
         .dashboard-logo { position:absolute; top:-35px; left:30px; z-index:5; pointer-events:none; }
         .control-group { display:flex; align-items:center; gap:8px; z-index:10; }
-        .hardware-btn { width:95px; height:38px; background-color:var(--btn-dark); color:var(--text-dim); border:1px solid var(--btn-border); border-radius:3px; cursor:pointer; font-weight:700; font-size:12px; text-transform:uppercase; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 3px 0 #000; transition:transform 0.1s; }
-        .hardware-btn:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
-        .hardware-btn.active { color:#fff; background-color:#121214; }
-        .sq-btn { width:38px; height:38px; background-color:var(--btn-dark); color:#444; border:1px solid var(--btn-border); border-radius:3px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 #000; transition:transform 0.1s,color 0.15s; flex-shrink:0; }
-        .sq-btn:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
-        .sq-btn.active { color:#fff; background-color:#121214; }
-        .clef-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; cursor:pointer; padding:0; align-items:center; transition:transform 0.1s; }
-        .clef-split:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
+        .hardware-btn {
+            width:95px; height:38px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            color:var(--text-dim);
+            border:1px solid var(--btn-border); border-radius:3px;
+            cursor:pointer;
+            font-weight:700; font-size:12px; text-transform:uppercase;
+            font-family:'Rajdhani', sans-serif;
+            letter-spacing:3px;
+            display:flex; align-items:center; justify-content:center;
+            text-decoration:none;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.14),
+                inset 0 -2px 0 rgba(0,0,0,0.4),
+                0 3px 0 #000,
+                0 4px 8px rgba(0,0,0,0.5);
+            transition:transform 0.08s, color 0.15s;
+        }
+        .hardware-btn:hover { color:#c0c0c0; }
+        .hardware-btn:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
+        .hardware-btn.active {
+            color:var(--oled-text);
+            background:
+                linear-gradient(180deg, #0c1317 0%, #060a0c 50%, #030507 100%);
+            text-shadow: 0 0 6px var(--oled-glow);
+            box-shadow:
+                inset 0 1px 0 rgba(179,230,255,0.12),
+                inset 0 0 12px rgba(179,230,255,0.08),
+                inset 0 -2px 0 rgba(0,0,0,0.5),
+                0 3px 0 #000,
+                0 4px 8px rgba(0,0,0,0.5);
+        }
+        .sq-btn {
+            width:38px; height:38px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            color:#444;
+            border:1px solid var(--btn-border); border-radius:3px;
+            cursor:pointer; font-size:16px;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                inset 0 -1px 0 rgba(0,0,0,0.35),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            transition:transform 0.08s, color 0.15s;
+            flex-shrink:0; position:relative;
+        }
+        .sq-btn:hover { color:#909090; }
+        .sq-btn:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
+        .sq-btn.active {
+            color:var(--oled-text);
+            background:
+                linear-gradient(180deg, #0c1317 0%, #060a0c 50%, #030507 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(179,230,255,0.12),
+                inset 0 0 10px rgba(179,230,255,0.08),
+                inset 0 -1px 0 rgba(0,0,0,0.4),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+        }
+        /* Apró LED jelző aktív gomboknál */
+        .sq-btn.active::after, .hardware-btn.active::after {
+            content:''; position:absolute;
+            top:3px; right:3px;
+            width:4px; height:4px; border-radius:50%;
+            background:var(--oled-text);
+            box-shadow:0 0 5px var(--oled-glow);
+        }
+        .clef-split {
+            display:flex; flex-direction:column;
+            width:38px; height:76px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            border:1px solid var(--btn-border); border-radius:3px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            overflow:hidden; cursor:pointer; padding:0;
+            align-items:center;
+            transition:transform 0.08s;
+        }
+        .clef-split:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
         .clef-split span { flex:1; display:flex; align-items:center; justify-content:center; color:#444; transition:color 0.15s; padding:0; }
-        .clef-split span.active { color:#fff; }
-        .clef-divider { height:1px; width:100%; background:#222; flex-shrink:0; }
-        .lang-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; }
-        .lang-split button { flex:1; background:transparent; border:none; cursor:pointer; font-weight:700; font-size:11px; font-family:'Inter',sans-serif; color:var(--text-dim); }
-        .lang-split button.active { color:#fff; }
+        .clef-split span.active { color:var(--oled-text); text-shadow:0 0 6px var(--oled-glow); }
+        .clef-divider { height:1px; width:100%; background:#000; flex-shrink:0; box-shadow:0 1px 0 rgba(255,255,255,0.04); }
+        .lang-split {
+            display:flex; flex-direction:column;
+            width:38px; height:76px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            border:1px solid var(--btn-border); border-radius:3px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            overflow:hidden;
+        }
+        .lang-split button {
+            flex:1; background:transparent; border:none; cursor:pointer;
+            font-weight:700; font-size:11px;
+            font-family:'Rajdhani', sans-serif; letter-spacing:2px;
+            color:var(--text-dim);
+            transition: color 0.15s;
+        }
+        .lang-split button.active { color:var(--oled-text); text-shadow:0 0 6px var(--oled-glow); }
         .lang-split button:active { background:rgba(255,255,255,0.05); }
         .lang-divider { height:1px; width:100%; background:#222; }
         body.help-mode-active, body.help-mode-active * { cursor:help !important; }
@@ -148,17 +375,96 @@
         .lcd-arrow-wrapper { display:flex; flex-direction:column; align-items:center; width:min(465px,72vw); max-width:100%; flex-shrink:0; box-sizing:border-box; }
         .arrow-row { display:flex; width:100%; justify-content:space-around; margin:4px 0; }
         .arrow-row.arrow-row-center { justify-content:center; }
-        .nav-disk-btn { width:22px; height:22px; background:#222; border:1px solid #111; border-radius:50%; color:#888; font-size:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 2px rgba(0,0,0,0.6); transition:0.1s; flex-shrink:0; }
+        .nav-disk-btn {
+            width:22px; height:22px;
+            background:
+                radial-gradient(circle at 35% 30%, #444 0%, #222 40%, #0a0a0c 100%);
+            border:1px solid #000; border-radius:50%;
+            color:#888; font-size:9px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 2px 2px rgba(0,0,0,0.6);
+            transition:0.1s; flex-shrink:0;
+        }
+        .nav-disk-btn:hover { color:var(--oled-text); }
         .nav-disk-btn:active { transform:translateY(2px); box-shadow:0 0 1px rgba(0,0,0,0.6); }
-        .oled-wrapper { background:#111; padding:2px; border-radius:4px; width:100%; box-shadow:0 2px 4px rgba(255,255,255,0.1); box-sizing:border-box; }
-        .oled-screen { background:var(--lcd-bg-dark); border:2px solid #222; border-radius:2px; display:flex; box-shadow:inset 0 3px 8px rgba(0,0,0,0.9); overflow:hidden; width:100%; box-sizing:border-box; }
-        .oled-section { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px 0; cursor:pointer; }
+        .oled-wrapper {
+            background:
+                linear-gradient(180deg, #1a1a1e 0%, #050506 100%);
+            padding:3px; border-radius:5px; width:100%;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.08),
+                0 2px 6px rgba(0,0,0,0.7);
+            box-sizing:border-box;
+            border:1px solid #000;
+        }
+        .oled-screen {
+            background:
+                linear-gradient(180deg, var(--lcd-bg-dark) 0%, #020405 100%);
+            border:1px solid #000; border-radius:3px;
+            display:flex;
+            box-shadow:
+                inset 0 4px 10px rgba(0,0,0,0.95),
+                inset 0 -1px 0 rgba(179,230,255,0.04);
+            overflow:hidden;
+            width:100%; box-sizing:border-box;
+            position:relative;
+        }
+        .oled-screen::before {
+            content:''; position:absolute;
+            top:0; left:0; right:0; height:40%;
+            background:linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+            pointer-events:none;
+            border-radius:3px 3px 0 0;
+        }
+        .oled-screen::after {
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(0deg,
+                    rgba(179,230,255,0.015) 0px,
+                    rgba(179,230,255,0.015) 1px,
+                    transparent 1px, transparent 3px);
+            pointer-events:none;
+        }
+        .oled-section {
+            flex:1; display:flex; flex-direction:column;
+            justify-content:center; align-items:center;
+            padding:10px 0; cursor:pointer;
+            position:relative;
+            transition:background 0.15s;
+        }
+        .oled-section:hover { background:rgba(179,230,255,0.04); }
+        .oled-divider {
+            width:1px;
+            background:
+                linear-gradient(180deg, transparent 0%, rgba(179,230,255,0.15) 50%, transparent 100%);
+            margin:5px 0;
+        }
+        .oled-header {
+            font-size:10px;
+            color:var(--lcd-label-color);
+            font-family:'Rajdhani', sans-serif;
+            text-transform:uppercase;
+            font-weight:700;
+            letter-spacing:3px;
+            margin-bottom:4px;
+            position:relative; z-index:1;
+        }
+        .oled-main {
+            font-size:22px;
+            color:var(--oled-text);
+            font-family:'Rajdhani', sans-serif;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:2px;
+            text-shadow: 0 0 6px var(--oled-glow), 0 0 12px rgba(179,230,255,0.15);
+            position:relative; z-index:1;
+        }
         .oled-score-title-only { padding:10px 8px; min-height:0; }
-        .oled-score-title-only .oled-lib-title { text-transform:none; font-size:20px; line-height:1.2; max-width:100%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Share Tech Mono',monospace; font-weight:bold; color:var(--oled-text); }
+        .oled-score-title-only .oled-lib-title { text-transform:none; font-size:20px; line-height:1.2; max-width:100%; text-align:center; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; font-family:'Rajdhani',sans-serif; font-weight:700; color:var(--oled-text); letter-spacing:1px; text-shadow:0 0 6px var(--oled-glow); }
         .oled-lib-title { text-transform:none; font-size:15px; line-height:1.2; max-width:100%; padding:0 4px; box-sizing:border-box; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
-        .oled-divider { width:1px; background:rgba(255,255,255,0.05); margin:5px 0; }
-        .oled-header { font-size:11px; color:var(--lcd-label-color); font-family:'Share Tech Mono'; text-transform:uppercase; font-weight:bold; margin-bottom:2px; }
-        .oled-main { font-size:20px; color:var(--oled-text); font-family:'Share Tech Mono'; font-weight:bold; text-transform:uppercase; }
+        #scoreLibraryLibsBody { text-align:left; margin-top:4px; }
         #scoreLibraryLibsBody { text-align:left; margin-top:4px; }
         .patch-browser-content { max-width:580px; }
         .patch-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:25px; }
@@ -203,9 +509,12 @@
         #midiPlayerPanel input[type="range"] { -webkit-appearance:none; width:100%; height:6px; background:#111; border-radius:3px; outline:none; cursor:pointer; }
         #midiPlayerPanel input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:14px; border-radius:50%; background:#b3e6ff; border:1px solid #557799; cursor:grab; }
         .midi-rec-clock-box {
-            font-family:'Share Tech Mono',monospace;font-size:22px;line-height:1.15;color:#b3e6ff;font-weight:bold;
-            padding:6px 10px;border-radius:3px;background:#111;border:1px solid #050505;
-            box-shadow:inset 0 2px 5px rgba(0,0,0,0.5);min-width:0;flex:1;text-align:center;
+            font-family:'Rajdhani',sans-serif;font-size:24px;line-height:1.15;color:#b3e6ff;font-weight:700;letter-spacing:1px;text-shadow:0 0 6px rgba(179,230,255,0.35);
+            padding:6px 10px;border-radius:3px;
+            background:linear-gradient(180deg,var(--lcd-bg-dark) 0%,#020405 100%);
+            border:1px solid #000;
+            box-shadow:inset 0 3px 6px rgba(0,0,0,0.9),inset 0 -1px 0 rgba(179,230,255,0.04);
+            min-width:0;flex:1;text-align:center;
         }
         #midiRecTimeDisplay { user-select:none;cursor:default; }
         #midiRecSpeedBox { user-select:none;cursor:pointer;flex:0 0 auto;min-width:4.2em; }
@@ -501,7 +810,7 @@
     <div id="resultModal" class="modal-overlay" onclick="if(event.target===this)closeModal()">
         <div class="modal-content" onclick="event.stopPropagation()">
             <h2 class="modal-title">Session Complete</h2>
-            <div style="margin-bottom:20px;"><div class="oled-header" style="margin-bottom:8px;">Avg Tempo</div><div id="modalBpm" style="font-family:'Share Tech Mono';font-size:28px;color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
+            <div style="margin-bottom:20px;"><div class="oled-header" style="margin-bottom:8px;">Avg Tempo</div><div id="modalBpm" style="font-family:'Rajdhani',sans-serif;font-size:30px;letter-spacing:1px;text-shadow:0 0 8px rgba(179,230,255,0.35);color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
             <button class="modal-btn" onclick="closeModal()">Acknowledge</button>
         </div>
     </div>
@@ -678,8 +987,8 @@
                             </button>
                             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
                                 <button class="nav-disk-btn metro-tempo-btn" data-dir="1" style="width:24px;height:24px;border-radius:50%;font-size:9px;padding:0;display:flex;align-items:center;justify-content:center;">▲</button>
-                                <div id="metroBpmBox" onclick="if(!helpActive) toggleBpmPresets()" style="width:70px;height:38px;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #050505;border-radius:3px;box-shadow:inset 0 2px 5px rgba(0,0,0,0.8);cursor:pointer;position:relative;">
-                                    <div id="metroBpmDisplay" style="font-family:'Share Tech Mono';font-size:20px;color:#b3e6ff;font-weight:bold;">80</div>
+                                <div id="metroBpmBox" onclick="if(!helpActive) toggleBpmPresets()" style="width:70px;height:38px;background:linear-gradient(180deg,var(--lcd-bg-dark) 0%,#020405 100%);display:flex;align-items:center;justify-content:center;border:1px solid #000;border-radius:3px;box-shadow:inset 0 3px 6px rgba(0,0,0,0.95),inset 0 -1px 0 rgba(179,230,255,0.05);cursor:pointer;position:relative;overflow:hidden;">
+                                    <div id="metroBpmDisplay" style="font-family:'Rajdhani',sans-serif;font-size:22px;color:#b3e6ff;font-weight:700;letter-spacing:1px;text-shadow:0 0 6px rgba(179,230,255,0.35);">80</div>
                                 </div>
                                 <button class="nav-disk-btn metro-tempo-btn" data-dir="-1" style="width:24px;height:24px;border-radius:50%;font-size:9px;padding:0;display:flex;align-items:center;justify-content:center;">▼</button>
                             </div>
@@ -759,7 +1068,7 @@
                                 <div style="display:flex;flex-direction:column;align-items:center;gap:3px;">
                                     <button class="nav-disk-btn" onclick="if(!helpActive) adjustDemoSpeed(0.1)" title="Speed up" style="width:22px;height:22px;">▲</button>
                                     <div id="demoSpeedBox" onclick="if(!helpActive) resetDemoSpeedSlider()" style="width:44px;height:38px;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #050505;border-radius:3px;box-shadow:inset 0 2px 5px rgba(0,0,0,0.8);cursor:pointer;">
-                                        <span id="demoSpeedDisplay" style="font-family:'Share Tech Mono';font-size:20px;color:#b3e6ff;font-weight:bold;">1.0</span>
+                                        <span id="demoSpeedDisplay" style="font-family:'Rajdhani',sans-serif;font-size:22px;color:#b3e6ff;font-weight:700;letter-spacing:1px;text-shadow:0 0 6px rgba(179,230,255,0.35);">1.0</span>
                                     </div>
                                     <button class="nav-disk-btn" onclick="if(!helpActive) adjustDemoSpeed(-0.1)" title="Slow down" style="width:22px;height:22px;">▼</button>
                                 </div>
