@@ -5,9 +5,29 @@
     <meta name="google" content="notranslate">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Akíra Piano Academy | Workstation - Scales</title>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Share+Tech+Mono&family=Rajdhani:wght@500;600;700&display=swap" rel="stylesheet">
     <style>
-        :root { --rack-bg:#1a1a1d; --rack-border:#2a2a2d; --btn-dark:#101012; --btn-border:#050505; --text-dim:#555; --lcd-bg-dark:#111213; --lcd-label-color:#557799; --oled-text:#b3e6ff; }
+        :root {
+            --rack-bg:#1a1a1d;
+            --rack-border:#2a2a2d;
+            --btn-dark:#101012;
+            --btn-border:#050505;
+            --text-dim:#555;
+            --lcd-bg-dark:#0a0e10;
+            --lcd-label-color:#557799;
+            --oled-text:#b3e6ff;
+            --oled-glow: rgba(179,230,255,0.35);
+            /* Új: markáns dizájn változók */
+            --rack-metal-top:#252528;
+            --rack-metal-mid:#17171a;
+            --rack-metal-deep:#08080a;
+            --wood-dark:#2a1508;
+            --wood-mid:#4a2510;
+            --wood-light:#6a3818;
+            --wood-grain:#1a0a04;
+            /* Dekoratívabb betűtípus a kijelzőkhöz — nincs áthúzott nulla */
+            --display-font: 'Rajdhani', 'Share Tech Mono', monospace;
+        }
         body { font-family:'Inter',sans-serif; background:#000; margin:0; padding:0; height:100vh; overflow:hidden; display:flex; flex-direction:column; justify-content:space-between; color:#fff; -webkit-user-select:none; user-select:none; }
         .sheet-container { flex-grow:1; display:flex; justify-content:center; align-items:flex-start; padding:30px 20px 100px 20px; width:100%; box-sizing:border-box; overflow-y:auto; position:relative; }
         .sheet-viewport { width:100%; max-width:2450px; position:relative; overflow:visible; background:transparent; }
@@ -15,18 +35,124 @@
         .zoom-controls { position:fixed; right:20px; top:20px; display:flex; flex-direction:column; gap:6px; z-index:1000; }
         .zoom-btn { background:#111; border:1px solid #444; color:#aaa; width:38px; height:38px; border-radius:50%; font-size:20px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 10px rgba(0,0,0,0.8); transition:0.2s; user-select:none; }
         .zoom-btn:hover { background:#222; color:#fff; transform:scale(1.1); }
-        .workstation-chassis { display:flex; width:100%; max-width:2560px; position:relative; box-shadow:0 -10px 40px rgba(0,0,0,0.9); border-radius:6px 6px 0 0; background:var(--rack-bg); }
-        .wood-cheek { width:24px; background:linear-gradient(to right,#3a1c0d,#1a0c05); box-shadow:inset 1px 0 2px rgba(255,255,255,0.1),inset -2px 0 5px rgba(0,0,0,0.8); border-radius:6px 0 0 0; z-index:10; }
-        .wood-cheek.right { border-radius:0 6px 0 0; background:linear-gradient(to left,#3a1c0d,#1a0c05); }
+        .workstation-chassis {
+            display:flex; width:100%; max-width:2560px; position:relative;
+            box-shadow:0 -10px 40px rgba(0,0,0,0.9);
+            border-radius:6px 6px 0 0;
+            background:var(--rack-bg);
+        }
+        .wood-cheek {
+            width:26px; position:relative;
+            background:
+                linear-gradient(90deg,
+                    var(--wood-grain) 0%,
+                    var(--wood-dark) 20%,
+                    var(--wood-mid) 50%,
+                    var(--wood-dark) 80%,
+                    var(--wood-grain) 100%);
+            box-shadow:
+                inset 1px 0 2px rgba(255,255,255,0.12),
+                inset -2px 0 5px rgba(0,0,0,0.8),
+                0 2px 6px rgba(0,0,0,0.6);
+            border-radius:6px 0 0 0;
+            z-index:10;
+        }
+        .wood-cheek::before {
+            /* Fa erezet texture */
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(180deg,
+                    transparent 0px, transparent 8px,
+                    rgba(255,255,255,0.025) 8px, rgba(255,255,255,0.025) 9px,
+                    transparent 9px, transparent 20px,
+                    rgba(0,0,0,0.12) 20px, rgba(0,0,0,0.12) 21px);
+            pointer-events:none;
+        }
+        .wood-cheek.right {
+            border-radius:0 6px 0 0;
+            background:
+                linear-gradient(270deg,
+                    var(--wood-grain) 0%,
+                    var(--wood-dark) 20%,
+                    var(--wood-mid) 50%,
+                    var(--wood-dark) 80%,
+                    var(--wood-grain) 100%);
+        }
+        /* Csavarok a fa cheek tetején — Moog hangulat */
+        .wood-cheek::after {
+            content:''; position:absolute;
+            top:10px; left:50%; transform:translateX(-50%);
+            width:10px; height:10px; border-radius:50%;
+            background:
+                radial-gradient(circle at 35% 30%, #8a8a92 0%, #3a3a40 45%, #0a0a0c 100%);
+            box-shadow:
+                inset 0 1px 1px rgba(255,255,255,0.3),
+                0 1px 2px rgba(0,0,0,0.8);
+            z-index:12;
+        }
         .synth-core { flex-grow:1; display:flex; flex-direction:column; position:relative; }
-        .info-bar-integrated { width:100%; height:45px; background-color:var(--lcd-bg-dark); border-bottom:2px solid #080808; display:flex; align-items:center; z-index:10; position:relative; overflow:hidden; }
-        .info-bar-text { font-family:'Share Tech Mono',monospace; font-size:18px; font-weight:bold; color:var(--oled-text); text-transform:uppercase; letter-spacing:2px; position:absolute; white-space:nowrap; transition:left 0.15s,right 0.15s; line-height:45px; }
+        .info-bar-integrated {
+            width:100%; height:45px;
+            background:
+                linear-gradient(180deg, var(--lcd-bg-dark) 0%, #050708 100%);
+            border-bottom:2px solid #000;
+            border-top:1px solid #000;
+            display:flex; align-items:center;
+            z-index:10; position:relative; overflow:hidden;
+            box-shadow:
+                inset 0 3px 8px rgba(0,0,0,0.9),
+                inset 0 -1px 0 rgba(179,230,255,0.04);
+        }
+        .info-bar-integrated::before {
+            /* Scanline jellegű CRT érzet */
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(0deg,
+                    rgba(179,230,255,0.018) 0px,
+                    rgba(179,230,255,0.018) 1px,
+                    transparent 1px, transparent 3px);
+            pointer-events:none;
+        }
+        .info-bar-text {
+            font-family:'Rajdhani', sans-serif;
+            font-size:19px; font-weight:700;
+            color:var(--oled-text);
+            text-transform:uppercase; letter-spacing:3px;
+            position:absolute; white-space:nowrap;
+            transition:left 0.15s,right 0.15s; line-height:45px;
+            text-shadow: 0 0 6px var(--oled-glow);
+        }
         .settings-bar { position:absolute; bottom:100%; left:0; width:100%; height:85px; background:var(--lcd-bg-dark); display:none; align-items:center; justify-content:space-around; z-index:50; border-top:2px solid #333; box-shadow:0 -10px 30px #000; padding:0 20px; box-sizing:border-box; }
         .settings-control { display:flex; flex-direction:column; align-items:center; gap:8px; width:150px; z-index:2; position:relative; }
         .settings-control label { font-size:11px; color:var(--lcd-label-color); font-family:'Share Tech Mono',monospace; cursor:pointer; text-transform:uppercase; font-weight:bold; }
         .settings-control input[type="range"] { -webkit-appearance:none; width:100%; height:6px; background:#111; border-radius:3px; outline:none; cursor:pointer; box-shadow:inset 0 1px 3px #000; }
         .settings-control input[type="range"]::-webkit-slider-thumb { -webkit-appearance:none; width:14px; height:20px; background:#888; border:1px solid #111; border-radius:2px; box-shadow:0 2px 4px #000; cursor:grab; }
-        .master-dashboard { display:flex; justify-content:space-between; align-items:center; background-image:linear-gradient(rgba(255,255,255,0.02) 1px,transparent 1px); background-size:100% 3px; padding:25px 30px; border-top:1px solid #333; position:relative; width:100%; box-sizing:border-box; }
+        .master-dashboard {
+            display:flex; justify-content:space-between; align-items:center;
+            background:
+                linear-gradient(180deg,
+                    var(--rack-metal-top) 0%,
+                    var(--rack-metal-mid) 20%,
+                    var(--rack-metal-mid) 85%,
+                    var(--rack-metal-deep) 100%);
+            padding:25px 30px;
+            border-top:1px solid rgba(255,255,255,0.08);
+            position:relative; width:100%; box-sizing:border-box;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.06),
+                inset 0 -1px 0 rgba(0,0,0,0.8);
+        }
+        .master-dashboard::before {
+            /* Brushed aluminum vertical micro-lines */
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(90deg,
+                    rgba(255,255,255,0.012) 0px,
+                    rgba(255,255,255,0.012) 1px,
+                    transparent 1px, transparent 2px);
+            pointer-events:none;
+        }
+        .master-dashboard > * { position:relative; z-index:2; }
         .dashboard-logo { position:absolute; top:-35px; left:30px; z-index:5; pointer-events:none; }
         .control-group { display:flex; align-items:center; gap:8px; z-index:10; }
         .dashboard-tool-stack { display:flex; flex-direction:column; align-items:center; justify-content:center; gap:4px; flex-shrink:0; }
@@ -40,34 +166,223 @@
         .control-hints-col { display:flex; flex-direction:column; align-items:center; justify-content:center; align-self:stretch; min-height:76px; padding:0 4px; }
         .control-hints-col .sq-btn { width:40px; height:40px; min-width:40px; min-height:40px; }
         .control-hints-col .sq-btn svg { width:27px; height:27px; }
-        .hardware-btn { width:95px; height:38px; background-color:var(--btn-dark); color:var(--text-dim); border:1px solid var(--btn-border); border-radius:3px; cursor:pointer; font-weight:700; font-size:12px; text-transform:uppercase; display:flex; align-items:center; justify-content:center; text-decoration:none; box-shadow:0 3px 0 #000; transition:transform 0.1s; }
-        .hardware-btn:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
-        .hardware-btn.active { color:#fff; background-color:#121214; }
-        .sq-btn { width:38px; height:38px; background-color:var(--btn-dark); color:#444; border:1px solid var(--btn-border); border-radius:3px; cursor:pointer; font-size:16px; display:flex; align-items:center; justify-content:center; box-shadow:0 3px 0 #000; transition:transform 0.1s,color 0.15s; flex-shrink:0; }
-        .sq-btn:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
-        .sq-btn.active { color:#fff; background-color:#121214; }
-        .clef-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; cursor:pointer; padding:0; align-items:center; transition:transform 0.1s; }
-        .clef-split:active { transform:translateY(2px); box-shadow:0 0 0 #000; }
+        .hardware-btn {
+            width:95px; height:38px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            color:var(--text-dim);
+            border:1px solid var(--btn-border);
+            border-radius:3px; cursor:pointer;
+            font-weight:700; font-size:12px; text-transform:uppercase;
+            display:flex; align-items:center; justify-content:center;
+            text-decoration:none;
+            font-family:'Rajdhani', sans-serif;
+            letter-spacing:3px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.14),
+                inset 0 -2px 0 rgba(0,0,0,0.4),
+                0 3px 0 #000,
+                0 4px 8px rgba(0,0,0,0.5);
+            transition:transform 0.08s, color 0.15s;
+        }
+        .hardware-btn:hover { color:#c0c0c0; }
+        .hardware-btn:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
+        .hardware-btn.active {
+            color:var(--oled-text);
+            background:
+                linear-gradient(180deg, #0c1317 0%, #060a0c 50%, #030507 100%);
+            text-shadow: 0 0 6px var(--oled-glow);
+            box-shadow:
+                inset 0 1px 0 rgba(179,230,255,0.12),
+                inset 0 0 12px rgba(179,230,255,0.08),
+                inset 0 -2px 0 rgba(0,0,0,0.5),
+                0 3px 0 #000,
+                0 4px 8px rgba(0,0,0,0.5);
+        }
+        .sq-btn {
+            width:38px; height:38px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            color:#444;
+            border:1px solid var(--btn-border);
+            border-radius:3px; cursor:pointer; font-size:16px;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                inset 0 -1px 0 rgba(0,0,0,0.35),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            transition:transform 0.08s, color 0.15s;
+            flex-shrink:0; position:relative;
+        }
+        .sq-btn:hover { color:#909090; }
+        .sq-btn:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
+        .sq-btn.active {
+            color:var(--oled-text);
+            background:
+                linear-gradient(180deg, #0c1317 0%, #060a0c 50%, #030507 100%);
+            box-shadow:
+                inset 0 1px 0 rgba(179,230,255,0.12),
+                inset 0 0 10px rgba(179,230,255,0.08),
+                inset 0 -1px 0 rgba(0,0,0,0.4),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+        }
+        /* Apró LED jelző minden gomb jobb felső sarkán amikor aktív */
+        .sq-btn.active::after, .hardware-btn.active::after {
+            content:''; position:absolute;
+            top:3px; right:3px;
+            width:4px; height:4px; border-radius:50%;
+            background:var(--oled-text);
+            box-shadow:0 0 5px var(--oled-glow);
+        }
+        .clef-split {
+            display:flex; flex-direction:column;
+            width:38px; height:76px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            border:1px solid var(--btn-border); border-radius:3px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            overflow:hidden; cursor:pointer; padding:0;
+            align-items:center;
+            transition:transform 0.08s;
+        }
+        .clef-split:active {
+            transform:translateY(2px);
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.08),
+                0 1px 0 #000;
+        }
         .clef-split span { flex:1; display:flex; align-items:center; justify-content:center; color:#444; transition:color 0.15s; padding:0; }
-        .clef-split span.active { color:#fff; }
-        .clef-divider { height:1px; width:100%; background:#222; flex-shrink:0; }
-        .lang-split { display:flex; flex-direction:column; width:38px; height:76px; background:var(--btn-dark); border:1px solid var(--btn-border); border-radius:3px; box-shadow:0 3px 0 #000; overflow:hidden; }
-        .lang-split button { flex:1; background:transparent; border:none; cursor:pointer; font-weight:700; font-size:11px; font-family:'Inter',sans-serif; color:var(--text-dim); }
+        .clef-split span.active { color:var(--oled-text); text-shadow:0 0 6px var(--oled-glow); }
+        .clef-divider { height:1px; width:100%; background:#000; flex-shrink:0; box-shadow:0 1px 0 rgba(255,255,255,0.04); }
+        .lang-split {
+            display:flex; flex-direction:column;
+            width:38px; height:76px;
+            background:
+                linear-gradient(180deg, #262629 0%, #171719 40%, #0a0a0c 100%);
+            border:1px solid var(--btn-border); border-radius:3px;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 3px 0 #000,
+                0 4px 6px rgba(0,0,0,0.5);
+            overflow:hidden;
+        }
+        .lang-split button {
+            flex:1; background:transparent; border:none; cursor:pointer;
+            font-weight:700; font-size:11px;
+            font-family:'Rajdhani', sans-serif; letter-spacing:2px;
+            color:var(--text-dim);
+            transition: color 0.15s;
+        }
+        .lang-split button.active { color:var(--oled-text); text-shadow:0 0 6px var(--oled-glow); }
+        .lang-divider { height:1px; width:100%; background:#000; flex-shrink:0; box-shadow:0 1px 0 rgba(255,255,255,0.04); }
         .lang-split button.active { color:#fff; }
         .lang-split button:active { background:rgba(255,255,255,0.05); }
-        .lang-divider { height:1px; width:100%; background:#222; }
         body.help-mode-active, body.help-mode-active * { cursor:help !important; }
         .center-console { flex:1; display:flex; justify-content:center; position:relative; }
         .lcd-arrow-wrapper { display:flex; flex-direction:column; align-items:center; width:620px; }
         .arrow-row { display:flex; width:100%; justify-content:space-around; margin:4px 0; }
-        .nav-disk-btn { width:22px; height:22px; background:#222; border:1px solid #111; border-radius:50%; color:#888; font-size:9px; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 2px rgba(0,0,0,0.6); transition:0.1s; flex-shrink:0; }
+        .nav-disk-btn {
+            width:22px; height:22px;
+            background:
+                radial-gradient(circle at 35% 30%, #444 0%, #222 40%, #0a0a0c 100%);
+            border:1px solid #000; border-radius:50%;
+            color:#888; font-size:9px; cursor:pointer;
+            display:flex; align-items:center; justify-content:center;
+            box-shadow:
+                inset 0 1px 0 rgba(255,255,255,0.12),
+                0 2px 2px rgba(0,0,0,0.6);
+            transition:0.1s; flex-shrink:0;
+        }
+        .nav-disk-btn:hover { color:var(--oled-text); }
         .nav-disk-btn:active { transform:translateY(2px); box-shadow:0 0 1px rgba(0,0,0,0.6); }
-        .oled-wrapper { background:#111; padding:2px; border-radius:4px; width:100%; box-shadow:0 2px 4px rgba(255,255,255,0.1); box-sizing:border-box; }
-        .oled-screen { background:var(--lcd-bg-dark); border:2px solid #222; border-radius:2px; display:flex; box-shadow:inset 0 3px 8px rgba(0,0,0,0.9); overflow:hidden; }
-        .oled-section { flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center; padding:10px 0; cursor:pointer; }
-        .oled-divider { width:1px; background:rgba(255,255,255,0.05); margin:5px 0; }
-        .oled-header { font-size:11px; color:var(--lcd-label-color); font-family:'Share Tech Mono'; text-transform:uppercase; font-weight:bold; margin-bottom:2px; }
-        .oled-main { font-size:20px; color:var(--oled-text); font-family:'Share Tech Mono'; font-weight:bold; text-transform:uppercase; }
+        .oled-wrapper {
+            background:
+                linear-gradient(180deg, #1a1a1e 0%, #050506 100%);
+            padding:3px; border-radius:5px; width:100%;
+            box-shadow:
+                0 1px 0 rgba(255,255,255,0.08),
+                0 2px 6px rgba(0,0,0,0.7);
+            box-sizing:border-box;
+            border:1px solid #000;
+        }
+        .oled-screen {
+            background:
+                linear-gradient(180deg, var(--lcd-bg-dark) 0%, #020405 100%);
+            border:1px solid #000; border-radius:3px;
+            display:flex;
+            box-shadow:
+                inset 0 4px 10px rgba(0,0,0,0.95),
+                inset 0 -1px 0 rgba(179,230,255,0.04);
+            overflow:hidden;
+            position:relative;
+        }
+        /* CRT üveg reflexió a tetején */
+        .oled-screen::before {
+            content:''; position:absolute;
+            top:0; left:0; right:0; height:40%;
+            background:linear-gradient(180deg, rgba(255,255,255,0.03) 0%, transparent 100%);
+            pointer-events:none;
+            border-radius:3px 3px 0 0;
+        }
+        /* Subtle scanline */
+        .oled-screen::after {
+            content:''; position:absolute; inset:0;
+            background:
+                repeating-linear-gradient(0deg,
+                    rgba(179,230,255,0.015) 0px,
+                    rgba(179,230,255,0.015) 1px,
+                    transparent 1px, transparent 3px);
+            pointer-events:none;
+        }
+        .oled-section {
+            flex:1; display:flex; flex-direction:column;
+            justify-content:center; align-items:center;
+            padding:10px 0; cursor:pointer;
+            position:relative;
+            transition:background 0.15s;
+        }
+        .oled-section:hover { background:rgba(179,230,255,0.04); }
+        .oled-divider {
+            width:1px;
+            background:
+                linear-gradient(180deg, transparent 0%, rgba(179,230,255,0.15) 50%, transparent 100%);
+            margin:5px 0;
+        }
+        .oled-header {
+            font-size:10px;
+            color:var(--lcd-label-color);
+            font-family:'Rajdhani', sans-serif;
+            text-transform:uppercase;
+            font-weight:700;
+            letter-spacing:3px;
+            margin-bottom:4px;
+            position:relative; z-index:1;
+        }
+        .oled-main {
+            font-size:22px;
+            color:var(--oled-text);
+            font-family:'Rajdhani', sans-serif;
+            font-weight:700;
+            text-transform:uppercase;
+            letter-spacing:2px;
+            text-shadow: 0 0 6px var(--oled-glow), 0 0 12px rgba(179,230,255,0.15);
+            position:relative; z-index:1;
+        }
         .patch-browser-content { max-width:580px; }
         .patch-grid { display:grid; grid-template-columns:repeat(6,1fr); gap:10px; margin-bottom:25px; }
         .patch-btn { background:#111; border:1px solid #333; color:#aaa; padding:12px 5px; font-family:'Share Tech Mono',monospace; font-size:14px; cursor:pointer; border-radius:4px; transition:0.1s; text-align:center; }
@@ -191,10 +506,10 @@
         <div class="modal-content" style="max-width:580px;">
             <h2 class="modal-title" id="modalResultTitle">Session Complete</h2>
             <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px 20px;margin-bottom:18px;text-align:left;">
-                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblStrokes">Total notes</div><div id="modalStrokes" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0</div></div>
-                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblErr">Mistakes</div><div id="modalErrCount" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0</div></div>
-                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblAcc">Accuracy</div><div id="modalAccuracy" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">100%</div></div>
-                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblBpm">Avg Tempo</div><div id="modalBpm" style="font-family:'Share Tech Mono';font-size:22px;color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblStrokes">Total notes</div><div id="modalStrokes" style="font-family:'Rajdhani',sans-serif;font-size:24px;letter-spacing:1px;color:var(--oled-text);font-weight:bold;">0</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblErr">Mistakes</div><div id="modalErrCount" style="font-family:'Rajdhani',sans-serif;font-size:24px;letter-spacing:1px;color:var(--oled-text);font-weight:bold;">0</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblAcc">Accuracy</div><div id="modalAccuracy" style="font-family:'Rajdhani',sans-serif;font-size:24px;letter-spacing:1px;color:var(--oled-text);font-weight:bold;">100%</div></div>
+                <div><div class="oled-header" style="margin-bottom:6px;" id="modalLblBpm">Avg Tempo</div><div id="modalBpm" style="font-family:'Rajdhani',sans-serif;font-size:24px;letter-spacing:1px;color:var(--oled-text);font-weight:bold;">0 BPM</div></div>
             </div>
             <div style="margin-bottom:20px;text-align:left;">
                 <div class="oled-header" style="margin-bottom:8px;" id="modalLblNotes">Trouble spots</div>
@@ -259,10 +574,10 @@
                 <div class="master-dashboard">
                     <div class="dashboard-logo">
                         <svg viewBox="0 0 300 40" style="height:25px;filter:drop-shadow(0 2px 2px rgba(0,0,0,0.8));">
-                            <text x="60" y="30" fill="#666" font-family="'Inter',sans-serif" font-weight="800" font-size="32" text-anchor="end">AK</text>
-                            <path d="M 64 30 L 72 30 L 72 12 L 68 12 L 68 0 L 64 0 Z" fill="#555"/>
-                            <text x="76" y="30" fill="#666" font-family="'Inter',sans-serif" font-weight="800" font-size="32" text-anchor="start">RA</text>
-                            <text x="135" y="28" fill="#444" font-family="'Inter',sans-serif" font-weight="600" font-size="14" letter-spacing="3">WORKSTATION</text>
+                            <text x="60" y="30" fill="#6a7a85" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="32" text-anchor="end">AK</text>
+                            <path d="M 64 30 L 72 30 L 72 12 L 68 12 L 68 0 L 64 0 Z" fill="#557799"/>
+                            <text x="76" y="30" fill="#6a7a85" font-family="'Rajdhani',sans-serif" font-weight="700" font-size="32" text-anchor="start">RA</text>
+                            <text x="135" y="28" fill="#557799" font-family="'Rajdhani',sans-serif" font-weight="600" font-size="13" letter-spacing="4">WORKSTATION</text>
                         </svg>
                     </div>
                     <div class="control-group" style="align-items:center;">
@@ -298,8 +613,8 @@
                             </button>
                             <div style="display:flex;flex-direction:column;align-items:center;gap:4px;">
                                 <button class="nav-disk-btn metro-tempo-btn" data-dir="1" style="width:24px;height:24px;border-radius:50%;font-size:9px;padding:0;display:flex;align-items:center;justify-content:center;">▲</button>
-                                <div id="metroBpmBox" onclick="if(!helpActive) toggleBpmPresets()" style="width:70px;height:38px;background:#111;display:flex;align-items:center;justify-content:center;border:1px solid #050505;border-radius:3px;box-shadow:inset 0 2px 5px rgba(0,0,0,0.8);cursor:pointer;position:relative;">
-                                    <div id="metroBpmDisplay" style="font-family:'Share Tech Mono';font-size:20px;color:#b3e6ff;font-weight:bold;">80</div>
+                                <div id="metroBpmBox" onclick="if(!helpActive) toggleBpmPresets()" style="width:70px;height:38px;background:linear-gradient(180deg,var(--lcd-bg-dark) 0%,#020405 100%);display:flex;align-items:center;justify-content:center;border:1px solid #000;border-radius:3px;box-shadow:inset 0 3px 6px rgba(0,0,0,0.95),inset 0 -1px 0 rgba(179,230,255,0.05);cursor:pointer;position:relative;overflow:hidden;">
+                                    <div id="metroBpmDisplay" style="font-family:'Rajdhani',sans-serif;font-size:22px;color:#b3e6ff;font-weight:700;letter-spacing:1px;text-shadow:0 0 6px rgba(179,230,255,0.35);">80</div>
                                 </div>
                                 <button class="nav-disk-btn metro-tempo-btn" data-dir="-1" style="width:24px;height:24px;border-radius:50%;font-size:9px;padding:0;display:flex;align-items:center;justify-content:center;">▼</button>
                             </div>
