@@ -228,7 +228,6 @@
             padding:2px 2px;
             border-top:1px solid rgba(255,255,255,0.08);
             position:relative; width:100%; box-sizing:border-box;
-            z-index:20;
             box-shadow:
                 inset 0 1px 0 rgba(255,255,255,0.06),
                 inset 0 -1px 0 rgba(0,0,0,0.8);
@@ -473,7 +472,7 @@
         .patch-btn { background:#111; border:1px solid #333; color:#aaa; padding:12px 5px; font-family:'Share Tech Mono',monospace; font-size:14px; cursor:pointer; border-radius:4px; transition:0.1s; text-align:center; }
         .patch-btn:hover { background:#222; color:#fff; }
         .patch-btn:active { transform:translateY(2px); }
-        .piano-crop-wrapper { width:100%; position:relative; aspect-ratio:2500/248; background:#000; overflow:visible; border-top:2px solid #000; z-index:1; }
+        .piano-crop-wrapper { width:100%; position:relative; aspect-ratio:2500/248; background:#000; overflow:visible; border-top:2px solid #000; }
         .piano-inner { width:100%; aspect-ratio:2500/284; position:absolute; top:0; left:0; }
         .piano-img { width:100%; height:100%; display:block; filter:grayscale(100%); pointer-events:none; }
         .hitbox-layer { position:absolute; top:0; left:0; width:100%; height:100%; z-index:100; }
@@ -1149,7 +1148,7 @@
                 <div id="keyHintStrip" class="info-bar-integrated info-bar-hint-strip" data-help="">
                     <div id="keyHintStripInner" class="key-hint-strip-inner" aria-hidden="true"></div>
                 </div>
-                <div id="pedalStrip" style="width:100%;height:2px;background:transparent;transition:background 0.15s;pointer-events:none;position:relative;z-index:1;flex-shrink:0;" aria-hidden="true"></div>
+                <div id="pedalStrip" style="width:100%;height:2px;background:transparent;transition:background 0.15s;pointer-events:none;z-index:50;flex-shrink:0;" aria-hidden="true"></div>
                 <div class="piano-crop-wrapper">
                     <div class="piano-inner">
                         <img src="grandpiano-keys.png" class="piano-img">
@@ -4111,7 +4110,36 @@
         if(isOpen){
             stopMidiRecPlayback({rewind:true});
             p.style.display='none';
+            // Tedd vissza a panelt az eredeti szülőjébe
+            const wrap=document.querySelector('.midi-player-wrap');
+            if(wrap && p.parentElement!==wrap){
+                wrap.appendChild(p);
+                // Állítsuk vissza az eredeti absolute pozícióját
+                p.style.position='absolute';
+                p.style.top='100%';
+                p.style.left='50%';
+                p.style.transform='translateX(-50%)';
+                p.style.marginTop='6px';
+                p.style.bottom='';
+            }
             return;
+        }
+        // Promovéjuk a panelt a body-ba hogy kikerüljön minden stacking context-ből
+        const btn=document.getElementById('btnMidiPlayer');
+        if(btn && p.parentElement!==document.body){
+            const r=btn.getBoundingClientRect();
+            document.body.appendChild(p);
+            p.style.position='fixed';
+            p.style.top=(r.bottom+6)+'px';
+            // Próbáljuk a gomb közepéhez igazítani vízszintesen
+            const panelWidth=Math.min(window.innerWidth*0.92, 300);
+            let leftPx=r.left+(r.width/2)-(panelWidth/2);
+            // Biztosítsuk hogy ne lógjon ki a viewport-ból
+            if(leftPx<8) leftPx=8;
+            if(leftPx+panelWidth>window.innerWidth-8) leftPx=window.innerWidth-panelWidth-8;
+            p.style.left=leftPx+'px';
+            p.style.transform='';
+            p.style.marginTop='0';
         }
         p.style.display='flex';
         loadMidiSessionsFromStorage();
