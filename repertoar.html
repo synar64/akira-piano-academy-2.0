@@ -1083,7 +1083,7 @@
                                     <button type="button" id="btnMidiPlayer" class="sq-btn" onclick="if(!helpActive) toggleMidiPlayerPanel()" data-help="" title="" aria-label="MIDI Player" style="display:flex;align-items:center;justify-content:center;">
                                         <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><polygon points="7,5 19,12 7,19"/></svg>
                                     </button>
-                                    <div id="midiPlayerPanel" style="display:none;position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:6px;width:min(92vw,300px);background:#1a1a1d;border:1px solid #333;border-radius:4px;padding:10px 12px;z-index:10050;flex-direction:column;gap:8px;box-shadow:0 12px 32px rgba(0,0,0,0.9);">
+                                    <div id="midiPlayerPanel" style="display:none;position:fixed;bottom:240px;left:50%;transform:translateX(-50%);width:min(92vw,300px);background:#1a1a1d;border:1px solid #333;border-radius:4px;padding:10px 12px;z-index:99999;flex-direction:column;gap:8px;box-shadow:0 12px 32px rgba(0,0,0,0.9);pointer-events:auto;">
                                         <div style="font-family:'Share Tech Mono',monospace;font-size:10px;color:#557799;text-transform:uppercase;">Sessions</div>
                                         <select id="midiRecSessionSelect" style="background:#111;color:#eee;border:1px solid #333;padding:6px;font-family:'Share Tech Mono';border-radius:3px;width:100%;font-size:11px;"></select>
                                         <div style="display:flex;align-items:center;gap:8px;">
