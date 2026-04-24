@@ -1741,6 +1741,19 @@
             const popup=document.getElementById('bpmPresetsPopup');const bpmBox=document.getElementById('metroBpmBox');
             if(popup&&bpmBox&&!popup.contains(e.target)&&!bpmBox.contains(e.target))popup.style.display='none';
         });
+        function isModalOpen(id){
+            const el=document.getElementById(id);if(!el)return false;
+            return getComputedStyle(el).display!=='none';
+        }
+        document.addEventListener('keydown',function(e){
+            if(e.code!=='Space'&&e.key!==' ')return;
+            if(helpActive)return;
+            if(isModalOpen('resultModal')||isModalOpen('patchBrowserModal')||isModalOpen('infoModal'))return;
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            if(e.repeat)return;
+            handleMainButton();
+        },true);
     });
     window.addEventListener('resize',()=>{if(seqBlocks.length>0)draw();});
     window.onload=()=>{const sl=localStorage.getItem('akira_lang')||'EN';loadPracticePreferences();setLang(sl);showFileProtocolAudioHintIfNeeded();create88();buildSequence();draw();};
