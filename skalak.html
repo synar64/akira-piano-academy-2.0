@@ -931,6 +931,27 @@
         let g=0;for(let b=0;b<bIdx && b<seqBlocks.length;b++)g+=seqBlocks[b].length;
         return g;
     }
+    function globalNoteIndex(){
+        if(!seqBlocks.length||currentBlockIndex<0||currentBlockIndex>=seqBlocks.length)return 0;
+        return blockBaseOffset(currentBlockIndex)+currentNoteInBlock;
+    }
+    function setPositionFromGlobalIndex(g){
+        let acc=0;
+        for(let bi=0;bi<seqBlocks.length;bi++){
+            const L=seqBlocks[bi].length;
+            if(g<acc+L){
+                currentBlockIndex=bi;currentNoteInBlock=g-acc;rhHit=lhHit=false;
+                return;
+            }
+            acc+=L;
+        }
+    }
+    function firstKeyMidi(n){
+        if(!n)return-1;
+        if(activeRH&&activeLH)return n.m_rh;
+        if(activeRH)return n.m_rh;
+        return n.m_lh;
+    }
     function collectMistakeKeyMidis(){
         const s=new Set();
         if(!errorStepIndices.size||!seqBlocks.length)return s;
@@ -1475,8 +1496,23 @@
         currentBlockIndex=0;currentNoteInBlock=0;sessionReviewMode=true;draw();
     }
     function closeModal(){document.getElementById('resultModal').style.display='none';stopPractice();}
-    function handleNoteOn(midi,vel=100){
-        playTone(midi,vel);
+    function tryLookaheadResync(midi,vel){
+        const flat=seqBlocks.flat();
+        const g0=globalNoteIndex();
+        for(let d=1;d<=2;d++){
+            const g=g0+d;
+            if(g>=flat.length)break;
+            if(midi===firstKeyMidi(flat[g])){
+                for(let h=g0;h<g;h++)registerMistake(flat[h]);
+                setPositionFromGlobalIndex(g);
+                handleNoteOn(midi,vel,true);
+                return true;
+            }
+        }
+        return false;
+    }
+    function handleNoteOn(midi,vel=100,fromResync){
+        if(!fromResync)playTone(midi,vel);
         if(!isRunning||seqBlocks.length===0)return;
         const note=seqBlocks[currentBlockIndex][currentNoteInBlock];
         if(!note)return;
@@ -1493,6 +1529,7 @@
             if(hit)advancePracticeStep();
             return;
         }
+        if(!fromResync && tryLookaheadResync(midi,vel))return;
         if(needsRh||needsLh){
             registerMistake(note);
             if(!strictMode)advancePracticeStep();
